@@ -1,0 +1,111 @@
+/* Cores do seu protótipo (ajuste conforme necessário) */
+$cor-principal: #6a0000; // Um tom de vinho escuro
+$cor-fundo: #fdfaf5;     // Um tom de bege claro
+$cor-texto: #333;
+
+.main-header {
+  width: 100%;
+  background-color: $cor-principal;
+  padding: 1rem 2rem; // Espaçamento interno
+  border-bottom: 2px solid darken($cor-principal, 10%);
+}
+
+.navbar {
+  display: flex;
+  align-items: center; // Alinha verticalmente
+  justify-content: space-between; // Espaça os itens
+  flex-wrap: wrap; // Permite quebrar linha em telas pequenas
+  max-width: 1200px;
+  margin: 0 auto; // Centraliza o conteúdo
+}
+
+/* Logo */
+.nav-logo {
+  flex-shrink: 0; // Impede que o logo encolha
+  img {
+    height: 70px; // Tamanho do logo
+    width: 70px;
+    border-radius: 50%; // Deixa redondo como no protótipo
+    background-color: #fff; // Fundo branco para o logo
+    object-fit: cover;
+  }
+}
+
+/* Barra de Busca */
+.nav-search {
+  flex-grow: 1; // Faz a barra de busca ocupar o espaço restante
+  max-width: 500px; // Limite de largura
+  margin: 0 2rem;
+
+  form {
+    display: flex;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px 0 0 5px;
+    background-color: $cor-fundo;
+  }
+
+  button {
+    padding: 0.75rem 1rem;
+    border: none;
+    background-color: darken($cor-fundo, 15%);
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+  }
+}
+
+/* Links de Navegação */
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-item {
+  margin-left: 1.5rem;
+  position: relative; // Para o dropdown
+
+  a {
+    color: $cor-fundo;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Estilo do Dropdown */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: $cor-fundo;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  min-width: 180px;
+  z-index: 1000;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: $cor-texto; // Texto escuro no dropdown
+    text-decoration: none;
+
+    &:hover {
+      background-color: darken($cor-fundo, 5%);
+    }
+  }
+}

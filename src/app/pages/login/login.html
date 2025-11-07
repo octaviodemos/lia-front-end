@@ -1,1 +1,27 @@
-<p>login works!</p>
+<div class="login-container">
+  <h2>Acesse sua conta</h2>
+  <p>Bem-vindo(a) de volta!</p>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" formControlName="email">
+    </div>
+    
+    <div class="form-group">
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" formControlName="senha">
+    </div>
+
+    <div *ngIf="mensagemErro" class="mensagem-erro">
+      {{ mensagemErro }}
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
+  </form>
+
+  <div class="register-link">
+    <p>Não tem uma conta? <a routerLink="/cadastro">Cadastre-se</a></p>
+  </div>
+</div>

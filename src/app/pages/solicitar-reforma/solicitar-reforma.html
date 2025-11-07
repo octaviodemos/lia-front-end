@@ -1,0 +1,28 @@
+<div class="reforma-container">
+  <h2>Solicitar Reforma de Livro</h2>
+  <p>Tem um livro com valor sentimental que precisa de reparo? A LIA pode te ajudar. Descreva o problema e anexe fotos para uma avaliação.</p>
+
+  <form [formGroup]="reformaForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="descricao_problema">Descrição do Problema</label>
+      <textarea id="descricao_problema" formControlName="descricao_problema" rows="5"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="fotos">Anexe fotos do livro (Obrigatório)</label>
+      <input 
+        id="fotos" 
+        type="file" 
+        multiple 
+        (change)="onFileSelected($event)" 
+        accept="image/*">
+    </div>
+    
+    <button type="submit" [disabled]="reformaForm.invalid || selectedFiles.length === 0">Enviar Solicitação</button>
+  </form>
+
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
+    {{ mensagemSucesso }}
+  </div>
+</div>

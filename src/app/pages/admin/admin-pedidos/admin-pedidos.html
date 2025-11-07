@@ -1,0 +1,46 @@
+<div class="admin-container">
+  <h2>Painel de Admin - Gestão de Pedidos</h2>
+
+  <div class="pedidos-lista" *ngIf="pedidos.length > 0; else noPedidos">
+    <div *ngFor="let pedido of pedidos" class="pedido-card">
+      <h4>Pedido #{{ pedido.id_pedido }}</h4>
+      <p><strong>Data:</strong> {{ pedido.data_pedido | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }}</p>
+      
+      <div class="itens-pedido">
+        <strong>Itens:</strong>
+        <ul>
+          <li *ngFor="let item of pedido.itens_pedido">
+            {{ item.estoque.livro?.titulo || 'Livro' }} (Qtd: {{ item.quantidade }})
+          </li>
+        </ul>
+      </div>
+
+<div class="form-group">
+  
+  <label 
+    [id]="'label-status-' + pedido.id_pedido" 
+    [for]="'status-' + pedido.id_pedido"
+  >
+    Status do Pedido
+  </label>
+  
+  <select 
+    [id]="'status-' + pedido.id_pedido"
+    [value]="pedido.status_pedido" 
+    (change)="onStatusChange($event, pedido.id_pedido)"
+    
+    [attr.aria-labelledby]="'label-status-' + pedido.id_pedido"
+  >
+    <option *ngFor="let status of statusOptions" [value]="status">
+      {{ status }}
+    </option>
+  </select>
+</div>
+    </div>
+  </div>
+
+  <ng-template #noPedidos>
+    <p>Nenhum pedido recebido até o momento.</p>
+  </ng-template>
+</div>

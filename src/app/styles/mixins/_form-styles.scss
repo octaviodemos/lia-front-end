@@ -1,0 +1,68 @@
+/* Cores */
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-borda: #ccc;
+
+@mixin form-base {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: $cor-texto;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    border: 1px solid $cor-borda;
+    border-radius: 5px;
+    box-sizing: border-box; // Garante que o padding não quebre o layout
+
+    &:focus {
+      outline: none;
+      border-color: $cor-principal;
+      box-shadow: 0 0 5px rgba($cor-principal, 0.3);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+}
+
+button[type="submit"] {
+  background-color: $cor-principal;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+
+  &:hover {
+    background-color: darken($cor-principal, 10%);
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+}

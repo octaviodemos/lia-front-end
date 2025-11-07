@@ -1,0 +1,16 @@
+<div class="card-container" *ngIf="livro">
+  <a [routerLink]="['/livro', livro.id_livro]" class="card-link-main">
+    <div class="card-image">
+      <img src="livro.capa_url || 'assets/placeholder.png'" alt="livro.titulo">
+    </div>
+    <div class="card-info">
+      <h3 class="card-title">{{ livro.titulo }}</h3>
+      <p class="card-author">{{ livro.autor?.nome || 'Autor desconhecido' }}</p>
+    </div>
+  </a>
+  
+  <div class="card-footer">
+    <p class="card-price">R$ {{ livro.estoque?.preco || '???' }}</p>
+    <button (click)="adicionarAoCarrinho()">Adicionar</button>
+  </div>
+</div>

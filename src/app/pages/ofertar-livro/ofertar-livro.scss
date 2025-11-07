@@ -1,0 +1,36 @@
+/* Importando um estilo de formulário genérico */
+@import '../../styles/mixins/form-styles.scss';
+
+.oferta-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+
+  /* Aplica os estilos de formulário importados */
+  form {
+    @include form-base;
+  }
+}
+
+.mensagem-sucesso {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #e6f7ec;
+  border: 1px solid #b7ebc9;
+  color: #0f5132;
+  border-radius: 5px;
+}

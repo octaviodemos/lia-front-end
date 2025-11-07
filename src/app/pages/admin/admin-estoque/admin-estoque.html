@@ -1,0 +1,42 @@
+<div class="admin-container">
+  <h2>Painel de Admin - Adicionar Livro ao Estoque</h2>
+  
+  <form [formGroup]="estoqueForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="id_livro">Selecione o Livro do Catálogo</label>
+      <select id="id_livro" formControlName="id_livro">
+        <option [ngValue]="null" disabled>Selecione...</option>
+        <option *ngFor="let livro of livrosDoCatalogo" [ngValue]="livro.id_livro">
+          {{ livro.titulo }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="preco">Preço de Venda (R$)</label>
+      <input id="preco" type="number" formControlName="preco">
+    </div>
+
+    <div class.form-group>
+      <label for="quantidade">Quantidade</label>
+      <input id="quantidade" type="number" formControlName="quantidade">
+    </div>
+
+    <div class="form-group">
+      <label for="condicao">Condição</label>
+      <select id="condicao" formControlName="condicao">
+        <option value="Novo">Novo</option>
+        <option value="Usado - Como Novo">Usado - Como Novo</option>
+        <option value="Usado - Bom Estado">Usado - Bom Estado</option>
+        <option value="Usado - Com Marcas">Usado - Com Marcas</option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="estoqueForm.invalid">Adicionar ao Estoque</button>
+  </form>
+
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
+    {{ mensagemSucesso }}
+  </div>
+</div>

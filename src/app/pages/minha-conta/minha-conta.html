@@ -1,0 +1,39 @@
+<div class="minha-conta-container">
+  <h1>Minha Conta</h1>
+  <p>Acompanhe seus pedidos e solicitações.</p>
+
+  <div class="conta-navegacao">
+    <a routerLink="/meus-pedidos">Ver Meus Pedidos</a>
+    <a routerLink="/meus-enderecos">Gerenciar Endereços</a>
+  </div>
+
+  <hr>
+
+  <div class="secao-container">
+    <h2>Minhas Ofertas de Venda</h2>
+    <div *ngIf="ofertas.length > 0; else noOfertas">
+      <div *ngFor="let oferta of ofertas" class="item-card">
+        <p><strong>Livro:</strong> {{ oferta.titulo_livro }}</p>
+        <p><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</p>
+        <p><strong>Status:</strong> {{ oferta.status_oferta }}</p>
+        <p *ngIf="oferta.resposta_admin"><strong>Resposta da LIA:</strong> {{ oferta.resposta_admin }}</p>
+      </div>
+    </div>
+    <ng-template #noOfertas>
+      <p>Você não enviou nenhuma oferta de venda.</p>
+    </ng-template>
+  </div>
+
+  <div class="secao-container">
+    <h2>Minhas Solicitações de Reforma</h2>
+    <div *ngIf="solicitacoes.length > 0; else noSolicitacoes">
+      <div *ngFor="let solicitacao of solicitacoes" class="item-card">
+        <p><strong>Descrição:</strong> {{ solicitacao.descricao_problema }}</p>
+        <p><strong>Status:</strong> {{ solicitacao.status_solicitacao }}</p>
+      </div>
+    </div>
+    <ng-template #noSolicitacoes>
+      <p>Você não enviou nenhuma solicitação de reforma.</p>
+    </ng-template>
+  </div>
+</div>

@@ -1,0 +1,85 @@
+/* Cores do seu protótipo (ajuste conforme necessário) */
+$cor-principal: #6a0000; // Tom de vinho escuro
+$cor-fundo-claro: #fdfaf5; // Tom de bege claro
+
+.main-footer {
+  width: 100%;
+  background-color: $cor-principal;
+  color: $cor-fundo-claro;
+  padding: 3rem 2rem 1rem 2rem; // Mais padding em cima/embaixo
+  margin-top: 4rem; // Empurra o rodapé para baixo do conteúdo
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto; // Centraliza
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 250px;
+  margin: 1rem;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+/* Seção de Contato */
+.contato {
+  p {
+    font-size: 1.2rem;
+  }
+}
+
+/* Seção do Logo (Adesivos) */
+.logo-social {
+  text-align: center;
+  img {
+    max-width: 250px;
+    height: auto;
+  }
+}
+
+/* Seção de Links Rápidos */
+.links-rapidos {
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: $cor-fundo-claro;
+    text-decoration: none;
+    font-size: 1rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Copyright na parte inferior */
+.footer-bottom {
+  text-align: center;
+  padding-top: 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}

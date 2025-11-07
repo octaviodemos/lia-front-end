@@ -1,0 +1,47 @@
+<div class="checkout-container">
+  <h1>Finalizar Compra</h1>
+
+  <div class="checkout-content">
+    
+    <div class="endereco-selecao">
+      <h2>Selecione o Endereço de Entrega</h2>
+      <div *ngIf="enderecos.length > 0">
+        <div 
+          *ngFor="let endereco of enderecos" 
+          class="endereco-item"
+          [class.selecionado]="endereco.id_endereco === enderecoSelecionadoId"
+          (click)="selecionarEndereco(endereco.id_endereco)">
+          <p>{{ endereco.rua }}, {{ endereco.numero }}</p>
+          <p>{{ endereco.cidade }} / {{ endereco.estado }} - CEP: {{ endereco.cep }}</p>
+        </div>
+      </div>
+      
+      <a routerLink="/meus-enderecos" class="btn-novo-endereco">
+        + Cadastrar Novo Endereço
+      </a>
+    </div>
+
+    <div class="resumo-pedido">
+      <h2>Resumo do Pedido</h2>
+      <div *ngIf="cart">
+        <div *ngFor="let item of cart.items" class="resumo-item">
+          <span>{{ item.livro.titulo }} (x{{ item.quantidade }})</span>
+          <span>R$ {{ item.preco_unitario * item.quantidade }}</span>
+        </div>
+        <hr>
+        <div class="resumo-total">
+          <span>Total:</span>
+          <span>R$ {{ cart.total }}</span>
+        </div>
+      </div>
+      
+      <button 
+        class="btn-pagamento"
+        (click)="finalizarCompra()" 
+        [disabled]="!enderecoSelecionadoId || loading">
+        {{ loading ? 'Processando...' : 'Ir para o Pagamento (Mercado Pago)' }}
+      </button>
+    </div>
+
+  </div>
+</div>

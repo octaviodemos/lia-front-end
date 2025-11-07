@@ -1,0 +1,35 @@
+<div class="admin-container">
+  <h2>Painel de Admin - Análise de Ofertas de Venda</h2>
+
+  <div class="ofertas-lista" *ngIf="ofertas.length > 0; else noOfertas">
+    <div *ngFor="let oferta of ofertas" class="oferta-card">
+      <h4>Oferta #{{ oferta.id_oferta_venda }} - Status: {{ oferta.status_oferta }}</h4>
+      <p><strong>Usuário:</strong> {{ oferta.usuario?.nome || 'Nome não disponível' }}</p>
+      <p><strong>Livro:</strong> {{ oferta.titulo_livro }} ({{ oferta.autor_livro }})</p>
+      <p><strong>ISBN:</strong> {{ oferta.isbn }}</p>
+      <p><strong>Condição:</strong> {{ oferta.condicao_livro }}</p>
+      <p><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</p>
+
+      <div *ngIf="oferta.status_oferta === 'pendente'" class="admin-actions">
+        <form [formGroup]="respostaForm">
+          <div class="form-group">
+            <label [for]="'resposta-' + oferta.id_oferta_venda">Mensagem de Resposta (Opcional)</label>
+            <textarea [id]="'resposta-' + oferta.id_oferta_venda" formControlName="resposta_admin" rows="2"></textarea>
+          </div>
+          
+          <button (click)="handleResposta(oferta.id_oferta_venda, 'aceita')" class="btn-aceitar">Aceitar Oferta</button>
+          <button (click)="handleResposta(oferta.id_oferta_venda, 'recusada')" class="btn-recusar">Recusar Oferta</button>
+        </form>
+      </div>
+
+      <div *ngIf="oferta.status_oferta !== 'pendente'" class="admin-resposta">
+        <p><strong>Resposta da LIA:</strong> {{ oferta.resposta_admin || '(Sem mensagem)' }}</p>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template #noOfertas>
+    <p>Nenhuma oferta pendente no momento.</p>
+  </ng-template>
+</div>

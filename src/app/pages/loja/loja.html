@@ -1,0 +1,12 @@
+<div class="loja-container">
+  <h1>Loja</h1>
+  <p>Encontre seus próximos livros favoritos.</p>
+
+  <div class="livros-grid" *ngIf="livros.length > 0; else noLivros">
+    <app-livro-card *ngFor="let livro of livros" [livro]="livro"></app-livro-card>
+  </div>
+
+  <ng-template #noLivros>
+    <p>Nenhum livro encontrado no momento.</p>
+  </ng-template>
+</div>

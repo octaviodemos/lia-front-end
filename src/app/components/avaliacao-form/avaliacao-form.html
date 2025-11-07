@@ -1,0 +1,17 @@
+<div class="avaliacao-form-container">
+  <h4>Deixe sua avaliação</h4>
+  <form [formGroup]="avaliacaoForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="nota">Nota (1 a 5)</label>
+      <input id="nota" type="number" formControlName="nota" min="1" max="5">
+    </div>
+
+    <div class="form-group">
+      <label for="comentario">Comentário</label>
+      <textarea id="comentario" formControlName="comentario" rows="4"></textarea>
+    </div>
+
+    <button type="submit" [disabled]="avaliacaoForm.invalid">Enviar Avaliação</button>
+  </form>
+</div>

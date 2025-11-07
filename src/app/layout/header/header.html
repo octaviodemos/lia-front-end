@@ -1,1 +1,42 @@
-<p>header works!</p>
+<header class="main-header">
+  <nav class="navbar">
+    
+    <div class="nav-logo">
+      <a routerLink="/">
+        <img src="assets/logo.png" alt="Logo LIA">
+      </a>
+    </div>
+
+    <div class="nav-search">
+      <form (ngSubmit)="onSearch()">
+        <input type="text" placeholder="O que você procura?">
+        <button type="submit">Buscar</button>
+      </form>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item dropdown">
+        <a (click)="toggleDropdown()">Categorias</a>
+        <div class="dropdown-menu" *ngIf="isDropdownOpen">
+          <a routerLink="/categoria/terror">Terror</a>
+          <a routerLink="/categoria/romance">Romance</a>
+          <a routerLink="/categoria/nacional">Nacional</a>
+          <a routerLink="/categoria/autoajuda">Autoajuda</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/meus-favoritos">Meus favoritos</a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/contato">Contato</a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/carrinho">Carrinho</a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/loja">Loja</a>
+      </li>
+    </ul>
+
+  </nav>
+</header>

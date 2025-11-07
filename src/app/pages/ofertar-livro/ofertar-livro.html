@@ -1,0 +1,38 @@
+<div class="oferta-container">
+  <h2>Venda seu Livro para a LIA</h2>
+  <p>Tem um livro em bom estado e quer vendê-lo? Preencha o formulário abaixo e nossa equipe analisará sua oferta.</p>
+
+  <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="titulo_livro">Título do Livro</label>
+      <input id="titulo_livro" type="text" formControlName="titulo_livro">
+    </div>
+
+    <div class="form-group">
+      <label for="autor_livro">Autor</label>
+      <input id="autor_livro" type="text" formControlName="autor_livro">
+    </div>
+
+    <div class="form-group">
+      <label for="isbn">ISBN (Opcional)</label>
+      <input id="isbn" type="text" formControlName="isbn">
+    </div>
+
+    <div class="form-group">
+      <label for="condicao_livro">Descreva a condição do livro</label>
+      <textarea id="condicao_livro" formControlName="condicao_livro" rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="preco_sugerido">Preço sugerido (R$)</label>
+      <input id="preco_sugerido" type="number" formControlName="preco_sugerido">
+    </div>
+
+    <button type="submit" [disabled]="ofertaForm.invalid">Enviar Oferta</button>
+  </form>
+
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
+    {{ mensagemSucesso }}
+  </div>
+</div>

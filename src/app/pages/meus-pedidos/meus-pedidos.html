@@ -1,0 +1,21 @@
+<div class="pedidos-container">
+  <h1>Meus Pedidos</h1>
+
+  <div *ngIf="loading">
+    <p>Carregando seus pedidos...</p>
+  </div>
+
+  <div *ngIf="!loading && pedidos.length > 0; else noPedidos">
+    <div *ngFor="let pedido of pedidos" class="pedido-item">
+      <h3>Pedido #{{ pedido.id_pedido }}</h3>
+      <p><strong>Data:</strong> {{ pedido.data_pedido | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Status:</strong> {{ pedido.status_pedido }}</p>
+      <p><strong>Valor Total:</strong> R$ {{ pedido.total }}</p>
+      <a [routerLink]="['/pedido', pedido.id_pedido]">Ver Detalhes</a>
+    </div>
+  </div>
+
+  <ng-template #noPedidos>
+    <p>Você ainda não fez nenhum pedido.</p>
+  </ng-template>
+</div>

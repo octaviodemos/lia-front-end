@@ -2,22 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 
 @Component({
-  // ... imports e selector
+  selector: 'app-cadastro',
+  standalone: true,
   imports: [ CommonModule, ReactiveFormsModule, RouterLink ],
   templateUrl: './cadastro.html',
   styleUrls: ['./cadastro.scss']
 })
 export class Cadastro implements OnInit {
-
+  
   registerForm!: FormGroup;
+  mensagemErro: string = '';
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService 
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -30,8 +33,9 @@ export class Cadastro implements OnInit {
   }
 
   onSubmit(): void {
+    this.mensagemErro = '';
+    
     if (this.registerForm.valid) {
-
       const userData = {
         nome: this.registerForm.value.nome,
         email: this.registerForm.value.email,
@@ -39,16 +43,21 @@ export class Cadastro implements OnInit {
       };
 
       this.authService.register(userData).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log('Usuário cadastrado com sucesso!', response);
+          this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Erro ao cadastrar usuário:', err);
+          if (err.error && err.error.message) {
+            this.mensagemErro = err.error.message;
+          } else {
+            this.mensagemErro = 'Erro ao cadastrar. Tente novamente mais tarde.';
+          }
         }
       });
-
     } else {
-      console.log('Formulário inválido. Verifique os campos.');
+      this.mensagemErro = 'Formulário inválido. Verifique os campos.';
     }
   }
 }

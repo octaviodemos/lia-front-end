@@ -1,0 +1,41 @@
+<div class="admin-container">
+  <h2>Painel de Admin - Análise de Solicitações de Reforma</h2>
+
+  <div class="solicitacoes-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
+    <div *ngFor="let solicitacao of solicitacoes" class="solicitacao-card">
+      <h4>Solicitação #{{ solicitacao.id_solicitacao }}</h4>
+      <p><strong>Usuário:</strong> {{ solicitacao.usuario?.nome || 'Nome não disponível' }}</p>
+      <p><strong>Contato:</strong> {{ solicitacao.usuario?.telefone || '(Sem telefone)' }}</p>
+      <p><strong>Descrição:</strong> {{ solicitacao.descricao_problema }}</p>
+
+      <div class="fotos-reforma">
+        <strong>Fotos:</strong>
+        <div class="fotos-grid">
+          <div *ngFor="let foto of solicitacao.fotos_solicitacao_reforma" class="foto-item">
+            <a [href]="foto.url_foto" target="_blank">
+              <img [src]="foto.url_foto" alt="Foto da reforma">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label [for]="'status-' + solicitacao.id_solicitacao">Status da Solicitação</label>
+        <select 
+          [id]="'status-' + solicitacao.id_solicitacao"
+          [value]="solicitacao.status_solicitacao" 
+          (change)="onStatusChange($event, solicitacao.id_solicitacao)"
+          [attr.aria-label]="'Mudar status da Solicitação #' + solicitacao.id_solicitacao">
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{ status }}
+          </option>
+        </select>
+      </div>
+      
+    </div>
+  </div>
+
+  <ng-template #noSolicitacoes>
+    <p>Nenhuma solicitação de reforma pendente no momento.</p>
+  </ng-template>
+</div>

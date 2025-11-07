@@ -1,0 +1,35 @@
+<div class="admin-container">
+  <h2>Painel de Admin - Cadastrar Novo Livro no Catálogo</h2>
+  
+  <form [formGroup]="livroForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="titulo">Título</label>
+      <input id="titulo" type="text" formControlName="titulo">
+    </div>
+    <div class="form-group">
+      <label for="isbn">ISBN</label>
+      <input id="isbn" type="text" formControlName="isbn">
+    </div>
+    <div class.form-group>
+      <label for="editora">Editora</label>
+      <input id="editora" type="text" formControlName="editora">
+    </div>
+    <div class="form-group">
+      <label for="ano_publicacao">Ano de Publicação</label>
+      <input id="ano_publicacao" type="number" formControlName="ano_publicacao">
+    </div>
+    <div class="form-group">
+      <label for="capa_url">URL da Capa</label>
+      <input id="capa_url" type="text" formControlName="capa_url">
+    </div>
+    <div class="form-group">
+      <label for="sinopse">Sinopse</label>
+      <textarea id="sinopse" formControlName="sinopse" rows="4"></textarea>
+    </div>
+    <button type="submit" [disabled]="livroForm.invalid">Cadastrar Livro</button>
+  </form>
+
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
+    {{ mensagemSucesso }}
+  </div>
+</div>

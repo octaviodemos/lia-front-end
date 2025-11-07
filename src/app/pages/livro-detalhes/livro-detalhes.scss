@@ -1,0 +1,136 @@
+/* Cores (ajuste conforme o protótipo) */
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-fundo-claro: #fdfaf5;
+$cor-borda: #eee;
+
+.detalhes-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.voltar-link {
+  margin-bottom: 1rem;
+  a {
+    color: $cor-principal;
+    text-decoration: none;
+    font-weight: 600;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.livro-content {
+  display: flex;
+  gap: 2rem;
+
+  /* Responsivo para telas pequenas */
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.livro-imagem {
+  flex-basis: 40%;
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.livro-info {
+  flex-basis: 60%;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .autor {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+  }
+
+  .preco {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $cor-principal;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.botoes-acao {
+  margin-bottom: 2rem;
+  
+  .btn-adicionar {
+    background-color: $cor-principal;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+
+    &:hover {
+      background-color: darken($cor-principal, 10%);
+    }
+  }
+}
+
+.detalhes-tecnicos {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 2rem;
+  border-top: 1px solid $cor-borda;
+  padding-top: 1rem;
+
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+.sinopse {
+  h2 {
+    font-size: 1.5rem;
+    border-bottom: 2px solid $cor-principal;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  p {
+    line-height: 1.7;
+    color: #333;
+  }
+}
+
+.resenhas-section {
+  margin-top: 4rem;
+  border-top: 1px solid $cor-borda;
+  padding-top: 2rem;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.lista-avaliacoes {
+  margin-bottom: 2rem;
+}
+
+.resenha-item {
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0.5rem 0;
+  }
+}

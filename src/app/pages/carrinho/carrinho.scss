@@ -1,0 +1,129 @@
+/* Cores (ajuste conforme o protótipo) */
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-fundo-claro: #fdfaf5;
+$cor-borda: #eee;
+
+.carrinho-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  h1 {
+    font-size: 2rem;
+    color: $cor-texto;
+    border-bottom: 2px solid $cor-borda;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid $cor-borda;
+
+  .item-info {
+    flex-grow: 1;
+    margin-left: 1rem;
+    
+    h3 {
+      font-size: 1.1rem;
+      margin: 0 0 0.25rem 0;
+    }
+    p {
+      font-size: 0.9rem;
+      color: #777;
+      margin: 0;
+    }
+  }
+
+  .item-preco {
+    font-size: 1.1rem;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  .item-quantidade {
+    display: flex;
+    align-items: center;
+    margin: 0 1.5rem;
+    input {
+      width: 50px;
+      text-align: center;
+      padding: 0.25rem;
+    }
+  }
+
+  .item-remover {
+    button {
+      background: none;
+      border: none;
+      color: $cor-principal;
+      cursor: pointer;
+      font-size: 1.1rem;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.cart-total {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid $cor-texto;
+  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .btn-checkout {
+    background-color: $cor-principal;
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+
+    &:hover {
+      background-color: darken($cor-principal, 10%);
+    }
+  }
+}
+
+.empty-cart-container {
+  text-align: center;
+  padding: 3rem;
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .btn-loja {
+    background-color: $cor-principal;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}

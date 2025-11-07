@@ -3,25 +3,26 @@
   <p>Junte-se à nossa comunidade de amantes de livros.</p>
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-
+    
     <div class="form-group">
       <label for="nome">Nome Completo</label>
       <input id="nome" type="text" formControlName="nome">
-      </div>
-
+    </div>
     <div class="form-group">
       <label for="email">E-mail</label>
       <input id="email" type="email" formControlName="email">
     </div>
-
     <div class="form-group">
       <label for="senha">Senha</label>
       <input id="senha" type="password" formControlName="senha">
     </div>
-
     <div class="form-group">
       <label for="confirmarSenha">Confirmar Senha</label>
       <input id="confirmarSenha" type="password" formControlName="confirmarSenha">
+    </div>
+
+    <div *ngIf="mensagemErro" class="mensagem-erro">
+      {{ mensagemErro }}
     </div>
 
     <button type="submit" [disabled]="registerForm.invalid">Cadastrar</button>

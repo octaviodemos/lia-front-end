@@ -1,0 +1,38 @@
+<div class="comunidade-container">
+  <h1>Comunidade LIA</h1>
+
+  <div class="criar-post-container">
+    <h2>Criar Nova Publicação</h2>
+    <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="titulo">Título</label>
+        <input id="titulo" type="text" formControlName="titulo">
+      </div>
+      <div class="form-group">
+        <label for="conteudo">Conteúdo</label>
+        <textarea id="conteudo" formControlName="conteudo" rows="5"></textarea>
+      </div>
+      <button type="submit" [disabled]="postForm.invalid">Publicar</button>
+    </form>
+  </div>
+
+  <hr>
+
+<div class="feed-container">
+  <h2>Feed</h2>
+  <div *ngIf="publicacoes.length > 0; else noPosts">
+    
+    <div *ngFor="let post of publicacoes" class="post-item">
+      <a [routerLink]="['/publicacao', post.id_publicacao]">
+        <h3>{{ post.titulo }}</h3>
+      </a>
+      <p class="post-autor">por: {{ post.autor?.nome || 'Usuário' }}</p>
+      <p class="post-conteudo">{{ post.conteudo | slice:0:150 }}...</p>
+      <a [routerLink]="['/publicacao', post.id_publicacao]">Ler mais e comentar</a>
+    </div>
+    </div>
+  <ng-template #noPosts>
+    <p>Ainda não há publicações. Seja o primeiro a postar!</p>
+  </ng-template>
+</div>
+</div>

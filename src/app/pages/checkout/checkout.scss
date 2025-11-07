@@ -1,0 +1,132 @@
+/* Cores */
+$cor-principal: #6a0000;
+$cor-borda: #ddd;
+
+.checkout-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid $cor-borda;
+    padding-bottom: 1rem;
+  }
+}
+
+.checkout-content {
+  display: flex;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+/* Coluna da Esquerda (Endereços) */
+.endereco-selecao {
+  flex-basis: 60%;
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.endereco-item {
+  border: 2px solid $cor-borda;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  p {
+    margin: 0.25rem 0;
+    font-weight: 500;
+  }
+
+  &.selecionado {
+    border-color: $cor-principal;
+    background-color: lighten($cor-principal, 60%);
+    box-shadow: 0 0 10px rgba($cor-principal, 0.3);
+  }
+}
+
+.btn-novo-endereco {
+  background: none;
+  border: 2px dashed $cor-borda;
+  color: #555;
+  width: 100%;
+  padding: 1.5rem;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 1rem;
+  
+  &:hover {
+    border-color: $cor-principal;
+    color: $cor-principal;
+  }
+}
+
+/* Coluna da Direita (Resumo) */
+.resumo-pedido {
+  flex-basis: 40%;
+  background-color: #f9f9f9;
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: fit-content;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+  }
+}
+
+.resumo-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  
+  span:last-child {
+    font-weight: 600;
+  }
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid $cor-borda;
+  margin: 1.5rem 0;
+}
+
+.resumo-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.btn-pagamento {
+  background-color: $cor-principal;
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+
+  &:hover {
+    background-color: darken($cor-principal, 10%);
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+}

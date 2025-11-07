@@ -1,0 +1,35 @@
+<div class="carrinho-container">
+  <h1>Meu Carrinho</h1>
+  
+  <div *ngIf="cart && cart.items && cart.items.length > 0; else emptyCart">
+    
+    <div *ngFor="let item of cart.items" class="cart-item">
+      <div class="item-info">
+        <h3>{{ item.livro.titulo }}</h3>
+        <p>Preço unitário: R$ {{ item.preco_unitario }}</p>
+      </div>
+      <div class="item-quantidade">
+        <span>Qtd: {{ item.quantidade }}</span>
+      </div>
+      <div class="item-preco">
+        <strong>R$ {{ item.preco_unitario * item.quantidade }}</strong>
+      </div>
+      <div class="item-remover">
+        <button>(remover)</button>
+      </div>
+    </div>
+    
+    <div class="cart-total">
+      <h3>Total: R$ {{ cart.total }}</h3>
+      <a routerLink="/checkout" class="btn-checkout">Finalizar Compra</a>
+    </div>
+
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="empty-cart-container">
+      <p>Seu carrinho está vazio.</p>
+      <a routerLink="/loja" class="btn-loja">Voltar para a Loja</a>
+    </div>
+  </ng-template>
+</div>
