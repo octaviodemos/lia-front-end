@@ -15,12 +15,13 @@ import { SolicitarReforma } from './pages/solicitar-reforma/solicitar-reforma';
 import { MinhaConta } from './pages/minha-conta/minha-conta';
 import { Comunidade } from './pages/comunidade/comunidade';
 import { PublicacaoDetalhes } from './pages/publicacao-detalhes/publicacao-detalhes';
+import { AdminLayout } from './pages/admin/admin-layout/admin-layout';
 import { AdminLivros } from './pages/admin/admin-livros/admin-livros';
 import { AdminEstoque } from './pages/admin/admin-estoque/admin-estoque';
 import { AdminPedidos } from './pages/admin/admin-pedidos/admin-pedidos';
-import { adminGuard } from './guards/admin-guard';
 import { AdminOfertas } from './pages/admin/admin-ofertas/admin-ofertas';
 import { AdminReformas } from './pages/admin/admin-reformas/admin-reformas';
+import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -42,10 +43,17 @@ export const routes: Routes = [
   { path: 'comunidade', component: Comunidade },
   { path: 'publicacao/:id', component: PublicacaoDetalhes },
 
-{ path: 'admin/livros', component: AdminLivros, canActivate: [adminGuard] },
-  { path: 'admin/estoque', component: AdminEstoque, canActivate: [adminGuard] },
-  { path: 'admin/pedidos', component: AdminPedidos, canActivate: [adminGuard] },
-  { path: 'admin/pedidos', component: AdminPedidos, canActivate: [adminGuard] },
-  { path: 'admin/ofertas', component: AdminOfertas, canActivate: [adminGuard] },
-  { path: 'admin/reformas', component: AdminReformas, canActivate: [adminGuard] }
+{
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [adminGuard],
+    children: [
+      { path: 'livros', component: AdminLivros },
+      { path: 'estoque', component: AdminEstoque },
+      { path: 'pedidos', component: AdminPedidos },
+      { path: 'ofertas', component: AdminOfertas },
+      { path: 'reformas', component: AdminReformas },
+      { path: '', redirectTo: 'pedidos', pathMatch: 'full' } // Redireciona /admin para /admin/pedidos
+    ]
+  }
 ];

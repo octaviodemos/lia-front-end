@@ -1,0 +1,20 @@
+<div class="admin-layout-container">
+  
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <h3>LIA Admin</h3>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/admin/pedidos" routerLinkActive="active">Gestão de Pedidos</a>
+      <a routerLink="/admin/ofertas" routerLinkActive="active">Análise de Ofertas</a>
+      <a routerLink="/admin/reformas" routerLinkActive="active">Solicitações de Reforma</a>
+      <a routerLink="/admin/livros" routerLinkActive="active">Cadastrar Livros</a>
+      <a routerLink="/admin/estoque" routerLinkActive="active">Gerenciar Estoque</a>
+      <a routerLink="/" class="back-to-site">Voltar para o Site</a>
+    </nav>
+  </aside>
+
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,35 @@
+@import 'mixins/admin-styles';
+
+.admin-container {
+  @include admin-page-container;
+}
+
+.solicitacoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.solicitacao-card {
+  @include admin-data-card;
+}
+
+.fotos-grid {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid $border-color;
+  }
+}
+
+.form-group {
+  @include admin-form;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}

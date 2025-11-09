@@ -1,0 +1,35 @@
+@import 'mixins/admin-styles';
+
+.admin-container {
+  @include admin-page-container;
+}
+
+.ofertas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.oferta-card {
+  @include admin-data-card;
+}
+
+.admin-actions {
+  margin-top: 1rem;
+  
+  form {
+    @include admin-form;
+  }
+
+  button {
+    margin-right: 10px;
+  }
+
+  .btn-aceitar {
+    background-color: #27ae60;
+  }
+  
+  .btn-recusar {
+    background-color: #c0392b;
+  }
+}

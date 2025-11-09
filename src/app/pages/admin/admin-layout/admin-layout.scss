@@ -1,0 +1,65 @@
+
+$admin-bg: #f4f7fa;
+$sidebar-bg: #2c3e50;
+$sidebar-text: #ecf0f1;
+$sidebar-active: #3498db;
+$content-bg: #ffffff;
+
+.admin-layout-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: $sidebar-bg;
+  color: $sidebar-text;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-bottom: 1px solid lighten($sidebar-bg, 10%);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  a {
+    color: $sidebar-text;
+    text-decoration: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    border-bottom: 1px solid lighten($sidebar-bg, 5%);
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+      background-color: lighten($sidebar-bg, 10%);
+    }
+
+    &.active {
+      background-color: $sidebar-active;
+      font-weight: 600;
+    }
+  }
+
+  .back-to-site {
+    margin-top: auto; 
+    border-top: 1px solid lighten($sidebar-bg, 10%);
+    background-color: lighten($sidebar-bg, 3%);
+  }
+}
+
+.admin-content {
+  flex-grow: 1;
+  background-color: $admin-bg;
+  padding: 2rem;
+  overflow-y: auto;
+}

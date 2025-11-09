@@ -1,0 +1,28 @@
+@import 'mixins/admin-styles';
+
+.admin-container {
+  @include admin-page-container;
+}
+
+.pedidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pedido-card {
+  @include admin-data-card;
+}
+
+.itens-pedido {
+  margin: 1rem 0;
+  ul {
+    padding-left: 20px;
+    margin: 0.5rem 0;
+  }
+}
+
+.form-group {
+  @include admin-form;
+  margin-bottom: 0;
+}
