@@ -1,4 +1,4 @@
-@import 'mixins/admin-styles';
+@use 'mixins/admin-styles' as *;
 
 .admin-container {
   @include admin-page-container;

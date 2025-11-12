@@ -1,4 +1,5 @@
-/* Cores (ajuste conforme o protótipo) */
+@use 'sass:color';
+
 $cor-principal: #6a0000;
 $cor-texto: #333;
 $cor-fundo-card: #ffffff;
@@ -23,7 +24,7 @@ $cor-borda: #eee;
 
 .card-image {
   width: 100%;
-  padding-top: 130%; // Proporção da imagem (altura > largura)
+  padding-top: 130%; 
   position: relative;
   background-color: #f0f0f0;
 
@@ -79,6 +80,6 @@ button {
   font-weight: 600;
 
   &:hover {
-    background-color: darken($cor-principal, 10%);
+    background-color: color.adjust($cor-principal, $lightness: -10%);
   }
 }

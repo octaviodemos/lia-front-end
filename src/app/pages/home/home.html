@@ -1,1 +1,27 @@
-<p>home works!</p>
+<div class="home-container">
+  
+  <section class="hero-section">
+    <img src="assets/banner-home.jpg" alt="Boas vindas ao Estúdio Literário LIA">
+  </section>
+
+  <section class="social-club-section">
+    <div class="social-club-content">
+      <h2 class="social-club-title">Lia. Social Club</h2>
+      <p class="social-club-subtitle">Café & Cinnamon Roll</p>
+    </div>
+  </section>
+
+  <section class="shop-preview-section">
+    <h2>Loja</h2>
+    <p class="subtitulo-loja">Explore nossa curadoria especial de livros, desde clássicos até os mais recentes lançamentos. Encontre sua próxima leitura favorita em nossa loja online.</p>
+
+    <div class="livros-grid" *ngIf="livros.length > 0">
+      <app-livro-card *ngFor="let livro of livros" [livro]="livro"></app-livro-card>
+    </div>
+
+    <div class="ver-mais-container">
+      <a routerLink="/loja" class="ver-mais-btn">Ver mais</a>
+    </div>
+  </section>
+
+</div>

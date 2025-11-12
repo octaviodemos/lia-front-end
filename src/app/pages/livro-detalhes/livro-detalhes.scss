@@ -1,4 +1,5 @@
-/* Cores (ajuste conforme o protótipo) */
+@use 'sass:color';
+
 $cor-principal: #6a0000;
 $cor-texto: #333;
 $cor-fundo-claro: #fdfaf5;
@@ -26,7 +27,6 @@ $cor-borda: #eee;
   display: flex;
   gap: 2rem;
 
-  /* Responsivo para telas pequenas */
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -79,7 +79,7 @@ $cor-borda: #eee;
     font-size: 1.1rem;
 
     &:hover {
-      background-color: darken($cor-principal, 10%);
+      background-color: color.adjust($cor-principal, $lightness: -10%);
     }
   }
 }

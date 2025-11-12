@@ -10,7 +10,11 @@
     <div class="nav-search">
       <form (ngSubmit)="onSearch()">
         <input type="text" placeholder="O que você procura?">
-        <button type="submit">Buscar</button>
+        <button type="submit" class="search-icon-btn" aria-label="Buscar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </form>
     </div>
 
@@ -21,17 +25,23 @@
           <a routerLink="/categoria/terror">Terror</a>
           <a routerLink="/categoria/romance">Romance</a>
           <a routerLink="/categoria/nacional">Nacional</a>
-          <a routerLink="/categoria/autoajuda">Autoajuda</a>
+          <a routerLink="/categoria/contos">Contos</a>
+          <a routerLink="/categoria/poesia">Poesia</a>
+          <a routerLink="/categoria/infantil">Infantil</a>
+          <a routerLink="/categoria/lgbtqia">LGBTQIA+</a>
+          <a routerLink="/categoria/fantasia">Fantasia</a>
+          <a routerLink="/categoria/ficcao-cientifica">Ficção Científica</a>
+          <a routerLink="/categoria/distopia">Distopia</a>
         </div>
       </li>
       <li class="nav-item">
-        <a routerLink="/meus-favoritos">Meus favoritos</a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="/contato">Contato</a>
+        <a routerLink="/mais-vendidos">Mais vendidos</a>
       </li>
       <li class="nav-item">
         <a routerLink="/carrinho">Carrinho</a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/contato">Contato</a>
       </li>
       <li class="nav-item">
         <a routerLink="/loja">Loja</a>

@@ -4,6 +4,7 @@ $content-bg: #ffffff;
 $border-color: #e0e6ed;
 $text-color: #333;
 $primary-color: #3498db; 
+
 @mixin admin-page-container {
   background-color: $content-bg;
   padding: 2rem;

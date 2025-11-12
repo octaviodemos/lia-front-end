@@ -1,5 +1,4 @@
-/* Importando o mesmo estilo de formulário genérico */
-@import '../../styles/mixins/form-styles.scss';
+@use '../../styles/mixins/form-styles' as *;
 
 .reforma-container {
   max-width: 800px;
@@ -20,7 +19,6 @@
     margin-bottom: 2rem;
   }
 
-  /* Aplica os estilos de formulário importados */
   form {
     @include form-base;
   }

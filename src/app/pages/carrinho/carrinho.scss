@@ -1,4 +1,5 @@
-/* Cores (ajuste conforme o protótipo) */
+@use 'sass:color';
+
 $cor-principal: #6a0000;
 $cor-texto: #333;
 $cor-fundo-claro: #fdfaf5;
@@ -102,7 +103,7 @@ $cor-borda: #eee;
     text-decoration: none;
 
     &:hover {
-      background-color: darken($cor-principal, 10%);
+      background-color: color.adjust($cor-principal, $lightness: -10%);
     }
   }
 }

@@ -1,64 +1,103 @@
-/* Cores do seu protótipo (ajuste conforme necessário) */
-$cor-principal: #6a0000; // Um tom de vinho escuro
-$cor-fundo: #fdfaf5;     // Um tom de bege claro
+@use 'sass:color';
+
+$cor-principal: #6a0000; 
+$cor-fundo: #fdfaf5;     
 $cor-texto: #333;
 
 .main-header {
   width: 100%;
   background-color: $cor-principal;
-  padding: 1rem 2rem; // Espaçamento interno
-  border-bottom: 2px solid darken($cor-principal, 10%);
+  padding: 0.5rem 0; 
+  border-bottom: 2px solid color.adjust($cor-principal, $lightness: -10%);
 }
 
 .navbar {
   display: flex;
-  align-items: center; // Alinha verticalmente
-  justify-content: space-between; // Espaça os itens
-  flex-wrap: wrap; // Permite quebrar linha em telas pequenas
+  align-items: center; 
+  justify-content: space-between; 
+  flex-wrap: wrap; 
   max-width: 1200px;
-  margin: 0 auto; // Centraliza o conteúdo
+  margin: 0 auto;
+  padding: 0 2rem;
+  gap: 2rem;
 }
 
-/* Logo */
 .nav-logo {
-  flex-shrink: 0; // Impede que o logo encolha
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  
+  a {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+  }
+  
   img {
-    height: 70px; // Tamanho do logo
-    width: 70px;
-    border-radius: 50%; // Deixa redondo como no protótipo
-    background-color: #fff; // Fundo branco para o logo
-    object-fit: cover;
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0;
   }
 }
 
-/* Barra de Busca */
 .nav-search {
-  flex-grow: 1; // Faz a barra de busca ocupar o espaço restante
-  max-width: 500px; // Limite de largura
+  flex-grow: 1; 
+  max-width: 500px; 
   margin: 0 2rem;
 
   form {
     display: flex;
+    position: relative;
+    align-items: center;
   }
 
   input[type="text"] {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem 0.75rem 3rem;
     border: none;
-    border-radius: 5px 0 0 5px;
+    border-radius: 5px;
     background-color: $cor-fundo;
+    color: $cor-texto;
+    font-size: 1rem;
+
+    &::placeholder {
+      color: #999;
+    }
+
+    &:focus {
+      outline: 2px solid rgba(255, 255, 255, 0.3);
+      outline-offset: 2px;
+    }
   }
 
-  button {
-    padding: 0.75rem 1rem;
+  .search-icon-btn {
+    position: absolute;
+    left: 0.75rem;
+    background: none;
     border: none;
-    background-color: darken($cor-fundo, 15%);
     cursor: pointer;
-    border-radius: 0 5px 5px 0;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      color: $cor-principal;
+    }
   }
 }
 
-/* Links de Navegação */
 .nav-links {
   list-style: none;
   display: flex;
@@ -69,22 +108,34 @@ $cor-texto: #333;
 
 .nav-item {
   margin-left: 1.5rem;
-  position: relative; // Para o dropdown
+  position: relative; 
 
   a {
     color: $cor-fundo;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 500;
     cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    position: relative;
 
     &:hover {
-      text-decoration: underline;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+      text-decoration: none;
+    }
+
+    &:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease-in-out;
     }
   }
 }
 
-/* Estilo do Dropdown */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -101,11 +152,65 @@ $cor-texto: #333;
   a {
     display: block;
     padding: 0.5rem 1rem;
-    color: $cor-texto; // Texto escuro no dropdown
+    color: $cor-texto; 
     text-decoration: none;
 
     &:hover {
-      background-color: darken($cor-fundo, 5%);
+      background-color: color.adjust($cor-fundo, $lightness: -5%);
     }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .main-header {
+    padding: 0.5rem 0;
+  }
+
+  .navbar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .nav-logo {
+    align-self: flex-start;
+    width: 100%;
+    
+    img {
+      height: 60px;
+    }
+  }
+
+  .nav-search {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    order: 3;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: space-between;
+    order: 2;
+  }
+
+  .nav-item {
+    margin: 0.5rem 0.25rem;
+    font-size: 0.9rem;
+
+    a {
+      font-size: 0.9rem;
+    }
+  }
+
+  .dropdown-menu {
+    position: fixed;
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    width: calc(100% - 2rem);
+    max-width: 300px;
   }
 }
