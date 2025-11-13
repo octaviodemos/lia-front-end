@@ -1,130 +1,358 @@
 @use 'sass:color';
 
+// Variáveis (mesmo padrão da home)
 $cor-principal: #6a0000;
 $cor-texto: #333;
-$cor-fundo-claro: #fdfaf5;
+$cor-texto-secundario: #555;
+$cor-fundo-creme: #fdfaf5;
 $cor-borda: #eee;
 
+// Container Principal
 .carrinho-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 2rem auto;
-  padding: 1rem;
-  background-color: #fff;
+  padding: 2rem;
+  background-color: $cor-fundo-creme;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-height: 60vh;
 
   h1 {
-    font-size: 2rem;
-    color: $cor-texto;
-    border-bottom: 2px solid $cor-borda;
+    font-size: 2.5rem;
+    color: $cor-principal;
+    border-bottom: 3px solid $cor-principal;
     padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
   }
 }
 
+// Item do Carrinho
 .cart-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 0;
-  border-bottom: 1px solid $cor-borda;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+  gap: 1.5rem;
 
-  .item-info {
-    flex-grow: 1;
-    margin-left: 1rem;
-    
-    h3 {
-      font-size: 1.1rem;
-      margin: 0 0 0.25rem 0;
-    }
-    p {
-      font-size: 0.9rem;
-      color: #777;
-      margin: 0;
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .item-imagem {
+    flex-shrink: 0;
+    width: 80px;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
 
-  .item-preco {
-    font-size: 1.1rem;
-    font-weight: 600;
-    min-width: 80px;
-    text-align: right;
+  .item-info {
+    flex-grow: 1;
+    
+    h3 {
+      font-size: 1.2rem;
+      color: $cor-texto;
+      margin: 0 0 0.5rem 0;
+      font-weight: 600;
+    }
+
+    .item-autor {
+      font-size: 0.95rem;
+      color: $cor-texto-secundario;
+      margin: 0 0 0.5rem 0;
+      font-style: italic;
+    }
+
+    .item-preco-unitario {
+      font-size: 0.9rem;
+      color: $cor-texto-secundario;
+      margin: 0;
+    }
   }
 
   .item-quantidade {
     display: flex;
     align-items: center;
-    margin: 0 1.5rem;
-    input {
-      width: 50px;
+    gap: 0.75rem;
+    background-color: $cor-fundo-creme;
+    padding: 0.5rem;
+    border-radius: 6px;
+
+    .btn-quantidade {
+      background-color: $cor-principal;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        background-color: color.adjust($cor-principal, $lightness: -10%);
+        transform: scale(1.1);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+
+    .quantidade-valor {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $cor-texto;
+      min-width: 30px;
       text-align: center;
-      padding: 0.25rem;
     }
   }
 
+  .item-preco {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $cor-principal;
+    min-width: 100px;
+    text-align: right;
+  }
+
   .item-remover {
-    button {
+    .btn-remover {
       background: none;
       border: none;
-      color: $cor-principal;
+      color: #999;
       cursor: pointer;
-      font-size: 1.1rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+
       &:hover {
-        text-decoration: underline;
+        color: $cor-principal;
+        background-color: rgba($cor-principal, 0.1);
+        transform: scale(1.1);
+      }
+
+      &:active {
+        transform: scale(0.95);
       }
     }
   }
 }
 
-.cart-total {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid $cor-texto;
-  
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+// Resumo do Carrinho
+.cart-resumo {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
+  .resumo-info {
+    margin-bottom: 1.5rem;
+
+    .resumo-itens {
+      font-size: 1rem;
+      color: $cor-texto-secundario;
+      margin: 0;
+    }
   }
 
-  .btn-checkout {
-    background-color: $cor-principal;
-    color: #fff;
-    border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-decoration: none;
+  .resumo-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 2px solid $cor-borda;
 
-    &:hover {
-      background-color: color.adjust($cor-principal, $lightness: -10%);
+    h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: $cor-texto;
+      margin: 0;
+
+      .valor-total {
+        color: $cor-principal;
+      }
+    }
+
+    .btn-checkout {
+      background-color: $cor-principal;
+      color: #fff;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+
+      &:hover {
+        background-color: color.adjust($cor-principal, $lightness: -10%);
+        transform: scale(1.05);
+      }
+
+      &:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease-in-out;
+      }
     }
   }
 }
 
+// Carrinho Vazio
 .empty-cart-container {
   text-align: center;
-  padding: 3rem;
+  padding: 4rem 2rem;
   
+  svg {
+    margin-bottom: 2rem;
+    opacity: 0.3;
+  }
+
+  h2 {
+    font-size: 2rem;
+    color: $cor-texto;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+  }
+
   p {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: $cor-texto-secundario;
+    margin-bottom: 2rem;
   }
   
   .btn-loja {
     background-color: $cor-principal;
     color: #fff;
     border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 5px;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.1rem;
     text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+
+    &:hover {
+      background-color: color.adjust($cor-principal, $lightness: -10%);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease-in-out;
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .carrinho-container {
+    padding: 1rem;
+    margin: 1rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+
+    .item-imagem {
+      width: 60px;
+      height: 90px;
+    }
+
+    .item-info {
+      width: 100%;
+
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
+
+    .item-quantidade {
+      align-self: center;
+    }
+
+    .item-preco {
+      align-self: center;
+      font-size: 1.2rem;
+    }
+
+    .item-remover {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+  }
+
+  .cart-resumo {
+    padding: 1.5rem;
+
+    .resumo-total {
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: stretch;
+
+      h3 {
+        font-size: 1.5rem;
+        text-align: center;
+      }
+
+      .btn-checkout {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+
+  .empty-cart-container {
+    padding: 3rem 1.5rem;
+
+    svg {
+      width: 80px;
+      height: 80px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
   }
 }

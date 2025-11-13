@@ -1,0 +1,189 @@
+@use 'sass:color';
+
+// Variáveis (mesmo padrão da home)
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-texto-secundario: #555;
+$cor-fundo-creme: #fdfaf5;
+$cor-borda: #eee;
+$cor-erro: #d32f2f;
+
+// Container Principal
+.login-container {
+  max-width: 450px;
+  margin: 4rem auto;
+  padding: 3rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    font-size: 2.2rem;
+    color: $cor-principal;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  > p {
+    font-size: 1rem;
+    color: $cor-texto-secundario;
+    text-align: center;
+    margin: 0 0 2.5rem 0;
+  }
+}
+
+// Formulário
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: $cor-texto;
+      margin-bottom: 0.25rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 2px solid $cor-borda;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: $cor-texto;
+      background-color: $cor-fundo-creme;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+
+      &::placeholder {
+        color: #999;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $cor-principal;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba($cor-principal, 0.1);
+      }
+
+      &:hover {
+        border-color: color.adjust($cor-borda, $lightness: -10%);
+      }
+    }
+  }
+
+  // Mensagem de Erro
+  .mensagem-erro {
+    background-color: color.adjust($cor-erro, $lightness: 45%);
+    color: $cor-erro;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    border-left: 4px solid $cor-erro;
+    margin: 0.5rem 0;
+  }
+
+  // Botão de Submit
+  button[type="submit"] {
+    background-color: $cor-principal;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust($cor-principal, $lightness: -10%);
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba($cor-principal, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+      transition: transform 0.1s ease-in-out;
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+// Link de Cadastro
+.register-link {
+  margin-top: 2rem;
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid $cor-borda;
+
+  p {
+    font-size: 1rem;
+    color: $cor-texto-secundario;
+    margin: 0;
+
+    a {
+      color: $cor-principal;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        text-decoration: underline;
+        color: color.adjust($cor-principal, $lightness: -10%);
+      }
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .login-container {
+    margin: 2rem 1rem;
+    padding: 2rem 1.5rem;
+
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    > p {
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  form {
+    gap: 1.25rem;
+
+    .form-group {
+      input {
+        padding: 0.8rem;
+      }
+    }
+
+    button[type="submit"] {
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  .register-link {
+    margin-top: 1.5rem;
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+}

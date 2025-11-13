@@ -1,0 +1,95 @@
+@use 'sass:color';
+@use 'mixins/form-styles' as *;
+
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-borda: #eee;
+$cor-fundo-claro: #fdfaf5;
+
+.detalhes-post-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  > a {
+    color: $cor-principal;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.post-header {
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: $cor-texto;
+  }
+  p {
+    font-size: 1.1rem;
+    color: #777;
+    margin: 0 0 1.5rem 0;
+    font-style: italic;
+  }
+}
+
+.post-body {
+  p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: $cor-texto;
+    white-space: pre-wrap;
+  }
+}
+
+hr {
+  border: 0;
+  border-top: 2px solid $cor-borda;
+  margin: 2.5rem 0;
+}
+
+.comentarios-section {
+  h2 {
+    font-size: 1.8rem;
+    color: $cor-texto;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.comentario-form {
+  margin-bottom: 2.5rem;
+  
+  form {
+    @include form-base;
+  }
+}
+
+.lista-comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.comentario-item {
+  background-color: $cor-fundo-claro;
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+
+  p {
+    margin: 0.5rem 0;
+  }
+
+  strong {
+    color: $cor-principal;
+  }
+}

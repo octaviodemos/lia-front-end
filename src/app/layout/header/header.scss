@@ -1,27 +1,31 @@
 @use 'sass:color';
 
+// Variáveis
 $cor-principal: #6a0000; 
 $cor-fundo: #fdfaf5;     
 $cor-texto: #333;
 
+// Header Principal
 .main-header {
   width: 100%;
   background-color: $cor-principal;
-  padding: 0.5rem 0; 
+  padding: 1rem 0; 
   border-bottom: 2px solid color.adjust($cor-principal, $lightness: -10%);
 }
 
+// Navbar Container
 .navbar {
   display: flex;
   align-items: center; 
   justify-content: space-between; 
   flex-wrap: wrap; 
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 2rem;
   gap: 2rem;
 }
 
+// Logo
 .nav-logo {
   flex-shrink: 0;
   display: flex;
@@ -37,7 +41,7 @@ $cor-texto: #333;
   }
   
   img {
-    height: 80px;
+    height: 120px;
     width: auto;
     object-fit: contain;
     display: block;
@@ -45,6 +49,7 @@ $cor-texto: #333;
   }
 }
 
+// Barra de Busca
 .nav-search {
   flex-grow: 1; 
   max-width: 500px; 
@@ -58,12 +63,12 @@ $cor-texto: #333;
 
   input[type="text"] {
     width: 100%;
-    padding: 0.75rem 1rem 0.75rem 3rem;
+    padding: 0.85rem 1.2rem 0.85rem 3.5rem;
     border: none;
     border-radius: 5px;
     background-color: $cor-fundo;
     color: $cor-texto;
-    font-size: 1rem;
+    font-size: 1.1rem;
 
     &::placeholder {
       color: #999;
@@ -88,8 +93,8 @@ $cor-texto: #333;
     color: #666;
     
     svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
     }
 
     &:hover {
@@ -98,25 +103,26 @@ $cor-texto: #333;
   }
 }
 
+// Links de Navegação
 .nav-links {
   list-style: none;
   display: flex;
   margin: 0;
   padding: 0;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .nav-item {
-  margin-left: 1.5rem;
   position: relative; 
 
   a {
     color: $cor-fundo;
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 500;
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border-radius: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
@@ -136,6 +142,54 @@ $cor-texto: #333;
   }
 }
 
+// Carrinho
+.cart-item {
+  .cart-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem;
+    
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid $cor-principal;
+  }
+}
+
+// Botão Login
+.login-btn {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid $cor-fundo !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background-color: $cor-fundo !important;
+    color: $cor-principal !important;
+    transform: scale(1.05) !important;
+  }
+}
+
+// Dropdown
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -143,7 +197,7 @@ $cor-texto: #333;
   background-color: $cor-fundo;
   border: 1px solid #ddd;
   border-radius: 5px;
-  min-width: 180px;
+  min-width: 200px;
   z-index: 1000;
   padding: 0.5rem 0;
   margin-top: 0.5rem;
@@ -151,25 +205,28 @@ $cor-texto: #333;
 
   a {
     display: block;
-    padding: 0.5rem 1rem;
-    color: $cor-texto; 
+    padding: 0.7rem 1.2rem;
+    color: $cor-texto !important;
     text-decoration: none;
+    font-size: 1.1rem !important;
+    border-radius: 0 !important;
 
     &:hover {
-      background-color: color.adjust($cor-fundo, $lightness: -5%);
+      background-color: color.adjust($cor-fundo, $lightness: -5%) !important;
+      transform: none !important;
     }
   }
 }
 
 // Responsividade
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .main-header {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
   }
 
   .navbar {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     padding: 0 1rem;
   }
 
@@ -178,7 +235,7 @@ $cor-texto: #333;
     width: 100%;
     
     img {
-      height: 60px;
+      height: 80px;
     }
   }
 
@@ -192,17 +249,23 @@ $cor-texto: #333;
   .nav-links {
     flex-wrap: wrap;
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     order: 2;
+    gap: 0.5rem;
   }
 
   .nav-item {
-    margin: 0.5rem 0.25rem;
-    font-size: 0.9rem;
+    margin: 0;
 
     a {
-      font-size: 0.9rem;
+      font-size: 1.1rem;
+      padding: 0.5rem 1rem;
     }
+  }
+
+  .cart-item .cart-link svg {
+    width: 24px;
+    height: 24px;
   }
 
   .dropdown-menu {

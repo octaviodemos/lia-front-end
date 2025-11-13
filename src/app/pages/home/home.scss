@@ -1,10 +1,12 @@
 @use 'sass:color';
 
+// Variáveis
 $cor-principal: #6a0000;
 $cor-texto-secundario: #555;
 $cor-fundo-creme: #fdfaf5;
 $cor-texto: #333;
 
+// Container Principal
 .home-container {
   width: 100%;
 }
@@ -74,6 +76,7 @@ $cor-texto: #333;
   }
 }
 
+// Grid de Livros
 .livros-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -81,6 +84,7 @@ $cor-texto: #333;
   margin-bottom: 2.5rem;
 }
 
+// Botão Ver Mais
 .ver-mais-container {
   text-align: center;
 }
@@ -90,16 +94,23 @@ $cor-texto: #333;
   color: #fff;
   border: none;
   padding: 1rem 2.5rem;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
   font-size: 1.1rem;
   text-decoration: none;
-  transition: background-color 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
   
   &:hover {
     background-color: color.adjust($cor-principal, $lightness: -10%);
+    transform: scale(1.05);
+    border-radius: 8px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease-in-out;
   }
 }
 
@@ -128,5 +139,10 @@ $cor-texto: #333;
   .livros-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
+  }
+
+  .ver-mais-btn {
+    font-size: 1rem;
+    padding: 0.9rem 2rem;
   }
 }

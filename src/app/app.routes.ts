@@ -4,7 +4,7 @@ import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
 import { Loja } from './pages/loja/loja';
 import { LivroDetalhes } from './pages/livro-detalhes/livro-detalhes';
-import { Carrinho } from './pages/carrinho/carrinho';
+import { CarrinhoService } from './services/carrinho.service';
 import { Checkout } from './pages/checkout/checkout';
 import { MeusEnderecos } from './pages/meus-enderecos/meus-enderecos';
 import { PedidoSucesso } from './pages/pedido-sucesso/pedido-sucesso';
@@ -29,7 +29,7 @@ export const routes: Routes = [
   { path: 'cadastro', component: Cadastro },
   { path: 'loja', component: Loja },
   { path: 'livro/:id', component: LivroDetalhes },
-  { path: 'carrinho', component: Carrinho },
+  { path: 'carrinho', component: CarrinhoService },
   { path: 'checkout', component: Checkout },
   { path: 'meus-enderecos', component: MeusEnderecos },
   { path: 'pedido/sucesso', component: PedidoSucesso },
@@ -53,7 +53,7 @@ export const routes: Routes = [
       { path: 'pedidos', component: AdminPedidos },
       { path: 'ofertas', component: AdminOfertas },
       { path: 'reformas', component: AdminReformas },
-      { path: '', redirectTo: 'pedidos', pathMatch: 'full' } // Redireciona /admin para /admin/pedidos
+      { path: '', redirectTo: 'pedidos', pathMatch: 'full' } 
     ]
   }
 ];

@@ -13,12 +13,38 @@
       <div *ngIf="oferta.status_oferta === 'pendente'" class="admin-actions">
         <form [formGroup]="respostaForm">
           <div class="form-group">
-            <label [for]="'resposta-' + oferta.id_oferta_venda">Mensagem de Resposta (Opcional)</label>
-            <textarea [id]="'resposta-' + oferta.id_oferta_venda" formControlName="resposta_admin" rows="2"></textarea>
+            <label 
+              [id]="'label-resposta-' + oferta.id_oferta_venda"
+              [for]="'resposta-' + oferta.id_oferta_venda"
+            >
+              Mensagem de Resposta (Opcional)
+            </label>
+            
+            <textarea 
+              [id]="'resposta-' + oferta.id_oferta_venda" 
+              formControlName="resposta_admin" 
+              rows="2"
+              [attr.aria-labelledby]="'label-resposta-' + oferta.id_oferta_venda"
+              
+              placeholder="Escreva uma resposta para o usuário..."
+            ></textarea>
           </div>
           
-          <button (click)="handleResposta(oferta.id_oferta_venda, 'aceita')" class="btn-aceitar">Aceitar Oferta</button>
-          <button (click)="handleResposta(oferta.id_oferta_venda, 'recusada')" class="btn-recusar">Recusar Oferta</button>
+          <button 
+            type="button" 
+            (click)="handleResposta(oferta.id_oferta_venda, 'aceita')" 
+            class="btn-aceitar"
+          >
+            Aceitar Oferta
+          </button>
+          
+          <button 
+            type="button" 
+            (click)="handleResposta(oferta.id_oferta_venda, 'recusada')" 
+            class="btn-recusar"
+          >
+            Recusar Oferta
+          </button>
         </form>
       </div>
 

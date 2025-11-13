@@ -4,32 +4,72 @@
   <div *ngIf="cart && cart.items && cart.items.length > 0; else emptyCart">
     
     <div *ngFor="let item of cart.items" class="cart-item">
+      
+      <div class="item-imagem">
+        <img 
+          [src]="item.imagemUrl || 'assets/placeholder-book.jpg'" 
+          alt="Capa do livro {{ item.titulo }}"
+          title="{{ item.titulo }}">
+      </div>
+
       <div class="item-info">
-        <h3>{{ item.livro.titulo }}</h3>
-        <p>Preço unitário: R$ {{ item.preco_unitario }}</p>
+        <h3>{{ item.titulo }}</h3>
+        <p class="item-autor">{{ item.autor }}</p>
+        <p class="item-preco-unitario">R$ {{ formatarPreco(item.preco) }}</p>
       </div>
+
       <div class="item-quantidade">
-        <span>Qtd: {{ item.quantidade }}</span>
+        <button 
+          class="btn-quantidade" 
+          (click)="decrementarQuantidade(item.livroId, item.quantidade)"
+          aria-label="Diminuir quantidade">
+          -
+        </button>
+        <span class="quantidade-valor">{{ item.quantidade }}</span>
+        <button 
+          class="btn-quantidade" 
+          (click)="incrementarQuantidade(item.livroId, item.quantidade)"
+          aria-label="Aumentar quantidade">
+          +
+        </button>
       </div>
+
       <div class="item-preco">
-        <strong>R$ {{ item.preco_unitario * item.quantidade }}</strong>
+        <strong>R$ {{ formatarPreco(item.preco * item.quantidade) }}</strong>
       </div>
+
       <div class="item-remover">
-        <button>(remover)</button>
+        <button 
+          class="btn-remover"
+          (click)="removerItem(item.livroId)"
+          aria-label="Remover item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor"/>
+          </svg>
+        </button>
       </div>
     </div>
     
-    <div class="cart-total">
-      <h3>Total: R$ {{ cart.total }}</h3>
-      <a routerLink="/checkout" class="btn-checkout">Finalizar Compra</a>
+    <div class="cart-resumo">
+      <div class="resumo-info">
+        <p class="resumo-itens">{{ cart.totalItens }} {{ cart.totalItens === 1 ? 'item' : 'itens' }}</p>
+      </div>
+      <div class="resumo-total">
+        <h3>Total: <span class="valor-total">R$ {{ formatarPreco(cart.total) }}</span></h3>
+        <a routerLink="/checkout" class="btn-checkout">Finalizar Compra</a>
+      </div>
     </div>
 
   </div>
 
   <ng-template #emptyCart>
     <div class="empty-cart-container">
-      <p>Seu carrinho está vazio.</p>
-      <a routerLink="/loja" class="btn-loja">Voltar para a Loja</a>
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 18C5.9 18 5.01 18.9 5.01 20C5.01 21.1 5.9 22 7 22C8.1 22 9 21.1 9 20C9 18.9 8.1 18 7 18ZM1 2V4H3L6.6 11.59L5.25 14.04C5.09 14.32 5 14.65 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.28 15 7.17 14.89 7.17 14.75L7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.48C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H5.21L4.27 2H1ZM17 18C15.9 18 15.01 18.9 15.01 20C15.01 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18Z" fill="#ccc"/>
+      </svg>
+      <h2>Seu carrinho está vazio</h2>
+      <p>Adicione produtos e eles aparecerão aqui.</p>
+      <a routerLink="/loja" class="btn-loja">Explorar Loja</a>
     </div>
   </ng-template>
 </div>

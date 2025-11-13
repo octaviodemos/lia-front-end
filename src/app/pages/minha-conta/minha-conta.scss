@@ -1,0 +1,253 @@
+@use 'sass:color';
+
+// Variáveis (mesmo padrão da home)
+$cor-principal: #6a0000;
+$cor-texto: #333;
+$cor-texto-secundario: #555;
+$cor-fundo-creme: #fdfaf5;
+$cor-borda: #eee;
+
+// Container Principal
+.minha-conta-container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: $cor-fundo-creme;
+  min-height: 70vh;
+
+  h1 {
+    font-size: 2.5rem;
+    color: $cor-principal;
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  > p {
+    font-size: 1.1rem;
+    color: $cor-texto-secundario;
+    text-align: center;
+    margin: 0 0 2rem 0;
+  }
+
+  > hr {
+    border: none;
+    border-top: 2px solid $cor-borda;
+    margin: 2.5rem 0;
+  }
+}
+
+// Navegação da Conta
+.conta-navegacao {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+
+  a {
+    background-color: #fff;
+    color: $cor-principal;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid $cor-principal;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background-color: $cor-principal;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba($cor-principal, 0.3);
+    }
+
+    &:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease-in-out;
+    }
+  }
+}
+
+// Seção Container
+.secao-container {
+  margin-bottom: 3rem;
+
+  h2 {
+    font-size: 1.8rem;
+    color: $cor-principal;
+    margin: 0 0 1.5rem 0;
+    font-weight: 700;
+    border-bottom: 2px solid $cor-principal;
+    padding-bottom: 0.75rem;
+  }
+
+  // Mensagem vazia
+  > ng-template + p,
+  > p:only-of-type {
+    text-align: center;
+    padding: 3rem 2rem;
+    font-size: 1.1rem;
+    color: $cor-texto-secundario;
+    font-style: italic;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// Card de Item (Ofertas e Solicitações)
+.item-card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid $cor-principal;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateX(4px);
+  }
+
+  p {
+    font-size: 1rem;
+    color: $cor-texto;
+    margin: 0.75rem 0;
+    line-height: 1.6;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      font-weight: 600;
+      color: $cor-texto-secundario;
+      display: inline-block;
+      min-width: 140px;
+    }
+  }
+
+  // Status com cores
+  p:has(strong:contains("Status")) {
+    font-weight: 600;
+  }
+}
+
+// Cores de status
+.item-card {
+  // Pendente
+  p:contains("Pendente") {
+    color: #ff9800;
+  }
+  
+  // Em análise / Processando
+  p:contains("Em análise"),
+  p:contains("Processando") {
+    color: #2196f3;
+  }
+  
+  // Aprovada / Aceita
+  p:contains("Aprovada"),
+  p:contains("Aceita") {
+    color: #4caf50;
+  }
+  
+  // Recusada / Rejeitada
+  p:contains("Recusada"),
+  p:contains("Rejeitada") {
+    color: #f44336;
+  }
+  
+  // Concluída / Finalizada
+  p:contains("Concluída"),
+  p:contains("Finalizada") {
+    color: #9c27b0;
+  }
+}
+
+// Resposta do Admin destacada
+.item-card p:has(strong:contains("Resposta")) {
+  background-color: color.adjust($cor-fundo-creme, $lightness: 2%);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid $cor-principal;
+  margin-top: 1rem;
+  font-style: italic;
+
+  strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-style: normal;
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .minha-conta-container {
+    margin: 1rem;
+    padding: 1rem;
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    > p {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    > hr {
+      margin: 2rem 0;
+    }
+  }
+
+  .conta-navegacao {
+    flex-direction: column;
+    gap: 0.75rem;
+
+    a {
+      width: 100%;
+      text-align: center;
+      padding: 0.9rem 1.5rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  .secao-container {
+    margin-bottom: 2.5rem;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    > ng-template + p,
+    > p:only-of-type {
+      padding: 2.5rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  .item-card {
+    padding: 1.25rem;
+
+    p {
+      font-size: 0.95rem;
+
+      strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        min-width: auto;
+      }
+    }
+  }
+}
