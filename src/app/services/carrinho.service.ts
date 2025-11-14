@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { tap, catchError, switchMap, map } from 'rxjs/operators';
+import { AuthService } from './auth';
 
 export interface ItemCarrinho {
   livroId: string;
@@ -17,16 +20,37 @@ export class CarrinhoService {
   
   private carrinho$ = new BehaviorSubject<ItemCarrinho[]>([]);
   private readonly STORAGE_KEY = 'lia_carrinho';
+  private apiUrl = 'http://localhost:3333/api';
 
-  constructor() {
+  constructor(private http: HttpClient, private authService: AuthService) {
     this.carregarCarrinhoDoStorage();
   }
 
   /**
    * Retorna um Observable com os itens do carrinho
    */
+  /**
+   * Retorna um Observable com os itens do carrinho (estado local)
+   * NOTA: não faz fetch automático do backend — chame refreshCarrinho() quando quiser forçar sync.
+   */
   getCarrinho(): Observable<ItemCarrinho[]> {
     return this.carrinho$.asObservable();
+  }
+
+  /**
+   * Faz fetch do carrinho no backend (quando autenticado) e atualiza o estado local
+   */
+  refreshCarrinho(): Observable<ItemCarrinho[]> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return of(this.getCarrinhoAtual());
+    }
+
+    return this.http.get(`${this.apiUrl}/cart`).pipe(
+      map(res => this.mapCartResponse(res)),
+      tap(items => this.carrinho$.next(items)),
+      catchError(() => of(this.getCarrinhoAtual()))
+    );
   }
 
   /**
@@ -39,7 +63,8 @@ export class CarrinhoService {
   /**
    * Adiciona um item ao carrinho ou incrementa quantidade se já existir
    */
-  adicionarItem(item: ItemCarrinho): void {
+  // preserva lógica local para atualizar o estado sem chamar backend
+  adicionarItemLocal(item: ItemCarrinho): void {
     const carrinhoAtual = this.getCarrinhoAtual();
     const itemExistente = carrinhoAtual.find(i => i.livroId === item.livroId);
 
@@ -50,6 +75,51 @@ export class CarrinhoService {
     }
 
     this.atualizarCarrinho(carrinhoAtual);
+  }
+
+  /**
+   * Adiciona um item ao carrinho no backend e atualiza o estado local
+   */
+  adicionarItem(id_estoque: string, quantidade: number, meta?: Partial<ItemCarrinho>): Observable<ItemCarrinho[]> {
+    return this.http.post(`${this.apiUrl}/cart/items`, { id_estoque, quantidade }).pipe(
+      switchMap(() => this.http.get(`${this.apiUrl}/cart`)),
+      map(res => this.mapCartResponse(res)),
+      tap(items => this.carrinho$.next(items)),
+      catchError((err) => {
+        if (err && (err.status === 401 || err.status === 400)) {
+          // 401: Não autenticado | 400: Estoque insuficiente ou outros erros de validação
+          const localItem = this.buildLocalItemFromMeta(id_estoque, quantidade, meta);
+          this.adicionarItemLocal(localItem);
+          return of(this.getCarrinhoAtual());
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Constrói um ItemCarrinho usando metadados opcionais, com valores sensíveis a tipos
+   */
+  private buildLocalItemFromMeta(id_estoque: string, quantidade: number, meta?: Partial<ItemCarrinho>): ItemCarrinho {
+    const preco = typeof meta?.preco === 'number' ? meta!.preco : (meta?.preco ? Number(String(meta.preco).replace(',', '.')) || 0 : 0);
+    return {
+      livroId: meta?.livroId ?? String(id_estoque),
+      titulo: meta?.titulo ?? 'Produto',
+      autor: meta?.autor ?? '',
+      preco,
+      quantidade,
+      imagemUrl: meta?.imagemUrl ?? ''
+    } as ItemCarrinho;
+  }
+
+  /**
+   * Normaliza a resposta do backend para um array de ItemCarrinho
+   */
+  private mapCartResponse(res: any): ItemCarrinho[] {
+    if (!res) return [];
+    if (Array.isArray(res)) return res as ItemCarrinho[];
+    if (res.items && Array.isArray(res.items)) return res.items as ItemCarrinho[];
+    return [];
   }
 
   /**

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LivroService } from '../../services/livro.service';
-import { CartService } from '../../services/cart.service';
+import { CarrinhoService } from '../../services/carrinho.service';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 import { switchMap } from 'rxjs';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
@@ -23,7 +23,7 @@ export class LivroDetalhes implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private livroService: LivroService,
-    private cartService: CartService,
+    private cartService: CarrinhoService,
     private avaliacaoService: AvaliacaoService
   ) { }
 
@@ -61,7 +61,16 @@ export class LivroDetalhes implements OnInit {
     const estoque = this.livro?.estoque;
     if (this.livro && estoque) {
       const id_estoque = estoque.id_estoque;
-      this.cartService.addItem(id_estoque, 1).subscribe({
+      const preco = estoque.preco ? Number(String(estoque.preco).replace(',', '.')) || 0 : 0;
+      const meta = {
+        livroId: String(this.livro.id_livro ?? id_estoque),
+        titulo: this.livro.titulo ?? 'Produto',
+        autor: this.livro.autor?.nome ?? '',
+        preco,
+        imagemUrl: this.livro.capa_url ?? ''
+      };
+
+      this.cartService.adicionarItem(id_estoque, 1, meta).subscribe({
         next: (response: any) => console.log('Item adicionado ao carrinho!', response),
         error: (err: any) => console.error('Erro ao adicionar item:', err)
       });

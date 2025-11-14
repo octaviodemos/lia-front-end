@@ -22,6 +22,8 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.observarCarrinho();
+    // Sincronizar com o backend para obter contagens precisas quando o usuário estiver autenticado
+    this.carrinhoService.refreshCarrinho().subscribe({ next: () => {}, error: () => {} });
   }
 
   ngOnDestroy(): void {

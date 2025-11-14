@@ -7,15 +7,15 @@ import { Observable } from 'rxjs';
 })
 export class AvaliacaoService {
 
-  private apiUrl = 'http://localhost:3333/api/livros';
+  private apiUrl = 'http://localhost:3333/api';
 
   constructor(private http: HttpClient) { }
 
   getAvaliacoesPorLivro(idLivro: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${idLivro}/avaliacoes`);
+    return this.http.get(`${this.apiUrl}/books/${idLivro}/avaliacoes`);
   }
 
   criarAvaliacao(idLivro: string, avaliacaoData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${idLivro}/avaliacoes`, avaliacaoData);
+    return this.http.post(`${this.apiUrl}/books/${idLivro}/avaliacoes`, avaliacaoData);
   }
 }
