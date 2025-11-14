@@ -14,4 +14,8 @@ export class EstoqueService {
   adicionarItemEstoque(itemData: any): Observable<any> {
     return this.http.post(this.apiUrl, itemData);
   }
+
+  atualizarItemEstoque(id: string, itemData: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}`, itemData);
+  }
 }
