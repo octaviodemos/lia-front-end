@@ -43,6 +43,9 @@ export class LivroDetalhes implements OnInit {
     });
   }
 
+  // primary estoque helper — backend may return an array
+  // no longer needed: service normalizes `estoque` to a single object
+
   carregarAvaliacoes(): void {
     this.avaliacaoService.getAvaliacoesPorLivro(this.livroId).subscribe({
       next: (data: any) => this.avaliacoes = data,
@@ -55,12 +58,21 @@ export class LivroDetalhes implements OnInit {
   }
 
   adicionarAoCarrinho(): void {
-    if (this.livro && this.livro.estoque) {
-      const id_estoque = this.livro.estoque.id_estoque;
+    const estoque = this.livro?.estoque;
+    if (this.livro && estoque) {
+      const id_estoque = estoque.id_estoque;
       this.cartService.addItem(id_estoque, 1).subscribe({
         next: (response: any) => console.log('Item adicionado ao carrinho!', response),
         error: (err: any) => console.error('Erro ao adicionar item:', err)
       });
+    }
+  }
+
+  onImgError(event: any): void {
+    try {
+      (event.target as HTMLImageElement).src = 'assets/placeholder.svg';
+    } catch (e) {
+      // ignore
     }
   }
 }

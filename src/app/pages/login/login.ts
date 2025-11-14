@@ -31,7 +31,7 @@ export class Login implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required]]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
@@ -39,7 +39,12 @@ export class Login implements OnInit {
     this.mensagemErro = '';
 
     if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value).subscribe({
+      const credentials = {
+        email: this.loginForm.value.email,
+        password: String(this.loginForm.value.password)
+      };
+
+      this.authService.login(credentials).subscribe({
         next: (response: any) => {
           console.log('Login bem-sucedido!', response);
           this.router.navigate(['/']); 

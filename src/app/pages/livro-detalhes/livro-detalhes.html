@@ -6,14 +6,14 @@
   <div class="livro-content">
     
     <div class="livro-imagem">
-      <img src="livro.capa_url || 'assets/placeholder.png'" alt="livro.titulo">
+      <img [src]="livro.capa_url || 'assets/placeholder.svg'" (error)="onImgError($event)" [alt]="livro.titulo">
     </div>
 
     <div class="livro-info">
       <h1>{{ livro.titulo }}</h1>
       <p class="autor"><strong>Autor:</strong> {{ livro.autor?.nome || 'Autor desconhecido' }}</p>
       
-      <p class="preco">R$ {{ livro.estoque?.preco || 'Preço indisponível' }}</p>
+  <p class="preco">R$ {{ livro.estoque?.preco || 'Preço indisponível' }}</p>
       
       <div class="botoes-acao">
         <button class="btn-adicionar" (click)="adicionarAoCarrinho()">Adicionar ao carrinho</button>

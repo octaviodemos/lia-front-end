@@ -15,9 +15,18 @@ export class LivroCard {
 
   constructor(private cartService: CartService) {}
 
+  onImgError(event: any): void {
+    try {
+      (event.target as HTMLImageElement).src = 'assets/placeholder.svg';
+    } catch (e) {
+      // ignore
+    }
+  }
+
   adicionarAoCarrinho(): void {
-    if (this.livro && this.livro.estoque) {
-      const id_estoque = this.livro.estoque.id_estoque;
+    const estoque = this.livro?.estoque;
+    if (this.livro && estoque) {
+      const id_estoque = estoque.id_estoque;
       this.cartService.addItem(id_estoque, 1).subscribe({
         next: (res: any) => console.log('Item adicionado', res),
         error: (err: any) => console.error('Erro ao adicionar', err)
