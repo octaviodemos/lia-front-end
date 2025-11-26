@@ -3,7 +3,11 @@
 
   <div class="lista-enderecos">
     <div *ngFor="let endereco of enderecos" class="endereco-item">
-      <p>{{ endereco.rua }}, {{ endereco.numero }} - {{ endereco.cidade }} / {{ endereco.estado }}</p>
+      <p>
+        <strong>{{ endereco.rua }}, {{ endereco.numero }}</strong>
+        <span *ngIf="endereco.complemento"> - {{ endereco.complemento }}</span><br>
+        <small>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }} - CEP: {{ endereco.cep }}</small>
+      </p>
     </div>
   </div>
 
@@ -11,31 +15,96 @@
 
   <h2>Adicionar Novo Endereço</h2>
   <form [formGroup]="enderecoForm" (ngSubmit)="onSubmit()">
+    
+    <!-- CEP com máscara e busca automática -->
     <div class="form-group">
-      <label for="rua">Rua</label>
-      <input id="rua" type="text" formControlName="rua">
+      <label for="cep">CEP *</label>
+      <div class="input-with-loader">
+        <input 
+          id="cep" 
+          type="text" 
+          formControlName="cep"
+          mask="00000-000"
+          placeholder="12345-678"
+          [class.loading]="buscandoCep">
+        <span *ngIf="buscandoCep" class="loader">🔍</span>
+      </div>
+      <small *ngIf="enderecoForm.get('cep')?.hasError('cepInvalido')" class="error">
+        CEP deve ter 8 dígitos
+      </small>
+      <small class="help-text">Digite o CEP para buscar o endereço automaticamente</small>
     </div>
+
+    <!-- Rua (preenchida automaticamente ou manual) -->
     <div class="form-group">
-      <label for="numero">Número</label>
-      <input id="numero" type="text" formControlName="numero">
+      <label for="rua">Rua/Logradouro *</label>
+      <input 
+        id="rua" 
+        type="text" 
+        formControlName="rua"
+        placeholder="Ex: Rua das Flores, Av. Brasil (preenche automaticamente ou digite)">
     </div>
+
+    <!-- Número -->
+    <div class="form-group">
+      <label for="numero">Número *</label>
+      <input 
+        id="numero" 
+        type="text" 
+        formControlName="numero"
+        placeholder="123">
+    </div>
+
+    <!-- Complemento -->
     <div class="form-group">
       <label for="complemento">Complemento</label>
-      <input id="complemento" type="text" formControlName="complemento">
+      <input 
+        id="complemento" 
+        type="text" 
+        formControlName="complemento"
+        placeholder="Apto 45, Bloco B">
     </div>
+
+    <!-- Bairro (preenchido automaticamente ou manual) -->
     <div class="form-group">
-      <label for="cep">CEP</label>
-      <input id="cep" type="text" formControlName="cep">
+      <label for="bairro">Bairro</label>
+      <input 
+        id="bairro" 
+        type="text" 
+        formControlName="bairro"
+        placeholder="Ex: Centro, Jardim América (preenche automaticamente ou digite)">
     </div>
+
+    <!-- Estado (dropdown) -->
     <div class="form-group">
-      <label for="cidade">Cidade</label>
-      <input id="cidade" type="text" formControlName="cidade">
+      <label for="estado">Estado *</label>
+      <select id="estado" formControlName="estado">
+        <option value="">Selecione o Estado</option>
+        <option *ngFor="let estado of estados" [value]="estado.sigla">
+          {{ estado.nome }} ({{ estado.sigla }})
+        </option>
+      </select>
     </div>
+
+    <!-- Cidade (dropdown dinâmico) -->
     <div class="form-group">
-      <label for="estado">Estado</label>
-      <input id="estado" type="text" formControlName="estado">
+      <label for="cidade">Cidade *</label>
+      <div class="select-with-loader">
+        <select 
+          id="cidade" 
+          formControlName="cidade"
+          [disabled]="!enderecoForm.get('estado')?.value || carregandoMunicipios">
+          <option value="">{{ carregandoMunicipios ? 'Carregando...' : 'Selecione a Cidade' }}</option>
+          <option *ngFor="let municipio of municipios" [value]="municipio.nome">
+            {{ municipio.nome }}
+          </option>
+        </select>
+        <span *ngIf="carregandoMunicipios" class="loader">⏳</span>
+      </div>
     </div>
     
-    <button type="submit" [disabled]="enderecoForm.invalid">Salvar Endereço</button>
+    <button type="submit" [disabled]="enderecoForm.invalid" class="submit-btn">
+      Salvar Endereço
+    </button>
   </form>
 </div>
