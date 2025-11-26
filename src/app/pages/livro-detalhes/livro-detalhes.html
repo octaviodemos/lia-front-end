@@ -11,7 +11,15 @@
 
     <div class="livro-info">
       <h1>{{ livro.titulo }}</h1>
-      <p class="autor"><strong>Autor:</strong> {{ livro.autor?.nome || 'Autor desconhecido' }}</p>
+      <p class="autor">
+        <strong>Autor{{ (livro.autores?.length || 0) > 1 ? 'es' : '' }}:</strong>
+        <span *ngIf="livro.autores?.length; else autorFallback">
+          <span *ngFor="let a of livro.autores; let i = index">
+            {{ a.nome }}<span *ngIf="i < livro.autores.length - 1">, </span>
+          </span>
+        </span>
+        <ng-template #autorFallback>{{ livro.autor?.nome || 'Autor desconhecido' }}</ng-template>
+      </p>
       
   <p class="preco">R$ {{ livro.estoque?.preco || 'Preço indisponível' }}</p>
       
@@ -22,7 +30,15 @@
       <div class="detalhes-tecnicos">
         <p><strong>Editora:</strong> {{ livro.editora || 'Não informada' }}</p>
         <p><strong>ISBN:</strong> {{ livro.isbn || 'Não informado' }}</p>
-        <p><strong>Gênero:</strong> {{ livro.genero?.nome || 'Não informado' }}</p>
+        <p>
+          <strong>Gênero{{ (livro.generos?.length || 0) > 1 ? 's' : '' }}:</strong>
+          <span *ngIf="livro.generos?.length; else noGenero">
+            <span *ngFor="let g of livro.generos; let i = index">
+              {{ g.nome }}<span *ngIf="i < livro.generos.length - 1">, </span>
+            </span>
+          </span>
+          <ng-template #noGenero>Não informado</ng-template>
+        </p>
         <p><strong>Ano:</strong> {{ livro.ano_publicacao || 'Não informado' }}</p>
       </div>
       

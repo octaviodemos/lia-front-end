@@ -51,9 +51,34 @@
           <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a routerLink="/login" class="login-btn">Login</a>
+      <li class="nav-item user-menu" *ngIf="isLoggedIn; else loginButton">
+        <a (click)="toggleUserMenu()" class="user-btn">
+          {{ currentUser?.nome || 'Minha Conta' }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="user-dropdown" *ngIf="isUserMenuOpen">
+          <a routerLink="/minha-conta" (click)="isUserMenuOpen = false">Minha Conta</a>
+          <a routerLink="/meus-pedidos" (click)="isUserMenuOpen = false">Meus Pedidos</a>
+          <a routerLink="/meus-enderecos" (click)="isUserMenuOpen = false">Meus Endereços</a>
+          <a routerLink="/vender-livro" (click)="isUserMenuOpen = false">Vender Livro</a>
+          <a routerLink="/solicitar-reforma" (click)="isUserMenuOpen = false">Solicitar Reforma</a>
+          <a *ngIf="isAdmin()" routerLink="/admin" (click)="isUserMenuOpen = false" class="admin-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" fill="currentColor"/>
+            </svg>
+            Painel Admin
+          </a>
+          <hr>
+          <a (click)="logout()" style="cursor: pointer;">Sair</a>
+        </div>
       </li>
+      <ng-template #loginButton>
+        <li class="nav-item">
+          <a routerLink="/login" class="login-btn">Login</a>
+        </li>
+      </ng-template>
     </ul>
 
   </nav>

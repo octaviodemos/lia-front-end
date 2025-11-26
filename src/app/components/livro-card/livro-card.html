@@ -5,7 +5,14 @@
     </div>
     <div class="card-info">
       <h3 class="card-title">{{ livro.titulo }}</h3>
-      <p class="card-author">{{ livro.autor?.nome || 'Autor desconhecido' }}</p>
+      <p class="card-author">
+        <span *ngIf="livro.autores?.length; else autorFallback">
+          <span *ngFor="let a of livro.autores; let i = index">
+            {{ a.nome }}<span *ngIf="i < livro.autores.length - 1">, </span>
+          </span>
+        </span>
+        <ng-template #autorFallback>{{ livro.autor?.nome || 'Autor desconhecido' }}</ng-template>
+      </p>
     </div>
   </a>
   

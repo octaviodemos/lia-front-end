@@ -62,10 +62,14 @@ export class LivroDetalhes implements OnInit {
     if (this.livro && estoque) {
       const id_estoque = estoque.id_estoque;
       const preco = estoque.preco ? Number(String(estoque.preco).replace(',', '.')) || 0 : 0;
+      const autorNome = (this.livro.autores && this.livro.autores.length)
+        ? this.livro.autores.map((a: any) => a.nome).join(', ')
+        : (this.livro.autor?.nome ?? '');
+
       const meta = {
         livroId: String(this.livro.id_livro ?? id_estoque),
         titulo: this.livro.titulo ?? 'Produto',
-        autor: this.livro.autor?.nome ?? '',
+        autor: autorNome,
         preco,
         imagemUrl: this.livro.capa_url ?? ''
       };

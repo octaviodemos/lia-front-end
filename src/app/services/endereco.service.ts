@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class EnderecoService {
 
-  private apiUrl = 'http://localhost:3333/api/enderecos';
+  private apiUrl = 'http://localhost:3333/api/addresses';
 
   constructor(private http: HttpClient) { }
 

@@ -40,10 +40,7 @@ export const routes: Routes = [
   { path: 'minha-conta', component: MinhaConta },
   { path: 'comunidade', component: Comunidade },
   { path: 'publicacao/:id', component: PublicacaoDetalhes },
-  { path: 'comunidade', component: Comunidade },
-  { path: 'publicacao/:id', component: PublicacaoDetalhes },
-
-{
+  {
     path: 'admin',
     component: AdminLayout,
     canActivate: [adminGuard],

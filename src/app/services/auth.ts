@@ -23,12 +23,38 @@ export class AuthService {
         if (response && response.access_token) {
           localStorage.setItem(this.tokenKey, response.access_token);
           
-          const userInfo = response.user || { 
-            id: 'unknown', 
-            email: credentials.email,
-            tipo_usuario: 'cliente'
-          };
-          localStorage.setItem(this.userKey, JSON.stringify(userInfo));
+          // Extrair informações do token JWT
+          let userInfo;
+          try {
+            const payload = JSON.parse(atob(response.access_token.split('.')[1]));
+            console.log('JWT payload:', payload);
+            
+            // Fazer uma requisição adicional para buscar os dados completos do usuário
+            this.getUserProfile().subscribe({
+              next: (profile: any) => {
+                console.log('User profile from API:', profile);
+                localStorage.setItem(this.userKey, JSON.stringify(profile));
+              },
+              error: (error: any) => {
+                console.error('Error fetching user profile:', error);
+                // Fallback com dados do token
+                userInfo = {
+                  id: payload.sub,
+                  email: payload.email,
+                  tipo_usuario: 'cliente' // Será atualizado quando conseguirmos o perfil
+                };
+                localStorage.setItem(this.userKey, JSON.stringify(userInfo));
+              }
+            });
+          } catch (error) {
+            console.error('Error parsing JWT:', error);
+            userInfo = { 
+              id: 'unknown', 
+              email: credentials.email,
+              tipo_usuario: 'cliente'
+            };
+            localStorage.setItem(this.userKey, JSON.stringify(userInfo));
+          }
         }
       })
     );
@@ -50,7 +76,20 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.getUser();
+    console.log('isAdmin check - user:', user);
+    console.log('isAdmin check - tipo_usuario:', user?.tipo_usuario);
+    console.log('isAdmin check - comparison result:', user?.tipo_usuario === 'admin');
     return user && user.tipo_usuario === 'admin';
+  }
+
+  getCurrentUserInfo(): any {
+    const user = this.getUser();
+    return {
+      id: user?.id,
+      nome: user?.nome,
+      email: user?.email,
+      tipo_usuario: user?.tipo_usuario
+    };
   }
 
   isAuthenticated(): boolean {
@@ -68,6 +107,10 @@ export class AuthService {
     } catch (error) {
       return true; // Se não conseguir decodificar, considera expirado
     }
+  }
+
+  getUserProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/profile`);
   }
 
   logout(): void {
