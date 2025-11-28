@@ -7,15 +7,15 @@ import { Observable } from 'rxjs';
 })
 export class EstoqueService {
 
-  private apiUrl = 'http://localhost:3333/api/stock';
+  private apiUrl = 'http://localhost:3333/api';
 
   constructor(private http: HttpClient) { }
 
   adicionarItemEstoque(itemData: any): Observable<any> {
-    return this.http.post(this.apiUrl, itemData);
+    return this.http.post(`${this.apiUrl}/stock`, itemData);
   }
 
   atualizarItemEstoque(id: string, itemData: any): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}`, itemData);
+    return this.http.patch(`${this.apiUrl}/stock/${id}`, itemData);
   }
 }
