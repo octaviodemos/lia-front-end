@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CartService } from '../../services/cart.service';
+import { CarrinhoService } from '../../services/carrinho.service';
 
 @Component({
   selector: 'app-livro-card',
@@ -12,16 +12,31 @@ import { CartService } from '../../services/cart.service';
 })
 export class LivroCard {
   @Input() livro: any;
+  mensagemSucesso: string = '';
+  mostrarMensagem: boolean = false;
 
-  constructor(private cartService: CartService) {}
+  constructor(private carrinhoService: CarrinhoService) {}
 
   adicionarAoCarrinho(): void {
-    if (this.livro && this.livro.estoque) {
-      const id_estoque = this.livro.estoque.id_estoque;
-      this.cartService.addItem(id_estoque, 1).subscribe({
-        next: (res: any) => console.log('Item adicionado', res),
-        error: (err: any) => console.error('Erro ao adicionar', err)
+    if (this.livro) {
+      // Adiciona ao carrinho
+      this.carrinhoService.adicionarItem({
+        livroId: String(this.livro.id_livro || this.livro.id),
+        titulo: this.livro.titulo || 'Livro sem título',
+        autor: this.livro.autor?.nome || this.livro.autor || 'Autor desconhecido',
+        preco: parseFloat(this.livro.estoque?.preco) || 0,
+        quantidade: 1,
+        imagemUrl: this.livro.capa_url
       });
+      
+      // Mostra mensagem de sucesso
+      this.mensagemSucesso = '✅ Adicionado ao carrinho!';
+      this.mostrarMensagem = true;
+      
+      // Esconde mensagem após 2 segundos
+      setTimeout(() => {
+        this.mostrarMensagem = false;
+      }, 2000);
     }
   }
 }

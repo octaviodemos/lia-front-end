@@ -12,14 +12,21 @@ export class PedidoService {
   constructor(private http: HttpClient) { }
 
   getMeusPedidos(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/meus-pedidos`);
+    return this.http.get(`http://localhost:3333/api/orders/my-orders`);
   }
 
   getAllPedidos(): Observable<any> {
-    return this.http.get(this.apiUrl);
+    return this.http.get('http://localhost:3333/api/orders');
+  }
+
+  confirmarPedido(id_endereco: number, metodo_pagamento: string): Observable<any> {
+    return this.http.post(`http://localhost:3333/api/orders/confirm`, { 
+      id_endereco, 
+      metodo_pagamento 
+    });
   }
 
   updateStatusPedido(id: string, status: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/status`, { status_pedido: status });
+    return this.http.post(`http://localhost:3333/api/orders/confirm`, { id_endereco: id, metodo_pagamento: status });
   }
 }

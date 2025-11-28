@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class OfertaVendaService {
 
-  private apiUrl = 'http://localhost:3333/api/ofertas-venda';
+  private apiUrl = 'http://localhost:3333/api/offers';
 
   constructor(private http: HttpClient) { }
 
@@ -16,14 +16,14 @@ export class OfertaVendaService {
   }
 
   getMinhasOfertas(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/minhas-ofertas`);
+    return this.http.get(`http://localhost:3333/api/offers/my-offers`);
   }
 
   getAllOfertas(): Observable<any> {
-    return this.http.get(this.apiUrl);
+    return this.http.get('http://localhost:3333/api/offers');
   }
 
-  responderOferta(id: string, resposta: { status_oferta: string, resposta_admin: string }): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/responder`, resposta);
+  responderOferta(id: string, resposta: { status: string, resposta_admin?: string }): Observable<any> {
+    return this.http.patch(`http://localhost:3333/api/offers/${id}/respond`, resposta);
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { EnderecoService } from '../../services/endereco.service';
-import { PagamentoService } from '../../services/pagamento.service';
+import { PedidoService } from '../../services/pedido.service';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -16,13 +16,14 @@ export class Checkout implements OnInit {
 
   cart: any = null;
   enderecos: any[] = [];
-  enderecoSelecionadoId: string = '';
+  enderecoSelecionadoId: number = 0;
   loading: boolean = false;
 
   constructor(
     private cartService: CartService,
     private enderecoService: EnderecoService,
-    private pagamentoService: PagamentoService
+    private pedidoService: PedidoService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -37,7 +38,7 @@ export class Checkout implements OnInit {
     });
   }
 
-  selecionarEndereco(id: string): void {
+  selecionarEndereco(id: number): void {
     this.enderecoSelecionadoId = id;
   }
 
@@ -48,17 +49,19 @@ export class Checkout implements OnInit {
     }
     this.loading = true;
 
-    this.pagamentoService.criarPreferenciaPagamento(this.enderecoSelecionadoId).subscribe({
+    this.pedidoService.confirmarPedido(this.enderecoSelecionadoId, 'cartao_credito').subscribe({
       next: (response: any) => {
-        if (response && response.redirectUrl) {
-          window.location.href = response.redirectUrl;
+        console.log('Pedido confirmado:', response);
+        if (response && response.success) {
+          this.router.navigate(['/pedido/sucesso']);
         } else {
-          console.error('Resposta inválida do back-end');
-          this.loading = false;
+          this.router.navigate(['/pedido/falha']);
         }
+        this.loading = false;
       },
       error: (err: any) => {
-        console.error('Erro ao criar preferência de pagamento:', err);
+        console.error('Erro ao confirmar pedido:', err);
+        this.router.navigate(['/pedido/falha']);
         this.loading = false;
       }
     });

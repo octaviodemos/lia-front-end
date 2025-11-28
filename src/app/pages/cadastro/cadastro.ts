@@ -27,7 +27,7 @@ export class Cadastro implements OnInit {
     this.registerForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       confirmarSenha: ['', [Validators.required]]
     });
   }
@@ -39,7 +39,8 @@ export class Cadastro implements OnInit {
       const userData = {
         nome: this.registerForm.value.nome,
         email: this.registerForm.value.email,
-        senha: this.registerForm.value.senha
+        password: this.registerForm.value.password,
+        tipo_usuario: 'cliente'
       };
 
       this.authService.register(userData).subscribe({

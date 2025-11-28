@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LivroService } from '../../services/livro.service';
-import { CartService } from '../../services/cart.service';
+import { CarrinhoService } from '../../services/carrinho.service';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 import { switchMap } from 'rxjs';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
@@ -19,11 +19,12 @@ export class LivroDetalhes implements OnInit {
   livro: any = null;
   avaliacoes: any[] = [];
   livroId: string = '';
+  mensagemSucesso: string = '';
 
   constructor(
     private route: ActivatedRoute,
     private livroService: LivroService,
-    private cartService: CartService,
+    private carrinhoService: CarrinhoService,
     private avaliacaoService: AvaliacaoService
   ) { }
 
@@ -55,12 +56,26 @@ export class LivroDetalhes implements OnInit {
   }
 
   adicionarAoCarrinho(): void {
-    if (this.livro && this.livro.estoque) {
-      const id_estoque = this.livro.estoque.id_estoque;
-      this.cartService.addItem(id_estoque, 1).subscribe({
-        next: (response: any) => console.log('Item adicionado ao carrinho!', response),
-        error: (err: any) => console.error('Erro ao adicionar item:', err)
+    if (this.livro) {
+      this.carrinhoService.adicionarItem({
+        livroId: String(this.livro.id_livro || this.livro.id),
+        titulo: this.livro.titulo || 'Livro sem título',
+        autor: this.livro.autor?.nome || this.livro.autor || 'Autor desconhecido',
+        preco: parseFloat(this.livro.estoque?.preco) || 0,
+        quantidade: 1,
+        imagemUrl: this.livro.capa_url
       });
+      this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
+      
+      // Limpa a mensagem após 3 segundos
+      setTimeout(() => {
+        this.mensagemSucesso = '';
+      }, 3000);
+    } else {
+      this.mensagemSucesso = '❌ Erro: livro não encontrado';
+      setTimeout(() => {
+        this.mensagemSucesso = '';
+      }, 3000);
     }
   }
 }

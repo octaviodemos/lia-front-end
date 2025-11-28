@@ -39,7 +39,7 @@ export class AdminOfertas implements OnInit {
     const resposta = this.respostaForm.get('resposta_admin')?.value || '';
     
     this.ofertaVendaService.responderOferta(ofertaId, { 
-      status_oferta: novoStatus, 
+      status: novoStatus, 
       resposta_admin: resposta 
     }).subscribe({
       next: (response: any) => {

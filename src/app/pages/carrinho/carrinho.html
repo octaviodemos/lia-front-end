@@ -1,15 +1,15 @@
 <div class="carrinho-container">
   <h1>Meu Carrinho</h1>
   
-  <div *ngIf="cart && cart.items && cart.items.length > 0; else emptyCart">
+  <div *ngIf="cart?.items && cart.items.length > 0; else emptyCart">
     
     <div *ngFor="let item of cart.items" class="cart-item">
       
       <div class="item-imagem">
         <img 
           [src]="item.imagemUrl || 'assets/placeholder-book.jpg'" 
-          alt="Capa do livro {{ item.titulo }}"
-          title="{{ item.titulo }}">
+          [alt]="'Capa do livro ' + item.titulo"
+          [title]="item.titulo">
       </div>
 
       <div class="item-info">
@@ -22,14 +22,14 @@
         <button 
           class="btn-quantidade" 
           (click)="decrementarQuantidade(item.livroId, item.quantidade)"
-          aria-label="Diminuir quantidade">
+          [attr.aria-label]="'Diminuir quantidade de ' + item.titulo">
           -
         </button>
         <span class="quantidade-valor">{{ item.quantidade }}</span>
         <button 
           class="btn-quantidade" 
           (click)="incrementarQuantidade(item.livroId, item.quantidade)"
-          aria-label="Aumentar quantidade">
+          [attr.aria-label]="'Aumentar quantidade de ' + item.titulo">
           +
         </button>
       </div>
@@ -42,7 +42,7 @@
         <button 
           class="btn-remover"
           (click)="removerItem(item.livroId)"
-          aria-label="Remover item">
+          [attr.aria-label]="'Remover ' + item.titulo">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor"/>
           </svg>

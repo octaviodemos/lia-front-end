@@ -32,15 +32,44 @@ export class AdminLivros implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('Form válido?', this.livroForm.valid);
+    console.log('Form value:', this.livroForm.value);
+    console.log('Form errors:', this.livroForm.errors);
+    
     if (this.livroForm.valid) {
-      this.livroService.criarLivro(this.livroForm.value).subscribe({
+      const payload = this.livroForm.value;
+      console.log('Payload sendo enviado:', payload);
+      console.log('Tipos dos campos:', {
+        titulo: typeof payload.titulo,
+        sinopse: typeof payload.sinopse,
+        editora: typeof payload.editora,
+        ano_publicacao: typeof payload.ano_publicacao,
+        isbn: typeof payload.isbn,
+        capa_url: typeof payload.capa_url
+      });
+      
+      this.livroService.criarLivro(payload).subscribe({
         next: (response: any) => {
           this.mensagemSucesso = `Livro "${response.titulo}" criado com sucesso!`;
           this.livroForm.reset();
         },
         error: (err: any) => {
-          console.error('Erro ao criar livro:', err);
-          this.mensagemSucesso = 'Erro ao criar livro.';
+          console.error('Erro completo:', err);
+          console.error('Status:', err.status);
+          console.error('Mensagem:', err.error?.message);
+          console.error('Detalhes:', err.error);
+          
+          if (err.status === 500) {
+            this.mensagemSucesso = 'Erro interno no servidor. Verifique os logs do backend para mais detalhes.';
+          } else if (Array.isArray(err.error?.message)) {
+            console.error('Erros de validação:');
+            err.error.message.forEach((msg: string, i: number) => {
+              console.error(`  ${i + 1}. ${msg}`);
+            });
+            this.mensagemSucesso = err.error.message.join(', ');
+          } else {
+            this.mensagemSucesso = err.error?.message || 'Erro ao criar livro.';
+          }
         }
       });
     }

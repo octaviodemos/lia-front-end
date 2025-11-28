@@ -4,7 +4,7 @@ import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
 import { Loja } from './pages/loja/loja';
 import { LivroDetalhes } from './pages/livro-detalhes/livro-detalhes';
-import { CarrinhoService } from './services/carrinho.service';
+import { Carrinho } from './pages/carrinho/carrinho.component';
 import { Checkout } from './pages/checkout/checkout';
 import { MeusEnderecos } from './pages/meus-enderecos/meus-enderecos';
 import { PedidoSucesso } from './pages/pedido-sucesso/pedido-sucesso';
@@ -29,7 +29,7 @@ export const routes: Routes = [
   { path: 'cadastro', component: Cadastro },
   { path: 'loja', component: Loja },
   { path: 'livro/:id', component: LivroDetalhes },
-  { path: 'carrinho', component: CarrinhoService },
+  { path: 'carrinho', component: Carrinho },
   { path: 'checkout', component: Checkout },
   { path: 'meus-enderecos', component: MeusEnderecos },
   { path: 'pedido/sucesso', component: PedidoSucesso },

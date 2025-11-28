@@ -144,34 +144,61 @@ $cor-texto: #333;
 
 // Carrinho
 .cart-item {
+  margin-left: 0.5rem;
+  
   .cart-link {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.6rem;
+    padding: 0.6rem 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     svg {
       width: 28px;
       height: 28px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+      
+      svg {
+        transform: scale(1.1);
+      }
     }
   }
 
   .cart-badge {
     position: absolute;
-    top: 0;
-    right: -2px;
+    top: -4px;
+    right: -4px;
     background-color: #ff4444;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    min-width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
     font-weight: 700;
     border: 2px solid $cor-principal;
+    padding: 0 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
   }
 }
 
@@ -185,6 +212,34 @@ $cor-texto: #333;
   &:hover {
     background-color: $cor-fundo !important;
     color: $cor-principal !important;
+    transform: scale(1.05) !important;
+  }
+}
+
+// Link Admin
+.admin-link {
+  background-color: rgba(255, 215, 0, 0.2) !important;
+  border: 2px solid rgba(255, 215, 0, 0.5) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background-color: rgba(255, 215, 0, 0.3) !important;
+    border-color: rgba(255, 215, 0, 0.8) !important;
+    transform: scale(1.05) !important;
+  }
+}
+
+// Botão do Usuário
+.user-btn {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid $cor-fundo !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.25) !important;
     transform: scale(1.05) !important;
   }
 }
@@ -210,10 +265,28 @@ $cor-texto: #333;
     text-decoration: none;
     font-size: 1.1rem !important;
     border-radius: 0 !important;
+    cursor: pointer;
 
     &:hover {
       background-color: color.adjust($cor-fundo, $lightness: -5%) !important;
       transform: none !important;
+    }
+  }
+
+  &.user-menu {
+    right: 0;
+    left: auto;
+
+    .logout-link {
+      color: #d9534f !important;
+      font-weight: 600;
+      border-top: 1px solid #ddd;
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+
+      &:hover {
+        background-color: #fff0f0 !important;
+      }
     }
   }
 }

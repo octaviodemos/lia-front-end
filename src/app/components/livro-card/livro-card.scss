@@ -15,6 +15,38 @@ $cor-borda: #eee;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.toast-success {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .card-link-main {
@@ -60,7 +92,7 @@ $cor-borda: #eee;
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem 1rem 1rem;
-  border-top: 1px solid $cor-borda;
+  margin-top: 0.5rem;
 }
 
 .card-price {
@@ -70,16 +102,31 @@ $cor-borda: #eee;
   margin: 0;
 }
 
-button {
+.btn-adicionar {
   background-color: $cor-principal;
   color: #fff;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 
   &:hover {
     background-color: color.adjust($cor-principal, $lightness: -10%);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }

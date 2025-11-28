@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ReformaService {
 
-  private apiUrl = 'http://localhost:3333/api/solicitacoes-reforma';
+  private apiUrl = 'http://localhost:3333/api/repairs';
 
   constructor(private http: HttpClient) { }
 
@@ -16,14 +16,14 @@ export class ReformaService {
   }
 
   getMinhasSolicitacoes(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/minhas-solicitacoes`);
+    return this.http.get(`http://localhost:3333/api/repairs/my-requests`);
   }
 
   getAllSolicitacoes(): Observable<any> {
-    return this.http.get(this.apiUrl);
+    return this.http.get('http://localhost:3333/api/repairs');
   }
 
-  responderSolicitacao(id: string, status: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/responder`, { status_solicitacao: status });
+  responderSolicitacao(id: string, status: string, resposta_admin?: string): Observable<any> {
+    return this.http.patch(`http://localhost:3333/api/repairs/${id}/respond`, { status, resposta_admin });
   }
 }

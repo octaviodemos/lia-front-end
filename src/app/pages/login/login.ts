@@ -30,7 +30,7 @@ export class Login implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       senha: ['', [Validators.required]]
     });
   }
@@ -42,7 +42,22 @@ export class Login implements OnInit {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response: any) => {
           console.log('Login bem-sucedido!', response);
-          this.router.navigate(['/']); 
+          console.log('Token salvo:', localStorage.getItem('lia_auth_token'));
+          console.log('User salvo:', localStorage.getItem('lia_user'));
+          console.log('isLoggedIn:', this.authService.isLoggedIn());
+          console.log('isAdmin:', this.authService.isAdmin());
+          
+          // Aguarda um momento para garantir que o localStorage foi atualizado
+          setTimeout(() => {
+            // Redireciona para área admin se for administrador
+            if (this.authService.isAdmin()) {
+              console.log('Redirecionando para /admin');
+              this.router.navigate(['/admin']);
+            } else {
+              console.log('Redirecionando para /');
+              this.router.navigate(['/']);
+            }
+          }, 100);
         },
         error: (err: any) => {
           console.error('Erro no login:', err);

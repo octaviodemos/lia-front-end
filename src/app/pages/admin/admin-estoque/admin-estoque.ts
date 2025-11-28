@@ -30,7 +30,7 @@ export class AdminEstoque implements OnInit {
       id_livro: [null, Validators.required],
       preco: [null, [Validators.required, Validators.min(0)]],
       quantidade: [1, [Validators.required, Validators.min(1)]],
-      condicao: ['Novo', Validators.required]
+      condicao: ['novo', Validators.required]
     });
   }
 
@@ -43,14 +43,26 @@ export class AdminEstoque implements OnInit {
 
   onSubmit(): void {
     if (this.estoqueForm.valid) {
-      this.estoqueService.adicionarItemEstoque(this.estoqueForm.value).subscribe({
+      const formValue = this.estoqueForm.value;
+      const payload = {
+        id_livro: formValue.id_livro,
+        preco: parseFloat(formValue.preco).toFixed(2),
+        quantidade: parseInt(formValue.quantidade),
+        condicao: formValue.condicao
+      };
+      
+      this.estoqueService.adicionarItemEstoque(payload).subscribe({
         next: (response: any) => {
           this.mensagemSucesso = 'Item adicionado ao estoque com sucesso!';
-          this.estoqueForm.reset({ quantidade: 1, condicao: 'Novo' });
+          this.estoqueForm.reset({ quantidade: 1, condicao: 'novo' });
         },
         error: (err: any) => {
-          console.error('Erro ao adicionar ao estoque:', err);
-          this.mensagemSucesso = 'Erro ao adicionar item.';
+          console.error('Erro:', err);
+          if (Array.isArray(err.error?.message)) {
+            this.mensagemSucesso = err.error.message.join(', ');
+          } else {
+            this.mensagemSucesso = err.error?.message || 'Erro ao adicionar item.';
+          }
         }
       });
     }
