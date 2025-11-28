@@ -1,5 +1,14 @@
 <div class="avaliacao-form-container">
-  <h4>Deixe sua avaliação</h4>
+  <h3>Deixe sua avaliação</h3>
+  
+  <div class="mensagem-sucesso" *ngIf="mensagemSucesso">
+    {{ mensagemSucesso }}
+  </div>
+  
+  <div class="mensagem-erro" *ngIf="mensagemErro">
+    {{ mensagemErro }}
+  </div>
+
   <form [formGroup]="avaliacaoForm" (ngSubmit)="onSubmit()">
     
     <div class="form-group">
@@ -12,6 +21,8 @@
       <textarea id="comentario" formControlName="comentario" rows="4"></textarea>
     </div>
 
-    <button type="submit" [disabled]="avaliacaoForm.invalid">Enviar Avaliação</button>
+    <button type="submit" [disabled]="avaliacaoForm.invalid || enviando">
+      {{ enviando ? 'Enviando...' : 'Enviar Avaliação' }}
+    </button>
   </form>
 </div>

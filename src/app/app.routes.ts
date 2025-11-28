@@ -40,8 +40,8 @@ export const routes: Routes = [
   { path: 'minha-conta', component: MinhaConta },
   { path: 'comunidade', component: Comunidade },
   { path: 'publicacao/:id', component: PublicacaoDetalhes },
-  { path: 'comunidade', component: Comunidade },
-  { path: 'publicacao/:id', component: PublicacaoDetalhes },
+  { path: 'contato', component: Home },
+  { path: 'mais-vendidos', component: Loja },
 
 {
     path: 'admin',

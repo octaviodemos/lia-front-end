@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { EnderecoService } from '../../services/endereco.service';
 import { EnderecoUtilsService, Estado, Municipio } from '../../services/endereco-utils.service';
 
 @Component({
   selector: 'app-meus-enderecos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxMaskDirective],
-  providers: [provideNgxMask()],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './meus-enderecos.html',
   styleUrls: ['./meus-enderecos.scss']
 })

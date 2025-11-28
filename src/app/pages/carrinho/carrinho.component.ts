@@ -46,12 +46,25 @@ export class Carrinho implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (itens: ItemCarrinho[]) => {
+          console.log('🛒 Itens no carrinho:', itens);
           this.cart.items = itens;
           this.cart.total = this.carrinhoService.getValorTotal();
           this.cart.totalItens = this.carrinhoService.getTotalItens();
+          
+          console.log('💰 Total calculado:', this.cart.total);
+          console.log('📦 Total de itens:', this.cart.totalItens);
+          
+          if (itens.length > 0) {
+            console.log('🔍 Primeiro item:', {
+              titulo: itens[0].titulo,
+              preco: itens[0].preco,
+              tipoPreco: typeof itens[0].preco,
+              quantidade: itens[0].quantidade
+            });
+          }
         },
         error: (err: Error) => {
-          console.error('Erro ao carregar carrinho:', err);
+          console.error('❌ Erro ao carregar carrinho:', err);
         }
       });
   }

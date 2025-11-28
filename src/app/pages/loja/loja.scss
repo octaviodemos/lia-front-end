@@ -14,6 +14,21 @@
   }
 }
 
+.btn-testar {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  
+  &:hover {
+    background: #0056b3;
+  }
+}
+
 .livros-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

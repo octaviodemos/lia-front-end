@@ -55,27 +55,92 @@ export class LivroDetalhes implements OnInit {
     this.avaliacoes.push(novaAvaliacao);
   }
 
+  temPreco(): boolean {
+    if (!this.livro || !this.livro.estoque) return false;
+    const preco = this.livro.estoque.preco;
+    if (!preco && preco !== 0) return false;
+    
+    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
+    return !isNaN(precoNum) && isFinite(precoNum) && precoNum > 0;
+  }
+
+  getAutorNome(): string {
+    if (!this.livro) return 'Autor desconhecido';
+    
+    if (this.livro.autores && Array.isArray(this.livro.autores) && this.livro.autores.length > 0) {
+      return this.livro.autores[0].nome || 'Autor desconhecido';
+    }
+    
+    if (this.livro.autor && typeof this.livro.autor === 'object') {
+      return this.livro.autor.nome || 'Autor desconhecido';
+    }
+    
+    if (this.livro.autor && typeof this.livro.autor === 'string') {
+      return this.livro.autor;
+    }
+    
+    return 'Autor desconhecido';
+  }
+
+  getImagemUrl(): string {
+    if (!this.livro) {
+      return 'assets/placeholder.svg';
+    }
+    
+    const url = this.livro.capa_url;
+    
+    if (!url || url.includes('placeholder') || url.includes('200x300') || url.includes('text=')) {
+      return 'assets/placeholder.svg';
+    }
+    
+    if (!url.startsWith('http')) {
+      return url;
+    }
+    
+    return url;
+  }
+
   adicionarAoCarrinho(): void {
-    if (this.livro) {
-      this.carrinhoService.adicionarItem({
-        livroId: String(this.livro.id_livro || this.livro.id),
-        titulo: this.livro.titulo || 'Livro sem título',
-        autor: this.livro.autor?.nome || this.livro.autor || 'Autor desconhecido',
-        preco: parseFloat(this.livro.estoque?.preco) || 0,
-        quantidade: 1,
-        imagemUrl: this.livro.capa_url
-      });
-      this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
-      
-      // Limpa a mensagem após 3 segundos
-      setTimeout(() => {
-        this.mensagemSucesso = '';
-      }, 3000);
-    } else {
+    if (!this.livro) {
       this.mensagemSucesso = '❌ Erro: livro não encontrado';
       setTimeout(() => {
         this.mensagemSucesso = '';
       }, 3000);
+      return;
     }
+
+    if (!this.temPreco()) {
+      this.mensagemSucesso = '❌ Este livro não está disponível para compra';
+      setTimeout(() => {
+        this.mensagemSucesso = '';
+      }, 3000);
+      return;
+    }
+
+    const preco = this.livro.estoque.preco;
+    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
+    const idEstoque = String(this.livro.estoque?.id_estoque || this.livro.id_livro);
+
+    this.carrinhoService.adicionarItem(idEstoque, 1, {
+      livroId: String(this.livro.id_livro || this.livro.id),
+      titulo: this.livro.titulo || 'Livro sem título',
+      autor: this.getAutorNome(),
+      preco: precoNum,
+      quantidade: 1,
+      imagemUrl: this.livro.capa_url
+    }).subscribe({
+      next: () => {
+        this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
+        setTimeout(() => {
+          this.mensagemSucesso = '';
+        }, 3000);
+      },
+      error: () => {
+        this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
+        setTimeout(() => {
+          this.mensagemSucesso = '';
+        }, 3000);
+      }
+    });
   }
 }

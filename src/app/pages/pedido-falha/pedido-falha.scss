@@ -30,7 +30,8 @@ $cor-texto: #333;
     margin-bottom: 1rem;
   }
 
-  a {
+  a,
+  .btn-voltar {
     display: inline-block;
     background-color: $cor-principal;
     color: #fff;
