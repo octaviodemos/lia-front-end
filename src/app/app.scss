@@ -1,0 +1,23 @@
+/* Estilos globais do componente App */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.app-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
