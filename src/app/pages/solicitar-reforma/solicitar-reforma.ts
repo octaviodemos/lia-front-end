@@ -36,8 +36,9 @@ export class SolicitarReforma implements OnInit {
   onSubmit(): void {
     if (this.reformaForm.valid && this.selectedFiles.length > 0) {
       const formData = new FormData();
-      
-      formData.append('descricao_problema', this.reformaForm.get('descricao_problema')?.value);
+      // ensure descricao_problema is always a plain string (backend validation expects string)
+      const descricao = String(this.reformaForm.get('descricao_problema')?.value || '');
+      formData.append('descricao_problema', descricao);
       
       this.selectedFiles.forEach((file) => {
         formData.append('fotos', file, file.name);
@@ -51,7 +52,15 @@ export class SolicitarReforma implements OnInit {
         },
         error: (err: any) => {
           console.error('Erro ao enviar solicitação:', err);
-          this.mensagemSucesso = 'Erro ao enviar solicitação. Tente novamente.';
+          // show backend validation message when available
+          const backendMsg = err?.error?.message || err?.message || 'Erro ao enviar solicitação. Tente novamente.';
+          if (Array.isArray(backendMsg)) {
+            this.mensagemSucesso = backendMsg.join('; ');
+          } else if (typeof backendMsg === 'string') {
+            this.mensagemSucesso = backendMsg;
+          } else {
+            this.mensagemSucesso = 'Erro ao enviar solicitação. Tente novamente.';
+          }
         }
       });
     } else {

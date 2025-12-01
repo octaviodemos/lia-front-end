@@ -109,19 +109,341 @@ hr {
   margin-bottom: 1.5rem;
 }
 
-.btn-pagamento {
-  background-color: $cor-principal;
-  color: #fff;
-  border: none;
-  padding: 1rem;
-  width: 100%;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.1rem;
+// Indicador de Progresso
+.progress-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+  gap: 2rem;
 
-  &:hover {
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .step-label {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+    }
+
+    &.active {
+      .step-number {
+        background-color: $cor-principal;
+        color: white;
+      }
+      .step-label {
+        color: $cor-principal;
+        font-weight: 600;
+      }
+    }
+
+    &.completed {
+      .step-number {
+        background-color: #4caf50;
+        color: white;
+      }
+      .step-label {
+        color: #4caf50;
+      }
+    }
+
+    // Linha conectora
+    &:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50px;
+      width: 100px;
+      height: 2px;
+      background-color: #e0e0e0;
+      z-index: -1;
+    }
+
+    &.completed:not(:last-child)::after {
+      background-color: #4caf50;
+    }
+  }
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+    .step:not(:last-child)::after {
+      width: 60px;
+      left: 30px;
+    }
+  }
+}
+
+// Conteúdo das Etapas
+.step-content {
+  flex-basis: 60%;
+}
+
+.dados-cliente {
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: $cor-principal;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .form-group {
+    &.form-info {
+      grid-column: span 1;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.9rem;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: $cor-principal;
+        box-shadow: 0 0 0 3px rgba($cor-principal, 0.1);
+      }
+
+      &.error {
+        border-color: #dc3545;
+        background-color: #fef5f5;
+      }
+
+      &::placeholder {
+        color: #999;
+      }
+
+      &[type="date"] {
+        cursor: pointer;
+      }
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+    border: 2px solid #e3f2fd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    height: fit-content;
+
+    h4 {
+      margin: 0 0 1rem 0;
+      color: $cor-principal;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0 0 1rem 0;
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    small {
+      color: #666;
+      font-size: 0.8rem;
+      display: block;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+.confirmacao {
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: $cor-principal;
+  }
+
+  .resumo-endereco,
+  .resumo-dados {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid $cor-principal;
+
+    h3 {
+      margin: 0 0 1rem 0;
+      color: $cor-principal;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0.25rem 0;
+    }
+  }
+
+  .dados-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .dado-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+
+      .label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+      }
+
+      .value {
+        color: #212529;
+        font-weight: 500;
+        text-align: right;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.no-address {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+
+  p {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+// Ações das Etapas
+.step-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+// Botões
+.btn-primary,
+.btn-secondary,
+.btn-pagamento {
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  min-width: 120px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: $cor-principal;
+  color: white;
+
+  &:hover:not(:disabled) {
     background-color: color.adjust($cor-principal, $lightness: -10%);
+    transform: translateY(-2px);
+  }
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust(#6c757d, $lightness: -10%);
+    transform: translateY(-2px);
+  }
+}
+
+.btn-pagamento {
+  background-color: #0066cc;
+  color: #fff;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust(#0066cc, $lightness: -10%);
+    transform: translateY(-2px);
   }
 
   &:disabled {

@@ -1,0 +1,51 @@
+<div class="admin-pendentes-container">
+  <h1>Itens Pendentes</h1>
+
+  <section>
+    <h2>Avaliações</h2>
+    <div *ngIf="avaliations.length === 0">Nenhuma avaliação pendente.</div>
+    <div *ngFor="let a of avaliations" class="pending-card">
+      <p><strong>Livro:</strong> {{ a.titulo || a.id_livro }}</p>
+      <p><strong>Usuário:</strong> {{ a.usuario?.nome || a.id_usuario }}</p>
+      <p><strong>Nota:</strong> {{ a.nota }} — {{ a.comentario }}</p>
+      <div class="actions">
+        <button (click)="approveAvaliacao(a.id_avaliacao || a.id)">Aprovar</button>
+        <button class="danger" (click)="deleteAvaliacao(a.id_avaliacao || a.id)">Rejeitar</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Comentários em Publicações</h2>
+    <div *ngIf="comentarios.length === 0">Nenhum comentário pendente.</div>
+    <div *ngFor="let c of comentarios" class="pending-card">
+      <p><strong>Publicação:</strong> {{ c.id_publicacao }}</p>
+      <p><strong>Usuário:</strong> {{ c.usuario?.nome || c.id_usuario }}</p>
+      <p>{{ c.conteudo }}</p>
+      <div class="actions">
+        <button (click)="approveComentario(c.id_comentario || c.id)">Aprovar</button>
+        <button class="danger" (click)="deleteComentario(c.id_comentario || c.id)">Rejeitar</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ofertas (pendentes)</h2>
+    <div *ngIf="offers.length === 0">Nenhuma oferta pendente.</div>
+    <div *ngFor="let o of offers" class="pending-card">
+      <p><strong>Título:</strong> {{ o.titulo_livro || o.title }}</p>
+      <p><strong>Usuário:</strong> {{ o.usuario?.nome || o.id_usuario }}</p>
+      <p><strong>Preço sugerido:</strong> {{ o.preco_sugerido }}</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reformas (pendentes)</h2>
+    <div *ngIf="repairs.length === 0">Nenhuma solicitação pendente.</div>
+    <div *ngFor="let r of repairs" class="pending-card">
+      <p><strong>ID:</strong> {{ r.id_repair || r.id }}</p>
+      <p><strong>Descrição:</strong> {{ r.descricao_problema }}</p>
+    </div>
+  </section>
+
+</div>

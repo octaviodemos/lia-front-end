@@ -62,8 +62,11 @@ export class Carrinho implements OnInit, OnDestroy {
               quantidade: itens[0].quantidade
             });
             
-            // Carregar informações de estoque para os itens
-            this.atualizarEstoque();
+            // Carregar informações de estoque para os itens automaticamente
+            this.carrinhoService.atualizarInfoEstoque().subscribe({
+              next: () => console.log('✅ Estoque carregado'),
+              error: (err) => console.log('❌ Erro ao carregar estoque:', err)
+            });
           }
         },
         error: (err: Error) => {
@@ -130,20 +133,6 @@ export class Carrinho implements OnInit, OnDestroy {
     const estoque = item?.estoqueDisponivel || 0;
     console.log(`📦 Estoque para livro ${livroId}:`, estoque, 'item completo:', item);
     return estoque;
-  }
-
-  /**
-   * Atualiza informações de estoque para todos os itens
-   */
-  atualizarEstoque(): void {
-    this.carrinhoService.atualizarInfoEstoque().subscribe({
-      next: () => {
-        console.log('✅ Estoque atualizado');
-      },
-      error: (err) => {
-        console.error('❌ Erro ao atualizar estoque:', err);
-      }
-    });
   }
 
   /**

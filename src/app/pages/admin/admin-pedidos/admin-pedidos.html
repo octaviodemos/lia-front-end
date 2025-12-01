@@ -1,19 +1,45 @@
 <div class="admin-container">
   <h2>Painel de Admin - Gestão de Pedidos</h2>
+  <div class="admin-filters">
+    <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
+    <select [(ngModel)]="filterStatus" (change)="onSearch()">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
 
   <div class="pedidos-lista" *ngIf="pedidos.length > 0; else noPedidos">
     <div *ngFor="let pedido of pedidos" class="pedido-card">
-      <h4>Pedido #{{ pedido.id_pedido }}</h4>
-      <p><strong>Data:</strong> {{ pedido.data_pedido | date: 'dd/MM/yyyy' }}</p>
-      <p><strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }}</p>
+      <div class="pedido-card-header">
+        <div class="pedido-title">
+          <h4>Pedido #{{ pedido.id_pedido }}</h4>
+          <div class="pedido-sub">{{ pedido.data_pedido | date: 'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <div class="pedido-badge" [ngClass]="badgeClassFor(pedido)">
+          {{ getFriendlyLabel(pedido) }}
+        </div>
+      </div>
+
+      <p class="cliente"><strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }} <span class="email">({{ pedido.cliente?.email }})</span></p>
       
       <div class="itens-pedido">
         <strong>Itens:</strong>
-        <ul>
-          <li *ngFor="let item of pedido.itens_pedido">
-            {{ item.estoque.livro?.titulo || 'Livro' }} (Qtd: {{ item.quantidade }})
-          </li>
-        </ul>
+        <div class="itens-table">
+          <div class="itens-header">
+            <div class="col-thumb"></div>
+            <div class="col-title">Título</div>
+            <div class="col-qtd">Qtd.</div>
+            <div class="col-preco">Preço</div>
+          </div>
+
+          <div *ngFor="let item of pedido.itens" class="itens-row">
+            <div class="col-thumb">
+              <img *ngIf="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" [src]="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" alt="capa" />
+            </div>
+            <div class="col-title">{{ item.estoque?.livro?.titulo || 'Livro' }}</div>
+            <div class="col-qtd">{{ item.quantidade }}</div>
+            <div class="col-preco">R$ {{ item.preco_unitario | number:'1.2-2' }}</div>
+          </div>
+        </div>
       </div>
 
 <div class="form-group">
@@ -27,16 +53,23 @@
   
   <select 
     [id]="'status-' + pedido.id_pedido"
-    [value]="pedido.status_pedido" 
-    (change)="onStatusChange($event, pedido.id_pedido)"
-    
+    [ngModel]="getSelectedStatusValue(pedido)"
+    (ngModelChange)="onStatusChange($event, pedido.id_pedido)"
     [attr.aria-labelledby]="'label-status-' + pedido.id_pedido"
+    [ngClass]="badgeClassFor(pedido) + ' status-select'"
   >
-    <option *ngFor="let status of statusOptions" [value]="status">
-      {{ status }}
+    <option *ngIf="!getSelectedStatusValue(pedido)" value="__current" disabled>{{ getFriendlyLabel(pedido) }}</option>
+    <option *ngFor="let status of statusOptions" [value]="status.value" [hidden]="!status.value">
+      {{ status.label }}
     </option>
   </select>
 </div>
+    </div>
+
+    <div class="pagination">
+      <button (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+      <span>Página {{ page }} — Total: {{ total }}</span>
+      <button (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
     </div>
   </div>
 

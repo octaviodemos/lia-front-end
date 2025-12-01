@@ -26,3 +26,120 @@
   @include admin-form;
   margin-bottom: 0;
 }
+
+.admin-filters {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  input[type="search"] {
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #dcdcdc;
+    min-width: 280px;
+  }
+
+  select {
+    padding: 0.36rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #dcdcdc;
+    background: #fff;
+    font-size: 0.95rem;
+  }
+}
+
+.form-group select {
+  padding: 0.36rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+}
+
+.pedido-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.pedido-title h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+}
+.pedido-sub {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.pedido-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.badge--success { background:#e6ffed; color:#067a2d; border:1px solid rgba(6,122,45,0.12); }
+.badge--warning { background:#fff7e6; color:#8a5a00; border:1px solid rgba(138,90,0,0.08); }
+.badge--danger { background:#ffe6e6; color:#8a1f1f; border:1px solid rgba(138,31,31,0.08); }
+.badge--muted { background:#f5f5f5; color:#666; border:1px solid rgba(0,0,0,0.04); }
+.badge--info { background:#e6f0ff; color:#0b4fa3; border:1px solid rgba(11,79,163,0.06); }
+.badge--neutral { background:#fafafa; color:#333; border:1px solid rgba(0,0,0,0.03); }
+
+.pedido-card {
+  @include admin-data-card;
+  padding: 1rem 1.1rem;
+}
+
+.cliente { margin-top: 0.25rem; margin-bottom: 0.5rem; }
+.cliente .email { color:#666; font-style:normal; }
+
+.itens-pedido ul { margin: 0.4rem 0 0 1rem; }
+.itens-pedido li { margin-bottom: 0.35rem; }
+
+.form-group { margin-top: 0.6rem; }
+
+.pedido-card .form-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.pedido-card .form-group label {
+  margin: 0;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #333;
+}
+.pedido-card .form-group .status-select {
+  margin-left: auto;
+}
+
+.itens-table {
+  margin-top: 0.6rem;
+  border-top: 1px solid #eee;
+}
+.itens-header, .itens-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 60px 120px;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 0;
+}
+.itens-header {
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #f1f1f1;
+}
+.itens-row { border-bottom: 1px solid #fafafa; }
+.col-thumb img { width:36px; height:48px; object-fit:cover; border-radius:4px; }
+.col-title { font-size: 0.96rem; }
+.col-qtd { text-align: left; color:#444; }
+.col-preco { text-align: right; font-weight:600; }
+
+.status-select { padding: 0.46rem 0.8rem; border-radius: 6px; min-width: 140px; }
+.status-select.badge--success { background: #1e9b74; color: #fff; border: none; }
+.status-select.badge--warning { background: #e9a94a; color: #fff; border: none; }
+.status-select.badge--danger { background: #d65a5a; color: #fff; border: none; }
+.status-select.badge--muted { background: #f0f0f0; color: #444; border: none; }
+.status-select.badge--info { background: #2b7cd6; color: #fff; border: none; }
+.status-select.badge--neutral { background: #f7f7f7; color: #333; border: none; }

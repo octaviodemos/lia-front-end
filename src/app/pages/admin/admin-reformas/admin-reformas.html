@@ -1,41 +1,45 @@
 <div class="admin-container">
-  <h2>Painel de Admin - Análise de Solicitações de Reforma</h2>
+  <h2>Painel Admin - Reformas</h2>
 
-  <div class="solicitacoes-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
-    <div *ngFor="let solicitacao of solicitacoes" class="solicitacao-card">
-      <h4>Solicitação #{{ solicitacao.id_solicitacao }}</h4>
-      <p><strong>Usuário:</strong> {{ solicitacao.usuario?.nome || 'Nome não disponível' }}</p>
-      <p><strong>Contato:</strong> {{ solicitacao.usuario?.telefone || '(Sem telefone)' }}</p>
-      <p><strong>Descrição:</strong> {{ solicitacao.descricao_problema }}</p>
+  <div class="admin-filters">
+    <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
+    <select [(ngModel)]="filterStatus" (change)="onSearch()">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
 
-      <div class="fotos-reforma">
-        <strong>Fotos:</strong>
-        <div class="fotos-grid">
-          <div *ngFor="let foto of solicitacao.fotos_solicitacao_reforma" class="foto-item">
-            <a [href]="foto.url_foto" target="_blank">
-              <img [src]="foto.url_foto" alt="Foto da reforma">
-            </a>
-          </div>
+  <div class="reformas-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
+    <div *ngFor="let s of solicitacoes" class="reforma-card">
+      <div class="reforma-header">
+        <div class="reforma-title">Solicitação #{{ s.id_solicitacao || s.id }} <span class="reforma-date">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
+        <div class="reforma-user">{{ s.usuario?.nome || s.usuario?.name || 'Usuário' }} <span class="email">({{ s.usuario?.email }})</span></div>
+      </div>
+
+      <div class="reforma-body">
+        <div class="reforma-desc">{{ s.descricao_problema }}</div>
+
+        <div class="reforma-thumbs" *ngIf="(s.fotos || []).length > 0">
+          <img *ngFor="let f of s.fotos" [src]="('http://localhost:3333' + (f.url_foto || f))" alt="foto" />
+        </div>
+
+        <div class="reforma-actions">
+          <label>Status</label>
+          <select [ngModel]="getSelectedStatusValue(s)" (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)" [ngClass]="badgeClassFor(s) + ' status-select'">
+            <option *ngIf="!getSelectedStatusValue(s)" value="__current" disabled>{{ getFriendlyLabel(s) }}</option>
+            <option *ngFor="let opt of statusOptions" [value]="opt.value" [hidden]="!opt.value">{{ opt.label }}</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label [for]="'status-' + solicitacao.id_solicitacao">Status da Solicitação</label>
-        <select 
-          [id]="'status-' + solicitacao.id_solicitacao"
-          [value]="solicitacao.status_solicitacao" 
-          (change)="onStatusChange($event, solicitacao.id_solicitacao)"
-          [attr.aria-label]="'Mudar status da Solicitação #' + solicitacao.id_solicitacao">
-          <option *ngFor="let status of statusOptions" [value]="status">
-            {{ status }}
-          </option>
-        </select>
-      </div>
-      
+    <div class="pagination">
+      <button (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+      <span>Página {{ page }} — Total: {{ total }}</span>
+      <button (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
     </div>
   </div>
 
   <ng-template #noSolicitacoes>
-    <p>Nenhuma solicitação de reforma pendente no momento.</p>
+    <p>Nenhuma solicitação encontrada.</p>
   </ng-template>
 </div>

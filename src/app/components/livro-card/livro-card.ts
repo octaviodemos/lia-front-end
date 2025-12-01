@@ -89,7 +89,7 @@ export class LivroCard {
 
     const preco = this.livro.estoque.preco;
     const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    const idEstoque = String(this.livro.estoque?.id_estoque || this.livro.id_livro);
+    const idEstoque = Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
 
     this.carrinhoService.adicionarItem(idEstoque, 1, {
       livroId: String(this.livro.id_livro || this.livro.id),

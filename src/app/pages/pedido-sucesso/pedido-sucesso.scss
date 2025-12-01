@@ -1,7 +1,7 @@
 @use 'sass:color';
 
 /* Cores */
-$cor-sucesso: #27ae60; // Verde para sucesso
+$cor-sucesso: #27ae60;
 $cor-principal: #6a0000;
 $cor-texto: #333;
 
@@ -47,5 +47,40 @@ $cor-texto: #333;
     &:hover {
       background-color: color.adjust($cor-principal, $lightness: -10%);
     }
+  }
+
+  /* Panels transition */
+  .panel {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+    transition: opacity 280ms cubic-bezier(.2,.9,.2,1), transform 280ms cubic-bezier(.2,.9,.2,1);
+    will-change: opacity, transform;
+    pointer-events: auto;
+  }
+
+  .panel.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Small polish for found order card */
+  .found-order, .success-state {
+    padding: 1.5rem 0;
+  }
+
+  /* Actions layout: give space between action buttons */
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  .actions a, .actions button {
+    min-width: 180px;
+    text-align: center;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }

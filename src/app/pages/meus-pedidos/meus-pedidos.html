@@ -7,11 +7,15 @@
 
   <div *ngIf="!loading && pedidos.length > 0; else noPedidos">
     <div *ngFor="let pedido of pedidos" class="pedido-item">
-      <h3>Pedido #{{ pedido.id_pedido }}</h3>
+      <h3>Pedido #{{ pedido.id_pedido || pedido.id || pedido.order_id }}</h3>
       <p><strong>Data:</strong> {{ pedido.data_pedido | date: 'dd/MM/yyyy' }}</p>
-      <p><strong>Status:</strong> {{ pedido.status_pedido }}</p>
-      <p><strong>Valor Total:</strong> R$ {{ pedido.total }}</p>
-      <a [routerLink]="['/pedido', pedido.id_pedido]">Ver Detalhes</a>
+      <p><strong>Status:</strong>
+        <span class="status-badge" [ngClass]="badgeClass(pedido)">
+          {{ getFriendlyLabel(pedido) || 'desconhecido' }}
+        </span>
+      </p>
+      <p><strong>Valor Total:</strong> {{ pedido.displayTotal || 'R$ —' }}</p>
+      <a [routerLink]="['/pedido', pedido.id_pedido]" [state]="{ pedido: pedido }">Ver Detalhes</a>
     </div>
   </div>
 

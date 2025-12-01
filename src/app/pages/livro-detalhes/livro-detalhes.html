@@ -33,7 +33,7 @@
       <div class="detalhes-tecnicos">
         <p><strong>Editora:</strong> {{ livro.editora || 'Não informada' }}</p>
         <p><strong>ISBN:</strong> {{ livro.isbn || 'Não informado' }}</p>
-        <p><strong>Gênero:</strong> {{ livro.genero?.nome || 'Não informado' }}</p>
+        <p><strong>Gênero:</strong> {{ getGeneroLabel() }}</p>
         <p><strong>Ano:</strong> {{ livro.ano_publicacao || 'Não informado' }}</p>
       </div>
       

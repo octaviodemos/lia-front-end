@@ -4,32 +4,16 @@
   @include admin-page-container;
 }
 
-.solicitacoes-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.solicitacao-card {
-  @include admin-data-card;
-}
-
-.fotos-grid {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  
-  img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
-    border: 1px solid $border-color;
-  }
-}
-
-.form-group {
-  @include admin-form;
-  margin-top: 1rem;
-  margin-bottom: 0;
-}
+.admin-filters{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
+input[type=search]{padding:.4rem .6rem;border-radius:4px;border:1px solid #dcdcdc;min-width:260px}
+select{padding:.36rem .5rem;border-radius:4px;border:1px solid #dcdcdc;background:#fff}
+.reforma-card{@include admin-data-card;padding:1rem;margin-bottom:1rem}
+.reforma-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.reforma-title{font-weight:700}
+.reforma-date{display:block;font-size:.85rem;color:#666}
+.reforma-user{color:#333}
+.reforma-body{border-top:1px solid #f1f1f1;padding-top:.6rem}
+.reforma-desc{margin-bottom:.6rem}
+.reforma-thumbs img{width:64px;height:88px;object-fit:cover;border-radius:4px;margin-right:.5rem}
+.reforma-actions{display:flex;align-items:center;gap:.75rem;margin-top:.6rem}
+.pagination{margin-top:1rem;display:flex;gap:.5rem;align-items:center}

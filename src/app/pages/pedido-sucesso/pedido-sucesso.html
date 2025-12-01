@@ -1,6 +1,114 @@
 <div class="pedido-status-container">
-  <h1>Obrigado!</h1>
-  <p>Seu pagamento foi aprovado e seu pedido foi recebido.</p>
-  <p>Enviaremos uma confirmação por e-mail em breve.</p>
-  <a routerLink="/">Voltar para a Home</a>
+  
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-state panel" [class.visible]="pollingVisible">
+    <div class="spinner"></div>
+     <h2>Verificando seu pagamento...</h2>
+     <p>Aguarde enquanto confirmamos os dados com a Stripe.</p>
+  </div>
+
+  <!-- Polling State -->
+  <div *ngIf="polling" class="polling-state panel" [class.visible]="pollingVisible">
+    <div class="pending-icon">⏳</div>
+    <h1>Aguardando confirmação</h1>
+    <p>{{ pollingMessage }}</p>
+    <div class="actions">
+      <button (click)="manualCheckOrders()" class="btn-primary">Verificar pedido</button>
+      <a routerLink="/meus-pedidos" class="btn-secondary">Ver Meus Pedidos</a>
+    </div>
+  </div>
+
+  <!-- Found Order -->
+  <div *ngIf="!carregando && foundOrder" class="found-order panel" [class.visible]="foundVisible">
+    <div class="success-icon">✅</div>
+    <h1>Pedido Confirmado</h1>
+    <p>Seu pedido foi confirmado e está sendo processado.</p>
+
+    <div class="order-details">
+      <p><strong>Pedido:</strong> #{{ foundOrder.id_pedido || foundOrder.id || foundOrder.order_id }}</p>
+      <p><strong>Data:</strong> {{ foundOrder.created_at | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Status:</strong>
+        <span class="status-badge" [ngClass]="badgeClass(foundOrder)">
+          {{ getFriendlyLabel(foundOrder) || 'desconhecido' }}
+        </span>
+      </p>
+      <p><strong>Valor Total:</strong> {{ computeOrderTotal(foundOrder) | currency:'BRL':'symbol':'1.2-2' }}</p>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/meus-pedidos" class="btn-primary">Ver Meus Pedidos</a>
+      <a routerLink="/" class="btn-secondary">Voltar à Loja</a>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="!carregando && (paymentStatus === 'approved' || dadosPagamento?.status === 'approved')" class="success-state panel" [class.visible]="successVisible">
+    <div class="success-icon">✅</div>
+    <h1>Pagamento Aprovado!</h1>
+    <p class="success-message">Obrigado! Seu pagamento foi processado com sucesso.</p>
+    
+    <div class="payment-details" *ngIf="dadosPagamento">
+      <h3>Detalhes do Pagamento:</h3>
+      <div class="detail-item">
+        <span class="label">Pedido:</span>
+        <span class="value">#{{ dadosPagamento.order_id }}</span>
+      </div>
+      <div class="detail-item" *ngIf="dadosPagamento.payment_id">
+          <span class="label">ID de Pagamento:</span>
+          <span class="value">{{ dadosPagamento.payment_id || dadosPagamento.payment_intent }}</span>
+      </div>
+      <div class="detail-item" *ngIf="dadosPagamento.amount">
+        <span class="label">Valor:</span>
+        <span class="value">R$ {{ dadosPagamento.amount.toFixed(2) }}</span>
+      </div>
+      <div class="detail-item" *ngIf="dadosPagamento.payment_method">
+        <span class="label">Método:</span>
+        <span class="value">{{ dadosPagamento.payment_method }}</span>
+      </div>
+    </div>
+
+    <div class="next-steps">
+      <h3>Próximos Passos:</h3>
+      <ul>
+        <li>✉️ Você receberá um e-mail de confirmação</li>
+        <li>📦 Seu pedido será preparado e enviado</li>
+        <li>📱 Acompanhe o status em "Meus Pedidos"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Pending State -->
+  <div *ngIf="!carregando && (paymentStatus === 'pending' || dadosPagamento?.status === 'pending')" class="pending-state panel" [class.visible]="true">
+    <div class="pending-icon">⏳</div>
+    <h1>Pagamento Pendente</h1>
+    <p>Seu pagamento está sendo processado. Isso pode levar alguns minutos.</p>
+    <p>Você receberá uma confirmação por e-mail assim que for aprovado.</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!carregando && (paymentStatus === 'rejected' || dadosPagamento?.status === 'rejected')" class="error-state panel" [class.visible]="true">
+    <div class="error-icon">❌</div>
+    <h1>Pagamento Rejeitado</h1>
+    <p>Infelizmente seu pagamento não foi aprovado.</p>
+    <p>Tente novamente ou use outro método de pagamento.</p>
+    
+    <div class="error-actions">
+      <a routerLink="/carrinho" class="btn-retry">Tentar Novamente</a>
+    </div>
+  </div>
+
+  <!-- Default Success (when no specific status) -->
+  <div *ngIf="!carregando && !paymentStatus && !dadosPagamento && !foundOrder" class="default-success panel" [class.visible]="true">
+    <div class="success-icon">✅</div>
+    <h1>Obrigado!</h1>
+    <p>Seu pedido foi recebido com sucesso.</p>
+    <p>Enviaremos uma confirmação por e-mail em breve.</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions" *ngIf="!carregando && !foundOrder && !paymentStatus && !dadosPagamento">
+    <a routerLink="/meus-pedidos" class="btn-primary">Ver Meus Pedidos</a>
+    <a routerLink="/" class="btn-secondary">Voltar à Loja</a>
+  </div>
+
 </div>

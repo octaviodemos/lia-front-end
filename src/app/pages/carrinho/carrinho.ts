@@ -1,7 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { CarrinhoService, ItemCarrinho } from '../../services/carrinho.service';
+
+interface Cart {
+  items: ItemCarrinho[];
+  total: number;
+  totalItens: number;
+}
 
 @Component({
   selector: 'app-carrinho',
@@ -10,40 +17,140 @@ import { CarrinhoService, ItemCarrinho } from '../../services/carrinho.service';
   templateUrl: './carrinho.html',
   styleUrls: ['./carrinho.scss']
 })
-export class Carrinho implements OnInit {
+export class Carrinho implements OnInit, OnDestroy {
 
-  cart: { items: ItemCarrinho[]; totalItens: number; total: number } | null = null;
+  cart: Cart = {
+    items: [],
+    total: 0,
+    totalItens: 0
+  };
+
+  private destroy$ = new Subject<void>();
+  private estoqueCarregado = false;
 
   constructor(private carrinhoService: CarrinhoService) {}
 
   ngOnInit(): void {
-    this.carrinhoService.getCarrinho().subscribe(items => {
-      const total = items.reduce((s, it) => s + (it.preco * it.quantidade), 0);
-      const totalItens = items.reduce((s, it) => s + it.quantidade, 0);
-      this.cart = { items, totalItens, total };
+    this.carregarCarrinho();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Carrega os itens do carrinho
+   */
+  private carregarCarrinho(): void {
+    this.carrinhoService.getCarrinho()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (itens: ItemCarrinho[]) => {
+          console.log('🛒 Itens no carrinho:', itens);
+          this.cart.items = itens;
+          this.cart.total = this.carrinhoService.getValorTotal();
+          this.cart.totalItens = this.carrinhoService.getTotalItens();
+          
+          console.log('💰 Total calculado:', this.cart.total);
+          console.log('📦 Total de itens:', this.cart.totalItens);
+          
+          if (itens.length > 0) {
+            console.log('🔍 Primeiro item:', {
+              titulo: itens[0].titulo,
+              preco: itens[0].preco,
+              tipoPreco: typeof itens[0].preco,
+              quantidade: itens[0].quantidade
+            });
+            
+            // Carregar informações de estoque apenas uma vez por sessão
+            if (!this.estoqueCarregado) {
+              this.carrinhoService.atualizarInfoEstoque().subscribe();
+              this.estoqueCarregado = true;
+            }
+          }
+        },
+        error: (err: Error) => {
+          console.error('❌ Erro ao carregar carrinho:', err);
+        }
+      });
+  }
+
+  /**
+   * Incrementa a quantidade de um item com validação de estoque
+   */
+  incrementarQuantidade(livroId: string, quantidadeAtual: number): void {
+    // Verificar se pode incrementar
+    if (!this.carrinhoService.podeIncrementar(livroId)) {
+      const item = this.cart.items.find(i => i.livroId === livroId);
+      const estoqueDisponivel = item?.estoqueDisponivel || 0;
+      
+      alert(`⚠️ Estoque insuficiente!\nDisponível: ${estoqueDisponivel} unidades\nVocê já tem ${quantidadeAtual} no carrinho.`);
+      return;
+    }
+
+    this.carrinhoService.atualizarQuantidade(livroId, quantidadeAtual + 1).subscribe({
+      next: (resultado) => {
+        if (!resultado.sucesso && resultado.erro) {
+          alert(`❌ ${resultado.erro}`);
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar quantidade:', err);
+        alert('❌ Erro ao atualizar quantidade');
+      }
     });
-    
-    // Só faz refresh do backend se não houver items locais (para não sobrescrever carrinho local)
-    const carrinhoAtual = this.carrinhoService.getCarrinhoAtual();
-    if (carrinhoAtual.length === 0) {
-      this.carrinhoService.refreshCarrinho().subscribe({ next: () => {}, error: () => {} });
+  }
+
+  /**
+   * Decrementa a quantidade de um item
+   */
+  decrementarQuantidade(livroId: string, quantidadeAtual: number): void {
+    if (quantidadeAtual > 1) {
+      this.carrinhoService.atualizarQuantidade(livroId, quantidadeAtual - 1).subscribe({
+        next: (resultado) => {
+          if (!resultado.sucesso && resultado.erro) {
+            alert(`❌ ${resultado.erro}`);
+          }
+        }
+      });
+    } else {
+      this.removerItem(livroId);
     }
   }
 
-  formatarPreco(value: number): string {
-    if (value == null || isNaN(value)) return '0,00';
-    return value.toFixed(2).replace('.', ',');
+  /**
+   * Verifica se pode incrementar a quantidade de um item
+   */
+  podeIncrementar(livroId: string): boolean {
+    return this.carrinhoService.podeIncrementar(livroId);
   }
 
-  incrementarQuantidade(livroId: string, atual: number): void {
-    this.carrinhoService.atualizarQuantidade(livroId, atual + 1);
+  /**
+   * Retorna a quantidade disponível no estoque
+   */
+  getEstoqueDisponivel(livroId: string): number {
+    const item = this.cart.items.find(i => i.livroId === livroId);
+    const estoque = item?.estoqueDisponivel || 0;
+    // Log removido para evitar spam no console
+    return estoque;
   }
 
-  decrementarQuantidade(livroId: string, atual: number): void {
-    this.carrinhoService.atualizarQuantidade(livroId, Math.max(0, atual - 1));
-  }
 
+
+  /**
+   * Remove um item do carrinho
+   */
   removerItem(livroId: string): void {
-    this.carrinhoService.removerItem(livroId);
+    if (confirm('Deseja remover este item do carrinho?')) {
+      this.carrinhoService.removerItem(livroId);
+    }
+  }
+
+  /**
+   * Formata o preço para exibição
+   */
+  formatarPreco(preco: number): string {
+    return preco.toFixed(2).replace('.', ',');
   }
 }

@@ -1,0 +1,72 @@
+<div class="pedido-detalhes-container">
+  <div *ngIf="carregando" class="loading">
+    <div class="spinner"></div>
+    <p>Carregando detalhes do pedido...</p>
+  </div>
+
+  <div *ngIf="!carregando && erro" class="erro-box">
+    <p class="erro">{{ erro }}</p>
+    <div class="actions">
+      <button (click)="retry()" class="btn-primary">Tentar novamente</button>
+      <a routerLink="/meus-pedidos" class="btn-secondary">Voltar para meus pedidos</a>
+    </div>
+  </div>
+
+  <section *ngIf="!carregando && pedido" class="pedido-card">
+    <header class="pedido-header">
+      <div class="header-left">
+        <h1>Pedido <span class="pedido-id">#{{ pedido.id_pedido || pedido.id || pedido.order_id }}</span></h1>
+        <div class="meta">
+          <span class="meta-item"><strong>Data:</strong> {{ pedido.data_pedido || pedido.created_at | date:'dd/MM/yyyy' }}</span>
+          <span class="meta-item"><strong>Status:</strong>
+            <span class="status-badge" [ngClass]="badgeClass(pedido)">
+              {{ getFriendlyLabel(pedido) || 'desconhecido' }}
+            </span>
+          </span>
+        </div>
+      </div>
+      <div class="total-box">
+        <div class="total-label">Valor Total</div>
+        <div class="total-value">{{ displayTotal || 'R$ —' }}</div>
+      </div>
+    </header>
+
+    <div class="itens-area">
+      <h3>Itens</h3>
+      <table class="itens-table" *ngIf="(pedido.itens_pedido?.length || pedido.items?.length || pedido.itens?.length); else noItems">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th class="center">Qtd</th>
+            <th class="right">Unitário</th>
+            <th class="right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let it of (pedido.itens_pedido || pedido.items || pedido.itens)">
+            <td>
+              <div class="prod-title">{{ it.__produto?.titulo || it.estoque?.livro?.titulo || it.nome || it.description || it.title || it.product_name || it.livro?.titulo }}</div>
+              <div class="prod-sub">{{ it.__produto?.autor || it.estoque?.livro?.autor || it.autor || it.author || it.livro?.autor || '' }}</div>
+            </td>
+            <td class="center">{{ it.__quantity ?? it.quantidade ?? it.quantity ?? 1 }}</td>
+            <td class="right">{{ formatBRLSafe( (it.preco_unitario != null) ? it.preco_unitario : (it.__unitPrice != null ? it.__unitPrice : (it.preco_unitario_cents != null ? it.preco_unitario_cents/100 : null)) ) || '—' }}</td>
+            <td class="right">{{ formatBRLSafe( ( (it.preco_unitario != null) ? it.preco_unitario : (it.__unitPrice != null ? it.__unitPrice : (it.preco_unitario_cents != null ? it.preco_unitario_cents/100 : null)) ) * (it.quantidade ?? it.__quantity ?? 1) ) || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noItems>
+        <p class="no-items">Nenhum item registrado neste pedido.</p>
+      </ng-template>
+    </div>
+
+    <footer class="pedido-actions">
+      <a routerLink="/meus-pedidos" class="btn btn-primary">Ver Meus Pedidos</a>
+      <a routerLink="/" class="btn btn-secondary">Voltar à Loja</a>
+    </footer>
+  </section>
+
+  <div *ngIf="!carregando && !pedido && !erro && rawResponse" class="debug-box">
+    <strong>DEBUG: resposta bruta do servidor (sem pedido identificado)</strong>
+    <pre class="debug-pre">{{ rawResponse | json }}</pre>
+  </div>
+</div>

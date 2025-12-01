@@ -5,6 +5,7 @@ import { LivroService } from '../../services/livro.service';
 import { CarrinhoService } from '../../services/carrinho.service';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 import { switchMap } from 'rxjs';
+import { getGeneroLabel as getGeneroLabelFn, getImagemUrl as getImagemUrlFn, getAutorNome as getAutorNomeFn, temPreco as temPrecoFn } from '../../utils/livro-utils';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
 
 @Component({
@@ -56,48 +57,19 @@ export class LivroDetalhes implements OnInit {
   }
 
   temPreco(): boolean {
-    if (!this.livro || !this.livro.estoque) return false;
-    const preco = this.livro.estoque.preco;
-    if (!preco && preco !== 0) return false;
-    
-    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    return !isNaN(precoNum) && isFinite(precoNum) && precoNum > 0;
+    return temPrecoFn(this.livro);
   }
 
   getAutorNome(): string {
-    if (!this.livro) return 'Autor desconhecido';
-    
-    if (this.livro.autores && Array.isArray(this.livro.autores) && this.livro.autores.length > 0) {
-      return this.livro.autores[0].nome || 'Autor desconhecido';
-    }
-    
-    if (this.livro.autor && typeof this.livro.autor === 'object') {
-      return this.livro.autor.nome || 'Autor desconhecido';
-    }
-    
-    if (this.livro.autor && typeof this.livro.autor === 'string') {
-      return this.livro.autor;
-    }
-    
-    return 'Autor desconhecido';
+    return getAutorNomeFn(this.livro);
+  }
+
+  getGeneroLabel(): string {
+    return getGeneroLabelFn(this.livro);
   }
 
   getImagemUrl(): string {
-    if (!this.livro) {
-      return 'assets/placeholder.svg';
-    }
-    
-    const url = this.livro.capa_url;
-    
-    if (!url || url.includes('placeholder') || url.includes('200x300') || url.includes('text=')) {
-      return 'assets/placeholder.svg';
-    }
-    
-    if (!url.startsWith('http')) {
-      return url;
-    }
-    
-    return url;
+    return getImagemUrlFn(this.livro);
   }
 
   adicionarAoCarrinho(): void {
@@ -119,7 +91,7 @@ export class LivroDetalhes implements OnInit {
 
     const preco = this.livro.estoque.preco;
     const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    const idEstoque = String(this.livro.estoque?.id_estoque || this.livro.id_livro);
+    const idEstoque = Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
 
     this.carrinhoService.adicionarItem(idEstoque, 1, {
       livroId: String(this.livro.id_livro || this.livro.id),

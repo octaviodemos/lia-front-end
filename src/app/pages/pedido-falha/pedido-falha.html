@@ -1,6 +1,37 @@
 <div class="pedido-status-container">
-  <h1>Ops! Algo deu errado.</h1>
-  <p>Não foi possível processar seu pagamento.</p>
-  <p>Por favor, tente novamente ou entre em contato conosco.</p>
-  <a routerLink="/carrinho" class="btn-voltar">Voltar para o Carrinho</a>
+  <div class="failure-state">
+    <div class="failure-icon">❌</div>
+    <h1>Pagamento Não Processado</h1>
+    
+    <div class="failure-details">
+      <p *ngIf="paymentStatus === 'rejected'">
+        <strong>Status:</strong> Pagamento rejeitado
+      </p>
+      <p *ngIf="paymentStatus === 'cancelled'">
+        <strong>Status:</strong> Pagamento cancelado
+      </p>
+      <p *ngIf="!paymentStatus || (paymentStatus !== 'rejected' && paymentStatus !== 'cancelled')">
+        Não foi possível processar seu pagamento.
+      </p>
+      
+      <div *ngIf="orderId" class="detail-item">
+        <span class="label">Referência do Pedido:</span>
+        <span class="value">#{{ orderId }}</span>
+      </div>
+    </div>
+
+    <div class="failure-actions">
+      <p>O que você pode fazer:</p>
+      <ul>
+        <li>Verificar os dados do seu cartão</li>
+        <li>Tentar outro método de pagamento</li>
+        <li>Entrar em contato conosco se o problema persistir</li>
+      </ul>
+    </div>
+
+    <div class="action-buttons">
+      <a routerLink="/carrinho" class="btn btn-primary">Tentar Novamente</a>
+      <a routerLink="/" class="btn btn-secondary">Voltar ao Início</a>
+    </div>
+  </div>
 </div>

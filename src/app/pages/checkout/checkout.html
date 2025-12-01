@@ -1,46 +1,252 @@
 <div class="checkout-container">
   <h1>Finalizar Compra</h1>
 
+  <!-- Indicador de Etapas -->
+  <div class="progress-steps">
+    <div class="step" [class.active]="etapaAtual === 1" [class.completed]="etapaAtual > 1">
+      <div class="step-number">1</div>
+      <div class="step-label">Endereço</div>
+    </div>
+    <div class="step" [class.active]="etapaAtual === 2" [class.completed]="etapaAtual > 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Dados</div>
+    </div>
+    <div class="step" [class.active]="etapaAtual === 3">
+      <div class="step-number">3</div>
+      <div class="step-label">Pagamento</div>
+    </div>
+  </div>
+
   <div class="checkout-content">
     
-    <div class="endereco-selecao">
-      <h2>Selecione o Endereço de Entrega</h2>
-      <div *ngIf="enderecos.length > 0">
-        <div 
-          *ngFor="let endereco of enderecos" 
-          class="endereco-item"
-          [class.selecionado]="endereco.id_endereco === enderecoSelecionadoId"
-          (click)="selecionarEndereco(endereco.id_endereco)">
-          <p>{{ endereco.rua }}, {{ endereco.numero }}</p>
-          <p>{{ endereco.cidade }} / {{ endereco.estado }} - CEP: {{ endereco.cep }}</p>
+    <!-- Etapa 1: Seleção de Endereço -->
+    <div class="step-content" *ngIf="etapaAtual === 1">
+      <div class="endereco-selecao">
+        <h2>Selecione o Endereço de Entrega</h2>
+        <div *ngIf="enderecos.length > 0">
+          <div 
+            *ngFor="let endereco of enderecos" 
+            class="endereco-item"
+            [class.selecionado]="endereco.id_endereco === enderecoSelecionadoId"
+            (click)="selecionarEndereco(endereco.id_endereco)">
+            <p><strong>{{ endereco.rua }}, {{ endereco.numero }}</strong></p>
+            <p>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}</p>
+            <p>CEP: {{ endereco.cep }}</p>
+          </div>
+        </div>
+        
+        <div *ngIf="enderecos.length === 0" class="no-address">
+          <p>Você não tem endereços cadastrados.</p>
+        </div>
+        
+        <a routerLink="/meus-enderecos" class="btn-novo-endereco">
+          + Cadastrar Novo Endereço
+        </a>
+        
+        <div class="step-actions">
+          <button 
+            class="btn-primary"
+            (click)="proximaEtapa()" 
+            [disabled]="!enderecoSelecionadoId">
+            Continuar
+          </button>
         </div>
       </div>
-      
-      <a routerLink="/meus-enderecos" class="btn-novo-endereco">
-        + Cadastrar Novo Endereço
-      </a>
     </div>
 
+    <!-- Etapa 2: Dados do Cliente -->
+    <div class="step-content" *ngIf="etapaAtual === 2">
+      <div class="dados-cliente">
+        <h2>Dados para o Pagamento</h2>
+        <form [formGroup]="checkoutForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nome Completo *</label>
+              <input 
+                id="name" 
+                type="text" 
+                formControlName="name"
+                placeholder="Ex: João Silva dos Santos"
+                [class.error]="checkoutForm.get('name')?.invalid && checkoutForm.get('name')?.touched">
+              <small *ngIf="checkoutForm.get('name')?.hasError('required') && checkoutForm.get('name')?.touched" class="error-text">
+                Nome é obrigatório
+              </small>
+              <small *ngIf="checkoutForm.get('name')?.hasError('minlength') && checkoutForm.get('name')?.touched" class="error-text">
+                Nome deve ter pelo menos 2 caracteres
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail *</label>
+              <input 
+                id="email" 
+                type="email" 
+                formControlName="email"
+                placeholder="joao@email.com"
+                [class.error]="checkoutForm.get('email')?.invalid && checkoutForm.get('email')?.touched">
+              <small *ngIf="checkoutForm.get('email')?.hasError('required') && checkoutForm.get('email')?.touched" class="error-text">
+                E-mail é obrigatório
+              </small>
+              <small *ngIf="checkoutForm.get('email')?.hasError('email') && checkoutForm.get('email')?.touched" class="error-text">
+                E-mail inválido
+              </small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cpf">CPF *</label>
+              <input 
+                id="cpf" 
+                type="text" 
+                formControlName="cpf"
+                mask="000.000.000-00"
+                placeholder="000.000.000-00"
+                [class.error]="checkoutForm.get('cpf')?.invalid && checkoutForm.get('cpf')?.touched">
+              <small *ngIf="checkoutForm.get('cpf')?.hasError('required') && checkoutForm.get('cpf')?.touched" class="error-text">
+                CPF é obrigatório
+              </small>
+              <small *ngIf="checkoutForm.get('cpf')?.hasError('cpfInvalido') && checkoutForm.get('cpf')?.touched" class="error-text">
+                CPF inválido
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="telefone">Telefone *</label>
+              <input 
+                id="telefone" 
+                type="text" 
+                formControlName="telefone"
+                mask="(00) 00000-0000"
+                placeholder="(11) 11111-1111"
+                [class.error]="checkoutForm.get('telefone')?.invalid && checkoutForm.get('telefone')?.touched">
+              <small *ngIf="checkoutForm.get('telefone')?.hasError('required') && checkoutForm.get('telefone')?.touched" class="error-text">
+                Telefone é obrigatório
+              </small>
+              <small *ngIf="checkoutForm.get('telefone')?.hasError('telefoneInvalido') && checkoutForm.get('telefone')?.touched" class="error-text">
+                Telefone deve ter 10 ou 11 dígitos
+              </small>
+              <small *ngIf="checkoutForm.get('telefone')?.hasError('codigoAreaInvalido') && checkoutForm.get('telefone')?.touched" class="error-text">
+                Código de área inválido
+              </small>
+              <small *ngIf="checkoutForm.get('telefone')?.hasError('celularInvalido') && checkoutForm.get('telefone')?.touched" class="error-text">
+                Número de celular deve começar com 9
+              </small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dataNascimento">Data de Nascimento *</label>
+              <input 
+                id="dataNascimento" 
+                type="date" 
+                formControlName="dataNascimento"
+                [class.error]="checkoutForm.get('dataNascimento')?.invalid && checkoutForm.get('dataNascimento')?.touched">
+              <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('required') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
+                Data de nascimento é obrigatória
+              </small>
+              <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('menorIdade') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
+                Você deve ter pelo menos 16 anos para comprar
+              </small>
+            </div>
+            
+            <div class="form-group form-info">
+              <div class="info-box">
+                <h4>💳 Dados para Pagamento</h4>
+                <p>Estes dados serão utilizados para processar seu pagamento via Stripe de forma segura.</p>
+                <small>🔒 Suas informações são protegidas e não são armazenadas em nossos servidores.</small>
+              </div>
+            </div>
+          </div>
+        </form>
+        
+        <div class="step-actions">
+          <button class="btn-secondary" (click)="voltarEtapa()">
+            Voltar
+          </button>
+          <button 
+            class="btn-primary"
+            (click)="proximaEtapa()" 
+            [disabled]="checkoutForm.invalid">
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Etapa 3: Confirmação e Pagamento -->
+    <div class="step-content" *ngIf="etapaAtual === 3">
+      <div class="confirmacao">
+        <h2>Confirme seus Dados</h2>
+        
+        <!-- Resumo do Endereço -->
+        <div class="resumo-endereco" *ngIf="enderecoSelecionadoId">
+          <h3>Endereço de Entrega:</h3>
+          <div *ngFor="let endereco of enderecos">
+            <div *ngIf="endereco.id_endereco === enderecoSelecionadoId">
+              <p><strong>{{ endereco.rua }}, {{ endereco.numero }}</strong></p>
+              <p>{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }} - CEP: {{ endereco.cep }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo dos Dados -->
+        <div class="resumo-dados" *ngIf="checkoutForm.valid">
+          <h3>Dados do Cliente:</h3>
+          <div class="dados-grid">
+            <div class="dado-item">
+              <span class="label">Nome:</span>
+              <span class="value">{{ checkoutForm.get('name')?.value }}</span>
+            </div>
+            <div class="dado-item">
+              <span class="label">E-mail:</span>
+              <span class="value">{{ checkoutForm.get('email')?.value }}</span>
+            </div>
+            <div class="dado-item">
+              <span class="label">CPF:</span>
+              <span class="value">{{ checkoutForm.get('cpf')?.value }}</span>
+            </div>
+            <div class="dado-item">
+              <span class="label">Telefone:</span>
+              <span class="value">{{ checkoutForm.get('telefone')?.value }}</span>
+            </div>
+            <div class="dado-item">
+              <span class="label">Data de Nascimento:</span>
+              <span class="value">{{ checkoutForm.get('dataNascimento')?.value | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn-secondary" (click)="voltarEtapa()">
+            Voltar
+          </button>
+          <button 
+            class="btn-pagamento"
+            (click)="finalizarCompra()" 
+            [disabled]="processandoPagamento">
+            <span *ngIf="!processandoPagamento">💳 Pagar com Stripe</span>
+            <span *ngIf="processandoPagamento">⏳ Redirecionando...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo do Pedido (sempre visível) -->
     <div class="resumo-pedido">
       <h2>Resumo do Pedido</h2>
       <div *ngIf="cart">
         <div *ngFor="let item of cart.items" class="resumo-item">
           <span>{{ item.livro.titulo }} (x{{ item.quantidade }})</span>
-          <span>R$ {{ item.preco_unitario * item.quantidade }}</span>
+          <span>R$ {{ (item.preco_unitario * item.quantidade).toFixed(2) }}</span>
         </div>
         <hr>
         <div class="resumo-total">
-          <span>Total:</span>
-          <span>R$ {{ cart.total }}</span>
+          <span><strong>Total:</strong></span>
+          <span><strong>R$ {{ cart.total.toFixed(2) }}</strong></span>
         </div>
       </div>
-      
-      <button 
-        class="btn-pagamento"
-        (click)="finalizarCompra()" 
-        [disabled]="!enderecoSelecionadoId || loading">
-        {{ loading ? 'Processando...' : 'Ir para o Pagamento (Mercado Pago)' }}
-      </button>
     </div>
 
   </div>

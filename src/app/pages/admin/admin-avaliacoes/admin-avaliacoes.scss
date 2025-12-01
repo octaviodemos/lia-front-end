@@ -1,22 +1,5 @@
 @use 'mixins/admin-styles' as *;
 
-.admin-container {
-  @include admin-page-container;
-  
-  form {
-    @include admin-form;
-  }
-}
-
-.mensagem-sucesso {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #e6f7ec;
-  border: 1px solid #b7ebc9;
-  color: #0f5132;
-  border-radius: 5px;
-}
-
 .pending-panel {
   margin-top: 1.5rem;
 

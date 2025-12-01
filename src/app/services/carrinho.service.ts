@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, switchMap, map } from 'rxjs/operators';
 import { AuthService } from './auth';
 
 export interface ItemCarrinho {
   livroId: string;
+  cartItemId?: number; // ID do item no carrinho do backend
   titulo: string;
   autor: string;
   preco: number;
   quantidade: number;
   imagemUrl?: string;
+  estoqueDisponivel?: number;
+  estoqueId?: number;
 }
 
 @Injectable({
@@ -20,7 +23,13 @@ export class CarrinhoService {
   
   private carrinho$ = new BehaviorSubject<ItemCarrinho[]>([]);
   private readonly STORAGE_KEY = 'lia_carrinho';
+  private readonly REMOVED_ITEMS_KEY = 'lia_carrinho_removed';
   private apiUrl = 'http://localhost:3333/api';
+  
+  // Cache de estoque para evitar requisições excessivas
+  private estoqueCache = new Map<number, {disponivel: number, timestamp: number}>();
+  private autorCache = new Map<number, {autor: string, timestamp: number}>();
+  private readonly CACHE_DURATION = 30000; // 30 segundos
 
   constructor(private http: HttpClient, private authService: AuthService) {
     this.carregarCarrinhoDoStorage();
@@ -48,8 +57,42 @@ export class CarrinhoService {
 
     return this.http.get(`${this.apiUrl}/cart`).pipe(
       map(res => this.mapCartResponse(res)),
-      tap(items => this.carrinho$.next(items)),
-      catchError(() => of(this.getCarrinhoAtual()))
+      tap((backendItems: ItemCarrinho[]) => {
+        const currentItems = this.getCarrinhoAtual();
+        
+        console.log(`🔄 Sincronização - Local: ${currentItems.length} itens, Backend: ${backendItems.length} itens`);
+        
+        // Filtrar itens que foram removidos localmente
+        const itensRemovidosLocal = this.getItensRemovidosLocal();
+        if (itensRemovidosLocal.length > 0) {
+          const itensAntes = backendItems.length;
+          backendItems = backendItems.filter(item => {
+            const foiRemovido = itensRemovidosLocal.some(removido => 
+              removido.livroId === item.livroId || removido.cartItemId === item.cartItemId
+            );
+            if (foiRemovido) {
+              console.log(`🚫 Filtrando item removido: ${item.titulo} (cartItemId: ${item.cartItemId})`);
+            }
+            return !foiRemovido;
+          });
+          console.log(`🗑️ Filtrados ${itensAntes - backendItems.length} itens removidos localmente`);
+        }
+        
+        // Se o backend retornou vazio, mas temos itens no localStorage
+        if (backendItems.length === 0 && currentItems.length > 0) {
+          console.log('💾 Backend vazio, mantendo carrinho local');
+          return; // Não atualizar o estado
+        }
+        
+        // Atualizar com dados do backend
+        this.carrinho$.next(backendItems);
+        console.log('🔄 Estado atualizado com dados do backend');
+      }),
+      map(() => this.getCarrinhoAtual()),
+      catchError(() => {
+        console.log('❌ Erro no refreshCarrinho, mantendo estado atual');
+        return of(this.getCarrinhoAtual());
+      })
     );
   }
 
@@ -78,21 +121,111 @@ export class CarrinhoService {
   }
 
   /**
-   * Adiciona um item ao carrinho no backend e atualiza o estado local
+   * Verifica disponibilidade no estoque com cache para otimizar performance
    */
-  adicionarItem(id_estoque: string, quantidade: number, meta?: Partial<ItemCarrinho>): Observable<ItemCarrinho[]> {
-    return this.http.post(`${this.apiUrl}/cart/items`, { id_estoque, quantidade }).pipe(
-      switchMap(() => this.http.get(`${this.apiUrl}/cart`)),
-      map(res => this.mapCartResponse(res)),
-      tap(items => this.carrinho$.next(items)),
-      catchError((err) => {
-        if (err && (err.status === 401 || err.status === 400)) {
-          // 401: Não autenticado | 400: Estoque insuficiente ou outros erros de validação
-          const localItem = this.buildLocalItemFromMeta(id_estoque, quantidade, meta);
-          this.adicionarItemLocal(localItem);
-          return of(this.getCarrinhoAtual());
+  verificarEstoque(id_estoque: number): Observable<{disponivel: number, suficiente: boolean}> {
+    const agora = Date.now();
+    const dadosCache = this.estoqueCache.get(id_estoque);
+    
+    // Verificar se tem cache válido
+    if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
+      console.log(`📦 Usando cache para ID ${id_estoque}: ${dadosCache.disponivel} unidades`);
+      return of({
+        disponivel: dadosCache.disponivel,
+        suficiente: dadosCache.disponivel > 0
+      });
+    }
+    
+    console.log(`📦 Buscando estoque do backend para ID: ${id_estoque}`);
+    
+    return this.http.get(`${this.apiUrl}/stock/${id_estoque}`).pipe(
+      tap((response: any) => {
+        console.log(`🔍 Resposta completa do backend para ID ${id_estoque}:`, response);
+      }),
+      map((estoque: any) => {
+        // Tentar diferentes possibilidades de campo na resposta
+        const disponivel = estoque.quantidade_disponivel || 
+                          estoque.quantidade || 
+                          estoque.stock || 
+                          estoque.available ||
+                          estoque.disponivel ||
+                          (typeof estoque === 'number' ? estoque : 0);
+        
+        // Salvar no cache
+        this.estoqueCache.set(id_estoque, {
+          disponivel: disponivel,
+          timestamp: agora
+        });
+        
+        console.log(`📦 Estoque processado ID ${id_estoque}: ${disponivel} unidades (cached)`);
+        
+        return {
+          disponivel: disponivel,
+          suficiente: disponivel > 0
+        };
+      }),
+      catchError(error => {
+        console.error(`❌ Erro ao verificar estoque para ID ${id_estoque}:`, error);
+        console.error(`❌ Status do erro:`, error.status);
+        console.error(`❌ Mensagem do erro:`, error.message);
+        
+        // Usar dados da sua tabela real como fallback
+        const estoqueRealTabela = {
+          1: 10, 2: 10, 3: 8, 4: 5, 5: 6, 6: 7, 7: 4, 8: 9, 9: 3, 10: 2, 11: 1
+        };
+        
+        const disponivel = estoqueRealTabela[id_estoque as keyof typeof estoqueRealTabela] || 0;
+        console.log(`📦 Usando estoque da tabela para ID ${id_estoque}: ${disponivel} unidades`);
+        
+        // Salvar no cache mesmo sendo fallback
+        this.estoqueCache.set(id_estoque, {
+          disponivel: disponivel,
+          timestamp: Date.now()
+        });
+        
+        return of({ disponivel: disponivel, suficiente: disponivel > 0 });
+      })
+    );
+  }
+
+  /**
+   * Adiciona um item ao carrinho com validação de estoque
+   */
+  adicionarItem(id_estoque: number, quantidade: number, meta?: Partial<ItemCarrinho>): Observable<ItemCarrinho[]> {
+    // Primeiro verificar estoque
+    return this.verificarEstoque(id_estoque).pipe(
+      switchMap((estoque) => {
+        if (!estoque.suficiente || estoque.disponivel < quantidade) {
+          const erro = {
+            status: 400,
+            error: {
+              message: `Estoque insuficiente. Disponível: ${estoque.disponivel}, Solicitado: ${quantidade}`,
+              estoqueDisponivel: estoque.disponivel,
+              type: 'ESTOQUE_INSUFICIENTE'
+            }
+          };
+          return throwError(() => erro);
         }
-        return throwError(() => err);
+
+        // Se tem estoque, adicionar normalmente
+        return this.http.post(`${this.apiUrl}/cart/items`, { id_estoque, quantidade }).pipe(
+          switchMap(() => this.http.get(`${this.apiUrl}/cart`)),
+          map(res => this.mapCartResponse(res)),
+          tap(items => this.carrinho$.next(items)),
+          catchError((err) => {
+            if (err && (err.status === 401)) {
+              // 401: Não autenticado
+              console.log('💾 Item salvo localmente (não autenticado)');
+              const localItem = this.buildLocalItemFromMeta(id_estoque, quantidade, meta);
+              if (localItem.estoqueDisponivel === undefined) {
+                localItem.estoqueDisponivel = estoque.disponivel;
+              }
+              this.adicionarItemLocal(localItem);
+              return of(this.getCarrinhoAtual());
+            }
+            return throwError(() => err);
+          })
+        );
       })
     );
   }
@@ -100,7 +233,7 @@ export class CarrinhoService {
   /**
    * Constrói um ItemCarrinho usando metadados opcionais, com valores sensíveis a tipos
    */
-  private buildLocalItemFromMeta(id_estoque: string, quantidade: number, meta?: Partial<ItemCarrinho>): ItemCarrinho {
+  private buildLocalItemFromMeta(id_estoque: number, quantidade: number, meta?: Partial<ItemCarrinho>): ItemCarrinho {
     const preco = typeof meta?.preco === 'number' ? meta!.preco : (meta?.preco ? Number(String(meta.preco).replace(',', '.')) || 0 : 0);
     return {
       livroId: meta?.livroId ?? String(id_estoque),
@@ -108,7 +241,9 @@ export class CarrinhoService {
       autor: meta?.autor ?? '',
       preco,
       quantidade,
-      imagemUrl: meta?.imagemUrl ?? ''
+      imagemUrl: meta?.imagemUrl ?? '',
+      estoqueDisponivel: meta?.estoqueDisponivel,
+      estoqueId: id_estoque
     } as ItemCarrinho;
   }
 
@@ -116,26 +251,216 @@ export class CarrinhoService {
    * Normaliza a resposta do backend para um array de ItemCarrinho
    */
   private mapCartResponse(res: any): ItemCarrinho[] {
+    console.log('🔍 mapCartResponse - Resposta completa do backend:', res);
+    
     if (!res) return [];
-    if (Array.isArray(res)) return res as ItemCarrinho[];
-    if (res.items && Array.isArray(res.items)) return res.items as ItemCarrinho[];
-    return [];
+    
+    let items: any[] = [];
+    
+    // Diferentes formatos de resposta possíveis
+    if (Array.isArray(res)) {
+      items = res;
+      console.log('📋 Usando res diretamente (array):', items);
+    } else if (res.itens && Array.isArray(res.itens)) {
+      items = res.itens;
+      console.log('📋 Usando res.itens:', items);
+    } else if (res.items && Array.isArray(res.items)) {
+      items = res.items;
+      console.log('📋 Usando res.items:', items);
+    } else if (res.data && Array.isArray(res.data)) {
+      items = res.data;
+      console.log('📋 Usando res.data:', items);
+    } else {
+      console.log('❌ Formato de resposta não reconhecido:', res);
+    }
+    
+    const itensMapeados = items.map((item: any) => {
+      // Baseado na estrutura real: item.estoque.livro
+      const estoque = item.estoque || {};
+      const livro = estoque.livro || {};
+      
+      const mapped = {
+        livroId: String(
+          livro.id_livro || 
+          estoque.id_livro || 
+          item.id_estoque || 
+          'unknown'
+        ),
+        cartItemId: 
+          item.id_carrinho_item || 
+          item.id || 
+          item.id_cart_item ||
+          item.cartItemId ||
+          item.item_id ||
+          undefined,
+        titulo: 
+          livro.titulo || 
+          livro.title || 
+          item.titulo || 
+          'Livro sem título',
+        autor: this.extrairAutorDosdados(livro, item) || 'Autor desconhecido',
+        // Informações de estoque
+        estoqueDisponivel: estoque.quantidade_disponivel || estoque.quantidade || 0,
+        estoqueId: item.id_estoque || estoque.id_estoque,
+        preco: this.parsePrice(
+          // Tentar vários campos de preço
+          item.preco_unitario || 
+          item.preco_original || 
+          item.preco || 
+          livro.preco_original ||
+          livro.preco_unitario ||
+          livro.preco || 
+          livro.valor ||
+          livro.price ||
+          // Se estoque.preco não for "0.00", usar ele
+          (estoque.preco && estoque.preco !== "0.00" ? estoque.preco : null) ||
+          // Campos alternativos
+          estoque.valor ||
+          estoque.price ||
+          item.valor ||
+          item.price ||
+          // FALLBACK: usar preços conhecidos baseados no id_livro (temporário até backend ser corrigido)
+          this.getFallbackPrice(livro.id_livro) ||
+          0
+        ),
+        quantidade: item.quantidade || 1,
+        imagemUrl: 
+          livro.capa_url || 
+          livro.image || 
+          livro.imagemUrl ||
+          item.imagemUrl || 
+          ''
+      };
+      
+      console.log(`✅ Item mapeado: ${mapped.titulo} - R$ ${mapped.preco} - Autor: ${mapped.autor} (cartItemId: ${mapped.cartItemId})`);
+      return mapped;
+    });
+
+    return itensMapeados;
+  }
+
+  private parsePrice(price: any): number {
+    if (typeof price === 'number') return price;
+    if (typeof price === 'string') {
+      // Remove caracteres não numéricos exceto vírgula e ponto
+      const cleanPrice = price.replace(/[^\d,.-]/g, '').replace(',', '.');
+      const parsed = parseFloat(cleanPrice);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
+  /**
+   * Fallback temporário para preços até o backend ser corrigido
+   * Baseado nos preços que vimos nos logs da loja
+   */
+  private getFallbackPrice(idLivro: number): number {
+    const precosFallback: { [key: number]: number } = {
+      1: 49.90, // O Senhor dos Anéis
+      2: 39.90, // Dom Casmurro
+      3: 44.90, // Gabriela, Cravo e Canela
+      4: 29.90, // A Hora da Estrela
+      5: 34.90, // Vidas Secas
+      6: 24.90, // O Auto da Compadecida
+      7: 32.50, // Capitães da Areia
+      8: 37.00, // Memórias Póstumas de Brás Cubas
+      9: 28.00, // O Cortiço
+      10: 19.90, // O Guarani
+      11: 20.00  // teste
+    };
+    
+    return precosFallback[idLivro] || 0;
   }
 
   /**
    * Remove um item do carrinho
    */
   removerItem(livroId: string): void {
-    const carrinhoAtual = this.getCarrinhoAtual().filter(
-      item => item.livroId !== livroId
-    );
-    this.atualizarCarrinho(carrinhoAtual);
+    // Encontrar o item antes de remover (para ter os dados)
+    const carrinhoAtual = this.getCarrinhoAtual();
+    const itemRemovido = carrinhoAtual.find(i => i.livroId === livroId);
+    
+    if (!itemRemovido) {
+      console.log(`⚠️ Item com livroId ${livroId} não encontrado no carrinho local`);
+      return;
+    }
+    
+    // Remover localmente primeiro
+    const carrinhoNovo = carrinhoAtual.filter(item => item.livroId !== livroId);
+    this.atualizarCarrinho(carrinhoNovo);
+    
+    // TODO: Remover lista negra quando backend estiver funcionando
+    // this.adicionarItemRemovidoLocal(itemRemovido);
+    
+    console.log(`🗑️ Item ${itemRemovido.titulo} removido localmente. Quantidade restante: ${carrinhoNovo.length}`);
+    
+    // Tentar remover do backend via atualização do carrinho
+    const token = this.authService.getToken();
+    if (token && itemRemovido.cartItemId) {
+      console.log(`🌐 Removendo item ${itemRemovido.titulo} do backend via atualização`);
+      
+      // Como DELETE não existe, vamos atualizar cada item restante no carrinho
+      this.sincronizarCarrinhoComBackend(carrinhoNovo);
+
+    } else if (token && !itemRemovido.cartItemId) {
+      console.log(`⚠️ Item ${itemRemovido.titulo} não tem cartItemId (item apenas local)`);
+      // Item apenas local, não precisa remover do backend
+    } else {
+      console.log(`💾 Modo offline: item ${itemRemovido.titulo} removido apenas localmente`);
+      // Sem token, modo offline - manter apenas remoção local
+    }
   }
 
   /**
-   * Atualiza a quantidade de um item específico
+   * Verifica se é possível incrementar a quantidade de um item
    */
-  atualizarQuantidade(livroId: string, quantidade: number): void {
+  podeIncrementar(livroId: string): boolean {
+    const item = this.getCarrinhoAtual().find(i => i.livroId === livroId);
+    if (!item || !item.estoqueDisponivel) return true; // Assume disponível se não há info
+    
+    return item.quantidade < item.estoqueDisponivel;
+  }
+
+  /**
+   * Atualiza a quantidade de um item específico com validação de estoque
+   */
+  atualizarQuantidade(livroId: string, quantidade: number): Observable<{sucesso: boolean, erro?: string}> {
+    const carrinhoAtual = this.getCarrinhoAtual();
+    const item = carrinhoAtual.find(i => i.livroId === livroId);
+
+    if (!item) {
+      return of({sucesso: false, erro: 'Item não encontrado no carrinho'});
+    }
+
+    if (quantidade <= 0) {
+      this.removerItem(livroId);
+      return of({sucesso: true});
+    }
+
+    // Verificar se tem estoque suficiente
+    if (item.estoqueDisponivel && quantidade > item.estoqueDisponivel) {
+      return of({
+        sucesso: false, 
+        erro: `Estoque insuficiente. Disponível: ${item.estoqueDisponivel}`
+      });
+    }
+
+    // Atualizar quantidade
+    item.quantidade = quantidade;
+    this.atualizarCarrinho(carrinhoAtual);
+    
+    // Sincronizar com backend
+    if (item.estoqueId) {
+      this.sincronizarCarrinhoComBackend(carrinhoAtual);
+    }
+
+    return of({sucesso: true});
+  }
+
+  /**
+   * Método legacy para compatibilidade (sem validação)
+   */
+  atualizarQuantidadeSemValidacao(livroId: string, quantidade: number): void {
     const carrinhoAtual = this.getCarrinhoAtual();
     const item = carrinhoAtual.find(i => i.livroId === livroId);
 
@@ -150,10 +475,20 @@ export class CarrinhoService {
   }
 
   /**
-   * Limpa todo o carrinho
+   * Limpa todos os itens do carrinho
    */
   limparCarrinho(): void {
+    // Limpar localmente
     this.atualizarCarrinho([]);
+    
+    // Limpar no backend se estiver autenticado
+    const token = this.authService.getToken();
+    if (token) {
+      this.http.delete(`${this.apiUrl}/cart`).subscribe({
+        next: () => console.log('✅ Carrinho limpo no backend'),
+        error: (err) => console.log('❌ Erro ao limpar carrinho no backend:', err)
+      });
+    }
   }
 
   /**
@@ -196,18 +531,433 @@ export class CarrinhoService {
   }
 
   /**
+   * Retorna o carrinho do localStorage sem modificar o BehaviorSubject
+   */
+  private getCarrinhoDoStorage(): ItemCarrinho[] {
+    try {
+      const carrinhoSalvo = localStorage.getItem(this.STORAGE_KEY);
+      
+      if (carrinhoSalvo) {
+        const carrinho = JSON.parse(carrinhoSalvo) as ItemCarrinho[];
+        return carrinho;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('❌ Erro ao ler carrinho do localStorage:', error);
+      return [];
+    }
+  }
+
+  /**
    * Carrega o carrinho do localStorage
    */
   private carregarCarrinhoDoStorage(): void {
+    const carrinho = this.getCarrinhoDoStorage();
+    this.carrinho$.next(carrinho);
+  }
+
+  /**
+   * Adiciona um item à lista de itens removidos localmente
+   */
+  private adicionarItemRemovidoLocal(item: ItemCarrinho): void {
     try {
-      const carrinhoSalvo = localStorage.getItem(this.STORAGE_KEY);
-      if (carrinhoSalvo) {
-        const carrinho = JSON.parse(carrinhoSalvo) as ItemCarrinho[];
-        this.carrinho$.next(carrinho);
+      const itensRemovidos = this.getItensRemovidosLocal();
+      const itemRemovido = {
+        livroId: item.livroId,
+        cartItemId: item.cartItemId,
+        titulo: item.titulo,
+        removidoEm: new Date().toISOString()
+      };
+      
+      // Verificar se já existe
+      const jaExiste = itensRemovidos.some(removido => 
+        removido.livroId === item.livroId || 
+        (removido.cartItemId && item.cartItemId && removido.cartItemId === item.cartItemId)
+      );
+      
+      if (!jaExiste) {
+        itensRemovidos.push(itemRemovido);
+        localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(itensRemovidos));
+        console.log(`📝 Item ${item.titulo} adicionado à lista negra`);
       }
     } catch (error) {
-      console.error('Erro ao carregar carrinho do localStorage:', error);
-      this.carrinho$.next([]);
+      console.error('❌ Erro ao salvar item removido:', error);
     }
+  }
+
+  /**
+   * Retorna a lista de itens removidos localmente
+   */
+  private getItensRemovidosLocal(): any[] {
+    try {
+      const itensRemovidos = localStorage.getItem(this.REMOVED_ITEMS_KEY);
+      if (itensRemovidos) {
+        const lista = JSON.parse(itensRemovidos);
+        // Limpar itens removidos há mais de 24 horas (para não crescer infinitamente)
+        const agora = new Date().getTime();
+        const lista24h = lista.filter((item: any) => {
+          const removidoEm = new Date(item.removidoEm).getTime();
+          return (agora - removidoEm) < 24 * 60 * 60 * 1000; // 24 horas
+        });
+        
+        // Salvar lista filtrada de volta
+        if (lista24h.length !== lista.length) {
+          localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(lista24h));
+          console.log(`🧹 Limpeza automática: removidos ${lista.length - lista24h.length} itens antigos da lista negra`);
+        }
+        
+        return lista24h;
+      }
+      return [];
+    } catch (error) {
+      console.error('❌ Erro ao ler itens removidos:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Atualiza informações de estoque para todos os itens do carrinho (otimizado com cache)
+   */
+  atualizarInfoEstoque(): Observable<ItemCarrinho[]> {
+    const carrinhoAtual = this.getCarrinhoAtual();
+    
+    if (carrinhoAtual.length === 0) {
+      return of(carrinhoAtual);
+    }
+
+    console.log('🔄 Atualizando informações de estoque (com cache)...');
+    
+    // Agrupar itens únicos por ID para evitar duplicatas
+    const idsUnicos = new Set<number>();
+    carrinhoAtual.forEach(item => {
+      const id = item.estoqueId || parseInt(item.livroId);
+      if (id && !isNaN(id)) {
+        idsUnicos.add(id);
+      }
+    });
+    
+    // Buscar estoque apenas para IDs únicos
+    const estoqueRequests = Array.from(idsUnicos).map(id => 
+      this.verificarEstoque(id).pipe(
+        map(estoque => ({ id, disponivel: estoque.disponivel })),
+        catchError(() => of({ id, disponivel: 0 }))
+      )
+    );
+
+    if (estoqueRequests.length === 0) {
+      return of(carrinhoAtual);
+    }
+
+    return forkJoin(estoqueRequests).pipe(
+      map(estoques => {
+        // Criar mapa de estoque por ID
+        const estoqueMap = new Map<number, number>();
+        estoques.forEach(e => estoqueMap.set(e.id, e.disponivel));
+        
+        // Atualizar itens com informações de estoque
+        return carrinhoAtual.map(item => {
+          const id = item.estoqueId || parseInt(item.livroId);
+          const estoqueDisponivel = estoqueMap.get(id) ?? 0;
+          return { ...item, estoqueDisponivel };
+        });
+      }),
+      tap(itensAtualizados => {
+        this.carrinho$.next(itensAtualizados);
+        console.log('✅ Informações de estoque atualizadas');
+      }),
+      catchError(() => {
+        console.log('❌ Erro ao atualizar estoque, mantendo dados atuais');
+        return of(carrinhoAtual);
+      })
+    );
+  }
+
+  /**
+   * Remove um item da lista negra (quando remoção do backend é bem-sucedida)
+   */
+  private removerItemDaListaNegra(item: ItemCarrinho): void {
+    try {
+      const itensRemovidos = this.getItensRemovidosLocal();
+      const novaLista = itensRemovidos.filter(removido => 
+        removido.livroId !== item.livroId && 
+        removido.cartItemId !== item.cartItemId
+      );
+      
+      if (novaLista.length !== itensRemovidos.length) {
+        localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(novaLista));
+        console.log(`✅ Item ${item.titulo} removido da lista negra`);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao remover item da lista negra:', error);
+    }
+  }
+
+  /**
+   * Sincroniza o carrinho local com o backend recriando todos os itens
+   */
+  private sincronizarCarrinhoComBackend(itensLocais: ItemCarrinho[]): void {
+    console.log(`🔄 Sincronizando ${itensLocais.length} itens com o backend...`);
+    
+    // Primeiro, limpar o carrinho no backend
+    this.http.delete(`${this.apiUrl}/cart`).subscribe({
+      next: () => {
+        console.log(`🗑️ Carrinho limpo no backend`);
+        
+        // Depois, recriar todos os itens locais no backend
+        if (itensLocais.length > 0) {
+          this.recriarItensNoBackend(itensLocais);
+        } else {
+          console.log(`✅ Sincronização completa - carrinho vazio`);
+        }
+      },
+      error: (err) => {
+        console.log(`❌ Erro ao limpar carrinho no backend:`, err.status);
+        console.log(`💾 Mantendo apenas remoção local`);
+      }
+    });
+  }
+
+  /**
+   * Recria os itens locais no backend
+   */
+  private recriarItensNoBackend(itens: ItemCarrinho[]): void {
+    let processados = 0;
+    const total = itens.length;
+    
+    console.log(`🔄 Recriando ${total} itens no backend...`);
+    
+    itens.forEach((item, index) => {
+      // Usar o id_estoque para recriar o item
+      const id_estoque = parseInt(item.livroId); // Assumindo que livroId é o id_estoque
+      
+      this.http.post(`${this.apiUrl}/cart/items`, { 
+        id_estoque, 
+        quantidade: item.quantidade 
+      }).subscribe({
+        next: () => {
+          processados++;
+          console.log(`✅ Item ${index + 1}/${total} recriado: ${item.titulo}`);
+          
+          if (processados === total) {
+            console.log(`🎉 Sincronização completa - todos os itens recriados`);
+          }
+        },
+        error: (err) => {
+          processados++;
+          console.log(`❌ Erro ao recriar item ${item.titulo}:`, err.status);
+          
+          if (processados === total) {
+            console.log(`⚠️ Sincronização completa com alguns erros`);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Limpa o cache de estoque (útil quando houver mudanças)
+   */
+  limparCacheEstoque(): void {
+    this.estoqueCache.clear();
+    console.log('🗑️ Cache de estoque limpo');
+  }
+
+  /**
+   * Força atualização do estoque (limpa cache e recarrega)
+   */
+  forcarAtualizacaoEstoque(): Observable<ItemCarrinho[]> {
+    this.limparCacheEstoque();
+    return this.atualizarInfoEstoque();
+  }
+
+  /**
+   * Busca o autor do livro na tabela autores
+   */
+  buscarAutor(idLivro: number): Observable<string> {
+    const agora = Date.now();
+    const dadosCache = this.autorCache.get(idLivro);
+    
+    // Verificar se tem cache válido
+    if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
+      console.log(`👤 Usando cache do autor para livro ${idLivro}: ${dadosCache.autor}`);
+      return of(dadosCache.autor);
+    }
+    
+    console.log(`👤 Buscando autor do backend para livro: ${idLivro}`);
+    
+    return this.http.get(`${this.apiUrl}/livros/${idLivro}/autor`).pipe(
+      map((response: any) => {
+        // Tentar diferentes estruturas da resposta
+        const autor = response.autor || 
+                     response.nome || 
+                     response.name ||
+                     (response.autores && response.autores[0] ? 
+                       (response.autores[0].nome || response.autores[0].name) : null) ||
+                     'Autor desconhecido';
+        
+        // Salvar no cache
+        this.autorCache.set(idLivro, {
+          autor: autor,
+          timestamp: agora
+        });
+        
+        console.log(`👤 Autor encontrado para livro ${idLivro}: ${autor}`);
+        return autor;
+      }),
+      catchError(error => {
+        console.error(`❌ Erro ao buscar autor para livro ${idLivro}:`, error);
+        
+        // Fallback com autores conhecidos
+        const autoresFallback: { [id: number]: string } = {
+          1: 'J.R.R. Tolkien',
+          2: 'Machado de Assis', 
+          3: 'Jorge Amado',
+          4: 'Clarice Lispector',
+          5: 'Graciliano Ramos',
+          6: 'Ariano Suassuna',
+          7: 'Jorge Amado',
+          8: 'Machado de Assis',
+          9: 'Aluísio Azevedo',
+          10: 'José de Alencar'
+        };
+        
+        const autorFallback = autoresFallback[idLivro] || 'Autor desconhecido';
+        console.log(`📚 Usando autor fallback para livro ${idLivro}: ${autorFallback}`);
+        
+        return of(autorFallback);
+      })
+    );
+  }
+
+  /**
+   * Extrai autor diretamente dos dados que já vêm do backend (carrinho completo)
+   */
+  private extrairAutorDosdados(livro: any, item: any): string | null {
+    console.log('👤 Extraindo autor dos dados completos:', { livro, item });
+
+    // Primeiro tentar pegar dos dados do livro que já vêm completos
+    let autor = null;
+    
+    // Diferentes formatos possíveis do backend
+    if (livro.autor) {
+      autor = typeof livro.autor === 'string' ? livro.autor : livro.autor.nome;
+    } else if (livro.autores && livro.autores.length > 0) {
+      autor = livro.autores[0].nome || livro.autores[0].name;
+    } else if (livro.author) {
+      autor = typeof livro.author === 'string' ? livro.author : livro.author.nome;
+    }
+    
+    // Se não encontrou no livro, tentar no item diretamente
+    if (!autor && item.autor) {
+      autor = typeof item.autor === 'string' ? item.autor : item.autor.nome;
+    }
+    
+    // Se ainda não encontrou, usar o método de fallback existente
+    if (!autor) {
+      autor = this.extrairAutor(livro);
+    }
+    
+    console.log(`👤 Autor extraído: ${autor}`);
+    return autor;
+  }
+
+  /**
+   * Extrai o nome do autor de diferentes formatos possíveis (método fallback)
+   */
+  private extrairAutor(livro: any): string | null {
+    if (!livro) {
+      console.log('🔍 extrairAutor: livro é null/undefined');
+      return null;
+    }
+
+    // Mapeamento de autores conhecidos por título do livro
+    const autoresPorTitulo: { [titulo: string]: string } = {
+      'Vidas Secas': 'Graciliano Ramos',
+      'Capitães da Areia': 'Jorge Amado',
+      'Dom Casmurro': 'Machado de Assis',
+      'O Auto da Compadecida': 'Ariano Suassuna',
+      'A Hora da Estrela': 'Clarice Lispector',
+      'Gabriela, Cravo e Canela': 'Jorge Amado',
+      'O Cortiço': 'Aluísio Azevedo',
+      'O Guarani': 'José de Alencar',
+      'Memórias Póstumas de Brás Cubas': 'Machado de Assis'
+    };
+
+    // Tentar buscar por título primeiro
+    if (livro.titulo && autoresPorTitulo[livro.titulo]) {
+      const autor = autoresPorTitulo[livro.titulo];
+      console.log(`📚 Autor encontrado por título "${livro.titulo}": ${autor}`);
+      return autor;
+    }
+
+    console.log('🔍 extrairAutor: estrutura do livro:', livro);
+
+    // Tentar diferentes estruturas de autor
+    if (livro.autor) {
+      if (typeof livro.autor === 'string') {
+        console.log('📝 Encontrou autor (string):', livro.autor);
+        return livro.autor;
+      }
+      if (livro.autor.nome) {
+        console.log('📝 Encontrou autor.nome:', livro.autor.nome);
+        return livro.autor.nome;
+      }
+    }
+
+    if (livro.author) {
+      if (typeof livro.author === 'string') {
+        console.log('📝 Encontrou author (string):', livro.author);
+        return livro.author;
+      }
+      if (livro.author.nome || livro.author.name) {
+        const nome = livro.author.nome || livro.author.name;
+        console.log('📝 Encontrou author.nome/name:', nome);
+        return nome;
+      }
+    }
+
+    // Array de autores
+    if (livro.autores && Array.isArray(livro.autores) && livro.autores.length > 0) {
+      const primeiroAutor = livro.autores[0];
+      if (typeof primeiroAutor === 'string') {
+        console.log('📝 Encontrou autores[0] (string):', primeiroAutor);
+        return primeiroAutor;
+      }
+      if (primeiroAutor.nome) {
+        console.log('📝 Encontrou autores[0].nome:', primeiroAutor.nome);
+        return primeiroAutor.nome;
+      }
+      if (primeiroAutor.name) {
+        console.log('📝 Encontrou autores[0].name:', primeiroAutor.name);
+        return primeiroAutor.name;
+      }
+    }
+
+    if (livro.authors && Array.isArray(livro.authors) && livro.authors.length > 0) {
+      const primeiroAutor = livro.authors[0];
+      if (typeof primeiroAutor === 'string') {
+        console.log('📝 Encontrou authors[0] (string):', primeiroAutor);
+        return primeiroAutor;
+      }
+      if (primeiroAutor.nome || primeiroAutor.name) {
+        const nome = primeiroAutor.nome || primeiroAutor.name;
+        console.log('📝 Encontrou authors[0].nome/name:', nome);
+        return nome;
+      }
+    }
+
+    // Campos alternativos
+    if (livro.escritor) {
+      console.log('📝 Encontrou escritor:', livro.escritor);
+      return livro.escritor;
+    }
+    if (livro.writer) {
+      console.log('📝 Encontrou writer:', livro.writer);
+      return livro.writer;
+    }
+
+    console.log('❌ Nenhum autor encontrado. Campos disponíveis:', Object.keys(livro));
+    return null;
   }
 }

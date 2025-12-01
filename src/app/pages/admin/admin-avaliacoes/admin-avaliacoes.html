@@ -1,0 +1,39 @@
+<div class="admin-container pending-panel">
+  <div class="panel-header" (click)="togglePanel()" role="button" tabindex="0">
+    <h3>Avaliações Pendentes <span class="count">({{ pendingAvaliacoes.length || 0 }})</span></h3>
+    <button class="toggle">{{ panelOpen ? 'Ocultar' : 'Mostrar' }}</button>
+  </div>
+
+  <div *ngIf="panelOpen" class="panel-body">
+    <div *ngIf="!pendingAvaliacoes">Carregando avaliações...</div>
+    <div *ngIf="pendingAvaliacoes.length === 0" class="empty">Nenhuma avaliação pendente.</div>
+
+    <div class="cards">
+      <div *ngFor="let a of pendingAvaliacoes" class="card" [class.processing]="processingId === (a.id_avaliacao || a.id)">
+        <div class="card-header">
+          <div class="book">{{ a.titulo || a.id_livro }}</div>
+          <div class="meta">Usuário: {{ a.usuario?.nome || a.id_usuario }} • Nota: {{ a.nota }}</div>
+        </div>
+        <div class="card-body">{{ a.comentario }}</div>
+        <div class="card-actions">
+          <ng-container *ngIf="confirmApproveId !== (a.id_avaliacao || a.id) && confirmRejectId !== (a.id_avaliacao || a.id)">
+            <button class="btn-approve" (click)="requestApproveAvaliacao(a)" [disabled]="processingId">Aprovar</button>
+            <button class="btn-reject" (click)="requestRejectAvaliacao(a)" [disabled]="processingId">Rejeitar</button>
+          </ng-container>
+
+          <ng-container *ngIf="confirmApproveId === (a.id_avaliacao || a.id)">
+            <span>Confirma aprovação?</span>
+            <button (click)="confirmApproveAvaliacao()" [disabled]="processingId">Confirmar</button>
+            <button (click)="cancelApprove()">Cancelar</button>
+          </ng-container>
+
+          <ng-container *ngIf="confirmRejectId === (a.id_avaliacao || a.id)">
+            <span>Confirma rejeição?</span>
+            <button class="btn-danger" (click)="confirmRejectAvaliacao()" [disabled]="processingId">Confirmar</button>
+            <button (click)="cancelReject()">Cancelar</button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

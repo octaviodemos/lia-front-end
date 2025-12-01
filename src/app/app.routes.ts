@@ -4,12 +4,13 @@ import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
 import { Loja } from './pages/loja/loja';
 import { LivroDetalhes } from './pages/livro-detalhes/livro-detalhes';
-import { Carrinho } from './pages/carrinho/carrinho.component';
+import { Carrinho } from './pages/carrinho/carrinho';
 import { Checkout } from './pages/checkout/checkout';
 import { MeusEnderecos } from './pages/meus-enderecos/meus-enderecos';
 import { PedidoSucesso } from './pages/pedido-sucesso/pedido-sucesso';
 import { PedidoFalha } from './pages/pedido-falha/pedido-falha';
 import { MeusPedidos } from './pages/meus-pedidos/meus-pedidos';
+import { PedidoDetalhes } from './pages/pedido-detalhes/pedido-detalhes';
 import { OfertarLivro } from './pages/ofertar-livro/ofertar-livro';
 import { SolicitarReforma } from './pages/solicitar-reforma/solicitar-reforma';
 import { MinhaConta } from './pages/minha-conta/minha-conta';
@@ -17,6 +18,7 @@ import { Comunidade } from './pages/comunidade/comunidade';
 import { PublicacaoDetalhes } from './pages/publicacao-detalhes/publicacao-detalhes';
 import { AdminLayout } from './pages/admin/admin-layout/admin-layout';
 import { AdminLivros } from './pages/admin/admin-livros/admin-livros';
+import { AdminAvaliacoes } from './pages/admin/admin-avaliacoes/admin-avaliacoes';
 import { AdminEstoque } from './pages/admin/admin-estoque/admin-estoque';
 import { AdminPedidos } from './pages/admin/admin-pedidos/admin-pedidos';
 import { AdminOfertas } from './pages/admin/admin-ofertas/admin-ofertas';
@@ -34,7 +36,11 @@ export const routes: Routes = [
   { path: 'meus-enderecos', component: MeusEnderecos },
   { path: 'pedido/sucesso', component: PedidoSucesso },
   { path: 'pedido/falha', component: PedidoFalha },
+  { path: 'payment/success', component: PedidoSucesso },
+  { path: 'payment/failure', component: PedidoFalha },
+  { path: 'payment/pending', component: PedidoSucesso },
   { path: 'meus-pedidos', component: MeusPedidos },
+  { path: 'pedido/:id', component: PedidoDetalhes },
   { path: 'vender-livro', component: OfertarLivro },
   { path: 'solicitar-reforma', component: SolicitarReforma },
   { path: 'minha-conta', component: MinhaConta },
@@ -49,6 +55,7 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     children: [
       { path: 'livros', component: AdminLivros },
+      { path: 'avaliacoes', component: AdminAvaliacoes },
       { path: 'estoque', component: AdminEstoque },
       { path: 'pedidos', component: AdminPedidos },
       { path: 'ofertas', component: AdminOfertas },

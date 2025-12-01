@@ -1,0 +1,16 @@
+<div class="admin-container">
+  <h2>Moderação de Comentários</h2>
+
+  <div *ngIf="loading">Carregando comentários pendentes...</div>
+  <div *ngIf="!loading && comentarios.length === 0">Nenhum comentário pendente.</div>
+
+  <div *ngFor="let c of comentarios" class="pending-card">
+    <p><strong>Publicação:</strong> {{ c.id_publicacao }}</p>
+    <p><strong>Usuário:</strong> {{ c.usuario?.nome || c.id_usuario }}</p>
+    <p>{{ c.conteudo }}</p>
+    <div class="actions">
+      <button (click)="approveComentario(c.id_comentario || c.id)">Aprovar</button>
+      <button class="danger" (click)="deleteComentario(c.id_comentario || c.id)">Rejeitar</button>
+    </div>
+  </div>
+</div>

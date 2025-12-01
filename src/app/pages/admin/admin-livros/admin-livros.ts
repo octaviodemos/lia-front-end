@@ -74,4 +74,6 @@ export class AdminLivros implements OnInit {
       });
     }
   }
+
+  // avaliações agora são moderadas no componente `AdminAvaliacoes`
 }

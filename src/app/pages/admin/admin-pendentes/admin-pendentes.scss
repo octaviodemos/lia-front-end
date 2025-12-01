@@ -1,0 +1,17 @@
+.admin-pendentes-container {
+  padding: 16px;
+}
+.pending-card {
+  border: 1px solid #e3e6ea;
+  background: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.pending-card .actions {
+  margin-top: 8px;
+}
+.pending-card button {
+  margin-right: 8px;
+}
+.pending-card button.danger { background: #ffdddd; }
