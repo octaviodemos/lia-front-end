@@ -48,9 +48,15 @@ $cor-borda: #eee;
 .livro-content {
   display: flex;
   gap: 2rem;
+  border: 2px solid $cor-borda;
+  border-radius: 12px;
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: 1.5rem;
   }
 }
 
@@ -136,8 +142,10 @@ $cor-borda: #eee;
   font-size: 0.9rem;
   color: #444;
   margin-bottom: 2rem;
-  border-top: 1px solid $cor-borda;
-  padding-top: 1rem;
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: $cor-fundo-claro;
 
   p {
     margin: 0.5rem 0;
@@ -145,10 +153,16 @@ $cor-borda: #eee;
 }
 
 .sinopse {
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: $cor-fundo-claro;
+
   h2 {
     font-size: 1.5rem;
     border-bottom: 2px solid $cor-principal;
     padding-bottom: 0.5rem;
+    margin-top: 0;
     margin-bottom: 1rem;
   }
   p {
@@ -158,13 +172,18 @@ $cor-borda: #eee;
 }
 
 .resenhas-section {
-  margin-top: 4rem;
-  border-top: 1px solid $cor-borda;
-  padding-top: 2rem;
+  margin-top: 3rem;
+  border: 2px solid $cor-borda;
+  border-radius: 12px;
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   h2 {
     font-size: 2rem;
+    margin-top: 0;
     margin-bottom: 1.5rem;
+    color: $cor-principal;
   }
 }
 
@@ -175,8 +194,14 @@ $cor-borda: #eee;
 .resenha-item {
   border: 1px solid $cor-borda;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.25rem;
   margin-bottom: 1rem;
+  background-color: $cor-fundo-claro;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
 
   p {
     margin: 0.5rem 0;

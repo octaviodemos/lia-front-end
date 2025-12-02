@@ -23,9 +23,23 @@ export class AdminAvaliacoes implements OnInit {
   }
 
   carregarAvaliacoesPendentes() {
+    console.log('Carregando avaliações pendentes...');
     this.adminModeration.getPendingAvaliacoes().subscribe({
-      next: (res: any) => { this.pendingAvaliacoes = Array.isArray(res) ? res : (res?.data || res || []); },
-      error: (err: any) => { console.error('Erro ao carregar avaliações pendentes', err); this.pendingAvaliacoes = []; }
+      next: (res: any) => { 
+        console.log('Resposta do servidor:', res);
+        let avaliacoes = Array.isArray(res) ? res : (res?.data || res || []);
+        
+        // Filtrar apenas avaliações com status 'pendente'
+        this.pendingAvaliacoes = avaliacoes.filter((a: any) => 
+          a.status === 'pendente' || a.status === 'pending' || !a.status
+        );
+        
+        console.log('Avaliações pendentes atualizadas:', this.pendingAvaliacoes);
+      },
+      error: (err: any) => { 
+        console.error('Erro ao carregar avaliações pendentes', err); 
+        this.pendingAvaliacoes = []; 
+      }
     });
   }
 
@@ -36,15 +50,21 @@ export class AdminAvaliacoes implements OnInit {
   confirmApproveAvaliacao() {
     const id = this.confirmApproveId;
     if (!id) return;
+    console.log('Aprovando avaliação ID:', id);
     this.processingId = id;
     this.adminModeration.approveAvaliacao(id).subscribe({
-      next: () => {
-        // otimistic UI: remover item localmente para refletir alteração imediata
-        this.pendingAvaliacoes = this.pendingAvaliacoes.filter(a => String(a.id_avaliacao || a.id) !== String(id));
+      next: (response) => {
+        console.log('Avaliação aprovada com sucesso:', response);
+        // Recarregar lista do servidor para garantir sincronização
+        this.carregarAvaliacoesPendentes();
         this.processingId = null;
         this.confirmApproveId = null;
       },
-      error: (err: any) => { this.processingId = null; console.error('Erro ao aprovar avaliação', err); }
+      error: (err: any) => { 
+        console.error('Erro ao aprovar avaliação:', err);
+        this.processingId = null; 
+        this.confirmApproveId = null;
+      }
     });
   }
 
@@ -53,15 +73,21 @@ export class AdminAvaliacoes implements OnInit {
   confirmRejectAvaliacao() {
     const id = this.confirmRejectId;
     if (!id) return;
+    console.log('Rejeitando avaliação ID:', id);
     this.processingId = id;
     this.adminModeration.deleteAvaliacao(id).subscribe({
-      next: () => {
-        // otimistic UI: remover item localmente
-        this.pendingAvaliacoes = this.pendingAvaliacoes.filter(a => String(a.id_avaliacao || a.id) !== String(id));
+      next: (response) => {
+        console.log('Avaliação rejeitada com sucesso:', response);
+        // Recarregar lista do servidor para garantir sincronização
+        this.carregarAvaliacoesPendentes();
         this.processingId = null;
         this.confirmRejectId = null;
       },
-      error: (err: any) => { this.processingId = null; console.error('Erro ao rejeitar avaliação', err); }
+      error: (err: any) => { 
+        console.error('Erro ao rejeitar avaliação:', err);
+        this.processingId = null; 
+        this.confirmRejectId = null;
+      }
     });
   }
 }

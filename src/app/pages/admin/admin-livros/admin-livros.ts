@@ -14,6 +14,9 @@ export class AdminLivros implements OnInit {
 
   livroForm!: FormGroup;
   mensagemSucesso: string = '';
+  selectedFile: File | null = null;
+  selectedFileName: string = '';
+  imagePreview: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -31,27 +34,76 @@ export class AdminLivros implements OnInit {
     });
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      // Validar tamanho (máx 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.mensagemSucesso = 'Arquivo muito grande. Tamanho máximo: 5MB';
+        return;
+      }
+      
+      // Validar tipo
+      if (!file.type.startsWith('image/')) {
+        this.mensagemSucesso = 'Por favor, selecione uma imagem válida';
+        return;
+      }
+      
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+      
+      // Criar preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      
+      // Limpar URL se houver arquivo
+      this.livroForm.patchValue({ capa_url: '' });
+    }
+  }
+  
+  clearFile(): void {
+    this.selectedFile = null;
+    this.selectedFileName = '';
+    this.imagePreview = null;
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
   onSubmit(): void {
     console.log('Form válido?', this.livroForm.valid);
     console.log('Form value:', this.livroForm.value);
     console.log('Form errors:', this.livroForm.errors);
     
     if (this.livroForm.valid) {
-      const payload = this.livroForm.value;
-      console.log('Payload sendo enviado:', payload);
-      console.log('Tipos dos campos:', {
-        titulo: typeof payload.titulo,
-        sinopse: typeof payload.sinopse,
-        editora: typeof payload.editora,
-        ano_publicacao: typeof payload.ano_publicacao,
-        isbn: typeof payload.isbn,
-        capa_url: typeof payload.capa_url
+      const formData = new FormData();
+      
+      // Adicionar campos do formulário
+      Object.keys(this.livroForm.value).forEach(key => {
+        const value = this.livroForm.value[key];
+        if (value !== null && value !== '') {
+          formData.append(key, value);
+        }
       });
       
-      this.livroService.criarLivro(payload).subscribe({
+      // Adicionar arquivo se houver
+      if (this.selectedFile) {
+        formData.append('capa_file', this.selectedFile, this.selectedFile.name);
+      }
+      
+      console.log('Payload sendo enviado (FormData)');
+      
+      this.livroService.criarLivro(formData).subscribe({
         next: (response: any) => {
           this.mensagemSucesso = `Livro "${response.titulo}" criado com sucesso!`;
           this.livroForm.reset();
+          this.clearFile();
         },
         error: (err: any) => {
           console.error('Erro completo:', err);
