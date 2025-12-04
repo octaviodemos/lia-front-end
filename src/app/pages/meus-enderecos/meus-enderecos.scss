@@ -81,6 +81,14 @@ form {
       font-weight: 600;
       color: $cor-texto;
       margin-bottom: 0.25rem;
+
+      .required {
+        color: $cor-principal;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-left: 0.25rem;
+        vertical-align: super;
+      }
     }
 
     input[type="text"],
