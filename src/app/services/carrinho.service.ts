@@ -71,16 +71,16 @@ export class CarrinhoService {
               removido.livroId === item.livroId || removido.cartItemId === item.cartItemId
             );
             if (foiRemovido) {
-              // filtered removed item
+            
             }
             return !foiRemovido;
           });
-          // filtered removed items log removed
+        
         }
         
         // Se o backend retornou vazio, mas temos itens no localStorage
         if (backendItems.length === 0 && currentItems.length > 0) {
-          // backend empty - keep local cart
+          
           return; // Não atualizar o estado
         }
         
@@ -89,7 +89,6 @@ export class CarrinhoService {
       }),
       map(() => this.getCarrinhoAtual()),
       catchError(() => {
-        // error in refreshCarrinho - keeping current state
         return of(this.getCarrinhoAtual());
       })
     );
@@ -128,14 +127,13 @@ export class CarrinhoService {
     
     // Verificar se tem cache válido
     if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
-      // using cache
+      console.log(`📦 Usando cache para ID ${id_estoque}: ${dadosCache.disponivel} unidades`);
       return of({
         disponivel: dadosCache.disponivel,
         suficiente: dadosCache.disponivel > 0
       });
     }
     return this.http.get(`${this.apiUrl}/stock/${id_estoque}`).pipe(
-      // tap removed (debug)
       map((estoque: any) => {
         // Tentar diferentes possibilidades de campo na resposta
         const disponivel = estoque.quantidade_disponivel || 
@@ -165,7 +163,6 @@ export class CarrinhoService {
         };
         
         const disponivel = estoqueRealTabela[id_estoque as keyof typeof estoqueRealTabela] || 0;
-        // using fallback table stock
         
         // Salvar no cache mesmo sendo fallback
         this.estoqueCache.set(id_estoque, {
@@ -240,7 +237,6 @@ export class CarrinhoService {
    * Normaliza a resposta do backend para um array de ItemCarrinho
    */
   private mapCartResponse(res: any): ItemCarrinho[] {
-    // debug: mapCartResponse input removed
     
     if (!res) return [];
     
@@ -317,7 +313,6 @@ export class CarrinhoService {
           ''
       };
       
-      // item mapped
       return mapped;
     });
 
