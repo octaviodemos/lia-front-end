@@ -60,7 +60,7 @@ export class CarrinhoService {
       tap((backendItems: ItemCarrinho[]) => {
         const currentItems = this.getCarrinhoAtual();
         
-        console.log(`🔄 Sincronização - Local: ${currentItems.length} itens, Backend: ${backendItems.length} itens`);
+        // sync info removed
         
         // Filtrar itens que foram removidos localmente
         const itensRemovidosLocal = this.getItensRemovidosLocal();
@@ -71,26 +71,25 @@ export class CarrinhoService {
               removido.livroId === item.livroId || removido.cartItemId === item.cartItemId
             );
             if (foiRemovido) {
-              console.log(`🚫 Filtrando item removido: ${item.titulo} (cartItemId: ${item.cartItemId})`);
+              // filtered removed item
             }
             return !foiRemovido;
           });
-          console.log(`🗑️ Filtrados ${itensAntes - backendItems.length} itens removidos localmente`);
+          // filtered removed items log removed
         }
         
         // Se o backend retornou vazio, mas temos itens no localStorage
         if (backendItems.length === 0 && currentItems.length > 0) {
-          console.log('💾 Backend vazio, mantendo carrinho local');
+          // backend empty - keep local cart
           return; // Não atualizar o estado
         }
         
         // Atualizar com dados do backend
         this.carrinho$.next(backendItems);
-        console.log('🔄 Estado atualizado com dados do backend');
       }),
       map(() => this.getCarrinhoAtual()),
       catchError(() => {
-        console.log('❌ Erro no refreshCarrinho, mantendo estado atual');
+        // error in refreshCarrinho - keeping current state
         return of(this.getCarrinhoAtual());
       })
     );
@@ -129,19 +128,14 @@ export class CarrinhoService {
     
     // Verificar se tem cache válido
     if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
-      console.log(`📦 Usando cache para ID ${id_estoque}: ${dadosCache.disponivel} unidades`);
+      // using cache
       return of({
         disponivel: dadosCache.disponivel,
         suficiente: dadosCache.disponivel > 0
       });
     }
-    
-    console.log(`📦 Buscando estoque do backend para ID: ${id_estoque}`);
-    
     return this.http.get(`${this.apiUrl}/stock/${id_estoque}`).pipe(
-      tap((response: any) => {
-        console.log(`🔍 Resposta completa do backend para ID ${id_estoque}:`, response);
-      }),
+      // tap removed (debug)
       map((estoque: any) => {
         // Tentar diferentes possibilidades de campo na resposta
         const disponivel = estoque.quantidade_disponivel || 
@@ -157,8 +151,6 @@ export class CarrinhoService {
           timestamp: agora
         });
         
-        console.log(`📦 Estoque processado ID ${id_estoque}: ${disponivel} unidades (cached)`);
-        
         return {
           disponivel: disponivel,
           suficiente: disponivel > 0
@@ -166,8 +158,6 @@ export class CarrinhoService {
       }),
       catchError(error => {
         console.error(`❌ Erro ao verificar estoque para ID ${id_estoque}:`, error);
-        console.error(`❌ Status do erro:`, error.status);
-        console.error(`❌ Mensagem do erro:`, error.message);
         
         // Usar dados da sua tabela real como fallback
         const estoqueRealTabela = {
@@ -175,7 +165,7 @@ export class CarrinhoService {
         };
         
         const disponivel = estoqueRealTabela[id_estoque as keyof typeof estoqueRealTabela] || 0;
-        console.log(`📦 Usando estoque da tabela para ID ${id_estoque}: ${disponivel} unidades`);
+        // using fallback table stock
         
         // Salvar no cache mesmo sendo fallback
         this.estoqueCache.set(id_estoque, {
@@ -207,15 +197,14 @@ export class CarrinhoService {
           return throwError(() => erro);
         }
 
-        // Se tem estoque, adicionar normalmente
+          // Se tem estoque, adicionar normalmente
         return this.http.post(`${this.apiUrl}/cart/items`, { id_estoque, quantidade }).pipe(
           switchMap(() => this.http.get(`${this.apiUrl}/cart`)),
           map(res => this.mapCartResponse(res)),
           tap(items => this.carrinho$.next(items)),
           catchError((err) => {
             if (err && (err.status === 401)) {
-              // 401: Não autenticado
-              console.log('💾 Item salvo localmente (não autenticado)');
+              // 401: Não autenticado - save local
               const localItem = this.buildLocalItemFromMeta(id_estoque, quantidade, meta);
               if (localItem.estoqueDisponivel === undefined) {
                 localItem.estoqueDisponivel = estoque.disponivel;
@@ -251,7 +240,7 @@ export class CarrinhoService {
    * Normaliza a resposta do backend para um array de ItemCarrinho
    */
   private mapCartResponse(res: any): ItemCarrinho[] {
-    console.log('🔍 mapCartResponse - Resposta completa do backend:', res);
+    // debug: mapCartResponse input removed
     
     if (!res) return [];
     
@@ -260,18 +249,14 @@ export class CarrinhoService {
     // Diferentes formatos de resposta possíveis
     if (Array.isArray(res)) {
       items = res;
-      console.log('📋 Usando res diretamente (array):', items);
     } else if (res.itens && Array.isArray(res.itens)) {
       items = res.itens;
-      console.log('📋 Usando res.itens:', items);
     } else if (res.items && Array.isArray(res.items)) {
       items = res.items;
-      console.log('📋 Usando res.items:', items);
     } else if (res.data && Array.isArray(res.data)) {
       items = res.data;
-      console.log('📋 Usando res.data:', items);
     } else {
-      console.log('❌ Formato de resposta não reconhecido:', res);
+      // unrecognized response format
     }
     
     const itensMapeados = items.map((item: any) => {
@@ -332,7 +317,7 @@ export class CarrinhoService {
           ''
       };
       
-      console.log(`✅ Item mapeado: ${mapped.titulo} - R$ ${mapped.preco} - Autor: ${mapped.autor} (cartItemId: ${mapped.cartItemId})`);
+      // item mapped
       return mapped;
     });
 

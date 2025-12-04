@@ -15,30 +15,22 @@ export function normalizePrecoToString(precoRaw: any): string | null {
 export function extractPrimaryEstoque(raw: LivroRaw): Estoque | null {
   if (!raw) return null;
 
-  console.log('\ud83d\udd0d extractPrimaryEstoque - raw:', {
-    preco: raw.preco,
-    id_estoque: raw.id_estoque,
-    estoque: raw.estoque
-  });
 
   if (raw.preco != null || raw.id_estoque != null) {
     const result = {
       id_estoque: raw.id_estoque ?? null,
       preco: normalizePrecoToString(raw.preco ?? null)
     } as Estoque;
-    console.log('  \u2192 Usando raw.preco direto:', result);
     return result;
   }
 
   const e = raw.estoque;
   if (!e) {
-    console.log('  \u26a0\ufe0f Nenhum estoque encontrado!');
     return null;
   }
   
   if (Array.isArray(e)) {
-    if (e.length === 0) {
-      console.log('  \u26a0\ufe0f Array de estoque vazio!');
+      if (e.length === 0) {
       return null;
     }
     const first = e[0];
@@ -49,7 +41,6 @@ export function extractPrimaryEstoque(raw: LivroRaw): Estoque | null {
       preco: normalizePrecoToString(first.preco ?? null),
       condicao: first.condicao ?? null
     } as Estoque;
-    console.log('  \u2192 Usando primeiro item do array:', result);
     return result;
   }
 
@@ -60,7 +51,6 @@ export function extractPrimaryEstoque(raw: LivroRaw): Estoque | null {
     preco: normalizePrecoToString(e.preco ?? null),
     condicao: e.condicao ?? null
   } as Estoque;
-  console.log('  \u2192 Usando objeto estoque:', result);
   return result;
 }
 

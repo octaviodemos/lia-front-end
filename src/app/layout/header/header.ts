@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CarrinhoService } from '../../services/carrinho.service';
 import { ItemCarrinho } from '../../services/carrinho.service';
@@ -11,7 +10,7 @@ import { BuscaService } from '../../services/busca.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule], 
+  imports: [CommonModule, RouterLink, RouterLinkActive], 
   templateUrl: './header.html',
   styleUrls: ['./header.scss']
 })

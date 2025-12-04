@@ -16,9 +16,7 @@ export class LivroService {
   getLivros(): Observable<any> {
     return this.http.get<any[]>(`${this.apiUrl}/books`).pipe(
       map(list => {
-        console.log('\ud83d\udd0d API Response RAW (primeiro livro):', list[0]);
         const normalized = (list || []).map(item => normalizeLivro(item));
-        console.log('\u2705 Ap\u00f3s normaliza\u00e7\u00e3o (primeiro livro):', normalized[0]);
         return normalized;
       })
     );

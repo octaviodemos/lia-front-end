@@ -41,28 +41,22 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/auth/login`, credentials).pipe(
       tap((response: any) => {
-        console.log('Response do login:', response);
-        
-        // A API retorna tanto access_token quanto user na mesma resposta
+        // Process login response: store token and user if present
         const token = response.access_token || response.token;
         const user = response.user;
-        
+
         if (token) {
           localStorage.setItem(this.tokenKey, token);
-          console.log('Token salvo:', token);
         }
-        
+
         if (user) {
           localStorage.setItem(this.userKey, JSON.stringify(user));
-          console.log('Usuário salvo:', user);
-          console.log('É admin?', user.tipo_usuario === 'admin');
           this.loggedInSubject.next(true);
         } else {
           // Fallback: buscar perfil se user não vier na resposta
           this.getCurrentUser().subscribe({
             next: (profileUser: any) => {
               localStorage.setItem(this.userKey, JSON.stringify(profileUser));
-              console.log('Usuário do perfil salvo:', profileUser);
               this.loggedInSubject.next(true);
             },
             error: (err: any) => {
