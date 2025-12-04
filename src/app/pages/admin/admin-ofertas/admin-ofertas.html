@@ -3,53 +3,92 @@
 
   <div class="ofertas-lista" *ngIf="ofertas.length > 0; else noOfertas">
     <div *ngFor="let oferta of ofertas" class="oferta-card">
-      <h4>Oferta #{{ oferta.id_oferta_venda }} - Status: {{ oferta.status_oferta }}</h4>
-      <p><strong>Usuário:</strong> {{ oferta.usuario?.nome || 'Nome não disponível' }}</p>
-      <p><strong>Livro:</strong> {{ oferta.titulo_livro }} ({{ oferta.autor_livro }})</p>
-      <p><strong>ISBN:</strong> {{ oferta.isbn }}</p>
-      <p><strong>Condição:</strong> {{ oferta.condicao_livro }}</p>
-      <p><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</p>
-
-      <div *ngIf="oferta.status_oferta === 'pendente'" class="admin-actions">
-        <form [formGroup]="respostaForm">
-          <div class="form-group">
-            <label 
-              [id]="'label-resposta-' + oferta.id_oferta_venda"
-              [for]="'resposta-' + oferta.id_oferta_venda"
-            >
-              Mensagem de Resposta (Opcional)
-            </label>
-            
-            <textarea 
-              [id]="'resposta-' + oferta.id_oferta_venda" 
-              formControlName="resposta_admin" 
-              rows="2"
-              [attr.aria-labelledby]="'label-resposta-' + oferta.id_oferta_venda"
-              
-              placeholder="Escreva uma resposta para o usuário..."
-            ></textarea>
-          </div>
-          
-          <button 
-            type="button" 
-            (click)="handleResposta(oferta.id_oferta_venda, 'aceita')" 
-            class="btn-aceitar"
-          >
-            Aceitar Oferta
-          </button>
-          
-          <button 
-            type="button" 
-            (click)="handleResposta(oferta.id_oferta_venda, 'recusada')" 
-            class="btn-recusar"
-          >
-            Recusar Oferta
-          </button>
-        </form>
+      <div class="card-header">
+        <h4>Oferta #{{ oferta.id_oferta_venda }}</h4>
+        <span class="status-badge status-{{ oferta.status_oferta }}" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ oferta.status_oferta }}
+        </span>
       </div>
 
-      <div *ngIf="oferta.status_oferta !== 'pendente'" class="admin-resposta">
-        <p><strong>Resposta da LIA:</strong> {{ oferta.resposta_admin || '(Sem mensagem)' }}</p>
+      <div class="meta-list">
+        <div class="meta-item">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM4 20c0-2.21 3.58-4 8-4s8 1.79 8 4v1H4v-1z" fill="currentColor"/></svg>
+          <span><strong>Usuário:</strong> {{ oferta.usuario?.nome || 'Nome não disponível' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M8 7h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span><strong>Livro:</strong> {{ oferta.titulo_livro }}</span>
+        </div>
+
+        <div class="meta-item">
+          <!-- same icon as Usuário -->
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM4 20c0-2.21 3.58-4 8-4s8 1.79 8 4v1H4v-1z" fill="currentColor"/></svg>
+          <span><strong>Autor:</strong> {{ oferta.autor_livro || '—' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 10h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span><strong>ISBN:</strong> {{ oferta.isbn || '' }}</span>
+        </div>
+
+        <div class="meta-item">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M8 11h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span><strong>Condição:</strong> {{ oferta.condicao_livro }}</span>
+        </div>
+
+        <div class="meta-item">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v14H3z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M7 19h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="oferta.status_oferta === 'pendente'" class="admin-actions">
+        <div class="form-group">
+          <label 
+            [id]="'label-resposta-' + oferta.id_oferta_venda"
+            [for]="'resposta-' + oferta.id_oferta_venda"
+          >
+            Mensagem de Resposta (Opcional)
+          </label>
+          <textarea 
+            [id]="'resposta-' + oferta.id_oferta_venda" 
+            rows="2"
+            [attr.aria-labelledby]="'label-resposta-' + oferta.id_oferta_venda"
+            placeholder="Escreva uma resposta para o usuário..."
+            (input)="onRespostaInput(oferta.id_oferta_venda, $event)"
+            [value]="respostaMap[oferta.id_oferta_venda] || ''"
+          ></textarea>
+        </div>
+
+        <button 
+          type="button" 
+          (click)="handleResposta(oferta.id_oferta_venda, 'aceita')" 
+          class="btn-aceitar"
+        >
+          Aceitar Oferta
+        </button>
+
+        <button 
+          type="button" 
+          (click)="handleResposta(oferta.id_oferta_venda, 'recusada')" 
+          class="btn-recusar"
+        >
+          Recusar Oferta
+        </button>
+      </div>
+
+      <div *ngIf="oferta.status_oferta !== 'pendente'" class="response-box">
+        <div class="response-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+        </div>
+        <div class="response-content">
+          <p class="label"><strong>Resposta da LIA:</strong></p>
+          <p class="message">{{ oferta.resposta_admin || '(Sem mensagem)' }}</p>
+        </div>
       </div>
 
     </div>

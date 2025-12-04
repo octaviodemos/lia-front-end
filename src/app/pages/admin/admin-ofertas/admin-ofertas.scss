@@ -14,6 +14,76 @@
   @include admin-data-card;
 }
 
+/* Visual refinements to match mock */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #222;
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+.status-pendente { background-color: #f39c12; color: #fff; }
+.status-aceita { background-color: #27ae60; color: #fff; }
+.status-recusada { background-color: #c0392b; color: #fff; }
+
+.meta-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: #2c3e50;
+
+  .icon { color: #2c3e50; opacity: 0.85; }
+
+  strong { margin-right: 0.25rem; }
+
+  small { color: #666; margin-left: 0.25rem; }
+}
+
+.response-box {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+  background-color: #f6f9fb;
+  border: 1px solid #e6eef5;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.response-icon {
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2b9ed8;
+}
+
+.response-content .label { margin: 0 0 0.25rem 0; color: #333; }
+.response-content .message { margin: 0; color: #33475b; }
+
 .admin-actions {
   margin-top: 1rem;
   

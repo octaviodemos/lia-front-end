@@ -10,10 +10,26 @@
     <p>{{ post.conteudo }}</p>
   </div>
 
+      <ng-template #firstPendingComentario let-pc>
+        <p><strong>[Você]</strong> <span class="muted">{{ pc.data_comentario | date:'short' }}</span></p>
+        <p>{{ pc.conteudo }}</p>
+        <p class="small-muted">Seu comentário foi enviado para moderação e será publicado após aprovação.</p>
+      </ng-template>
   <hr>
 
   <div class="comentarios-section">
     <h2>Comentários</h2>
+    <!-- Destaque para comentário do próprio usuário (pendente) -->
+    <div *ngIf="pendingComentarios && pendingComentarios.length > 0" class="sua-comentario-card">
+      <div class="card-header">
+        <div class="title">Seu Comentário</div>
+          <div class="comentario-item">
+            <ng-container *ngIf="pendingComentarios && pendingComentarios.length > 0">
+              <ng-container *ngTemplateOutlet="firstPendingComentario; context: { $implicit: pendingComentarios[0] }"></ng-container>
+            </ng-container>
+          </div>
+      </div>
+    </div>
 
     <div class="comentario-form">
       <form [formGroup]="comentarioForm" (ngSubmit)="onComentarioSubmit()">
@@ -21,19 +37,57 @@
           <label for="conteudo">Deixe seu comentário</label>
           <textarea id="conteudo" formControlName="conteudo" rows="3"></textarea>
         </div>
-        <button type="submit" [disabled]="comentarioForm.invalid">Comentar</button>
+        <button type="submit" [disabled]="comentarioForm.invalid || enviandoComentario">
+          {{ enviandoComentario ? 'Enviando...' : 'Comentar' }}
+        </button>
       </form>
     </div>
 
     <div *ngIf="post.comentarios && post.comentarios.length > 0; else noComentarios" class="lista-comentarios">
       <div *ngFor="let comentario of post.comentarios" class="comentario-item">
-        <p><strong>{{ comentario.autor?.nome || 'Usuário' }}:</strong></p>
+        <p>
+          <strong>{{ comentario.autor?.nome || 'Usuário' }}</strong>
+          <span class="muted">: {{ comentario.data_comentario | date:'short' }}</span>
+        </p>
         <p>{{ comentario.conteudo }}</p>
+        <div class="comment-actions">
+          <button class="like-btn" [class.liked]="comentario.userReaction === 'LIKE'" (click)="toggleReaction(comentario, 'LIKE')" [disabled]="comentario._reactionLoading" aria-label="Curtir comentário">
+            <i [ngClass]="comentario.userReaction === 'LIKE' ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+            <small>{{ comentario.likes ?? comentario.likesCount ?? 0 }}</small>
+          </button>
+          <button class="dislike-btn" [class.disliked]="comentario.userReaction === 'DISLIKE'" (click)="toggleReaction(comentario, 'DISLIKE')" [disabled]="comentario._reactionLoading" aria-label="Não curtir comentário">
+            <i [ngClass]="comentario.userReaction === 'DISLIKE' ? 'fa-solid fa-thumbs-down' : 'fa-regular fa-thumbs-down'"></i>
+            <small>{{ comentario.dislikes ?? 0 }}</small>
+          </button>
+        </div>
       </div>
     </div>
     <ng-template #noComentarios>
       <p>Seja o primeiro a comentar!</p>
     </ng-template>
+
+    <!-- Comentários pendentes enviados pelo próprio usuário (visível apenas localmente) -->
+    <div *ngIf="pendingComentarios && pendingComentarios.length > 0" class="lista-comentarios pending-list">
+      <h4>Seus comentários pendentes</h4>
+      <div *ngFor="let pc of pendingComentarios" class="comentario-item pending">
+        <p>
+          <strong>[Você]</strong>
+          <span class="badge pending-badge">Pendente</span>
+          <span class="muted"> {{ pc.data_comentario | date:'short' }}</span>
+        </p>
+        <p>{{ pc.conteudo || pc.conteudo }}</p>
+        <div class="comment-actions">
+          <button class="like-btn" [class.liked]="pc.userReaction === 'LIKE'" (click)="toggleReaction(pc, 'LIKE')" [disabled]="pc._reactionLoading" aria-label="Curtir comentário pendente">
+            <i [ngClass]="pc.userReaction === 'LIKE' ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+            <small>{{ pc.likes ?? pc.likesCount ?? 0 }}</small>
+          </button>
+          <button class="dislike-btn" [class.disliked]="pc.userReaction === 'DISLIKE'" (click)="toggleReaction(pc, 'DISLIKE')" [disabled]="pc._reactionLoading" aria-label="Não curtir comentário pendente">
+            <i [ngClass]="pc.userReaction === 'DISLIKE' ? 'fa-solid fa-thumbs-down' : 'fa-regular fa-thumbs-down'"></i>
+            <small>{{ pc.dislikes ?? 0 }}</small>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

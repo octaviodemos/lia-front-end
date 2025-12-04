@@ -93,3 +93,33 @@ hr {
     color: $cor-principal;
   }
 }
+
+/* destaque para comentário pendente do próprio usuário */
+.sua-comentario-card {
+  border: 1px solid $cor-borda;
+  border-radius: 8px;
+  background: #fff7f0;
+  margin-bottom: 1.5rem;
+
+  .card-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid $cor-borda;
+    background: #fff;
+  }
+
+  .title { font-weight:700; color: $cor-principal; }
+
+  .status-badge { padding: 0.4rem 0.8rem; background: #f39c12; color: #fff; border-radius: 18px; font-weight:700; }
+
+  .card-body { padding: 0.9rem 1rem 1rem 1rem; }
+}
+
+.comment-actions { margin-top: 0.5rem; }
+.like-btn { display:inline-flex; align-items:center; gap:0.4rem; border:1px solid $cor-borda; padding:0.3rem 0.6rem; border-radius:6px; background:#fff; cursor:pointer; color: #555; }
+.like-btn .icon { display:block; width:16px; height:16px; }
+.like-btn .icon path { fill: none; stroke: currentColor; stroke-width: 1.2; }
+.like-btn.liked { color: #c62828; }
+.like-btn.liked .icon path { fill: currentColor; stroke: none; }

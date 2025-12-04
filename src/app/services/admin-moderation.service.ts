@@ -14,7 +14,7 @@ export class AdminModerationService {
   }
 
   approveAvaliacao(id: string): Observable<any> {
-    return this.http.patch(`${this.base}/admin/avaliacoes/${id}/approve`, {});
+    return this.http.post(`${this.base}/admin/avaliacoes/${id}/approve`, {});
   }
 
   deleteAvaliacao(id: string): Observable<any> {

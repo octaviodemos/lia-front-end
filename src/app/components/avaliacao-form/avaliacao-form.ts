@@ -45,26 +45,40 @@ export class AvaliacaoForm implements OnInit {
       return;
     }
 
+    // Prevenir envios duplicados: verificar no localStorage se existem avaliações pendentes com o mesmo conteúdo.
+    try {
+      const stored = localStorage.getItem('pendingAvaliacoes');
+      if (stored) {
+        const list = JSON.parse(stored) as any[];
+        const dup = list.find(i => String(i.livroId) === String(this.idLivro) && String(i.nota) === String(this.avaliacaoForm.value.nota) && (i.comentario || '') === (this.avaliacaoForm.value.comentario || ''));
+        if (dup) {
+          this.mensagemErro = 'Você já enviou uma avaliação igual e ela ainda está pendente de aprovação.';
+          return;
+        }
+      }
+    } catch (e) {
+      // ignore parse errors and continue
+    }
+
     this.enviando = true;
     const payload = {
       ...this.avaliacaoForm.value,
       nota: Number(this.avaliacaoForm.value.nota)
     };
 
-    console.log('Enviando avaliação:', { idLivro: this.idLivro, payload });
 
     this.avaliacaoService.criarAvaliacao(this.idLivro, payload).subscribe({
       next: (response: any) => {
-        console.log('✅ Avaliação salva com sucesso!', response);
-        this.mensagemSucesso = 'Avaliação enviada com sucesso!';
+        this.mensagemSucesso = 'Sua avaliação foi enviada e ficará pendente de aprovação.';
         this.avaliacaoForm.reset();
+        // Emitimos para o pai para que ele possa decidir se mostra imediatamente
         this.avaliacaoSalva.emit(response);
         this.enviando = false;
-        
-        // Limpa mensagem de sucesso após 3 segundos
+
+        // Limpa mensagem de sucesso após 4 segundos
         setTimeout(() => {
           this.mensagemSucesso = '';
-        }, 3000);
+        }, 4000);
       },
       error: (err: any) => {
         console.error('❌ Erro ao salvar avaliação:', err);

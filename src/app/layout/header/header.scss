@@ -154,19 +154,21 @@ $cor-texto: #333;
     padding: 0.6rem 1rem;
     background-color: transparent;
     border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+    transition: background-color 0.18s ease, transform 0.18s ease;
+
     svg {
       width: 28px;
       height: 28px;
-      transition: all 0.3s ease;
+      transition: transform 0.18s ease;
+      color: $cor-fundo;
     }
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.12);
-      
+      transform: none;
+
       svg {
-        transform: scale(1.1);
+        transform: scale(1.06);
       }
     }
   }

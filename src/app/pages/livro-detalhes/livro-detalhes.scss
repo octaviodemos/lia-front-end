@@ -1,24 +1,34 @@
 @use 'sass:color';
 
-$cor-principal: #6a0000;
-$cor-texto: #333;
-$cor-fundo-claro: #fdfaf5;
-$cor-borda: #eee;
+$primary: #7b1120; // vinho
+$secondary: #2b6ea3; // azul sutil
+$text: #222;
+$muted: #6b6b6b;
+$bg-light: #fff7f3;
+$card-radius: 10px;
+$card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+$border: #ececec;
+$success: #1fa67a;
+$warning: #ff9f1c;
+$danger: #e64545;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
 
 .detalhes-container {
   max-width: 1100px;
-  margin: 2rem auto;
+  margin: 2.5rem auto;
   padding: 0 1rem;
 }
 
 .alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-  border-radius: 5px;
+  background-color: color.adjust($success, $lightness: 55%);
+  color: color.adjust($success, $lightness: -45%);
+  border: 1px solid color.adjust($success, $lightness: 35%);
+  border-radius: 6px;
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   animation: fadeIn 0.3s ease-in;
 }
 
@@ -36,23 +46,21 @@ $cor-borda: #eee;
 .voltar-link {
   margin-bottom: 1rem;
   a {
-    color: $cor-principal;
+    color: $primary;
     text-decoration: none;
-    font-weight: 600;
-    &:hover {
-      text-decoration: underline;
-    }
+    font-weight: 700;
+    &:hover { text-decoration: underline; }
   }
 }
 
 .livro-content {
   display: flex;
   gap: 2rem;
-  border: 2px solid $cor-borda;
+  border: 1px solid $border;
   border-radius: 12px;
   padding: 2rem;
   background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: $card-shadow;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -74,21 +82,23 @@ $cor-borda: #eee;
   flex-basis: 60%;
   
   h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.6rem;
+    font-weight: 800;
     margin: 0 0 0.5rem 0;
+    color: $primary;
   }
 
   .autor {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+    color: $muted;
+    margin-bottom: 1.25rem;
+    font-weight: 600;
   }
 
   .preco {
     font-size: 2rem;
     font-weight: 700;
-    color: $cor-principal;
+    color: $primary;
     margin-bottom: 1.5rem;
 
     &.no-price {
@@ -106,7 +116,7 @@ $cor-borda: #eee;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: $cor-principal;
+    background-color: $primary;
     color: #fff;
     border: none;
     padding: 1rem 2rem;
@@ -121,7 +131,7 @@ $cor-borda: #eee;
     }
 
     &:hover:not(:disabled) {
-      background-color: color.adjust($cor-principal, $lightness: -10%);
+      background-color: color.adjust($primary, $lightness: -10%);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
@@ -142,10 +152,10 @@ $cor-borda: #eee;
   font-size: 0.9rem;
   color: #444;
   margin-bottom: 2rem;
-  border: 1px solid $cor-borda;
+  border: 1px solid $border;
   border-radius: 8px;
   padding: 1rem;
-  background-color: $cor-fundo-claro;
+  background-color: $bg-light;
 
   p {
     margin: 0.5rem 0;
@@ -153,14 +163,14 @@ $cor-borda: #eee;
 }
 
 .sinopse {
-  border: 1px solid $cor-borda;
+  border: 1px solid $border;
   border-radius: 8px;
   padding: 1.5rem;
-  background-color: $cor-fundo-claro;
+  background-color: $bg-light;
 
   h2 {
     font-size: 1.5rem;
-    border-bottom: 2px solid $cor-principal;
+    border-bottom: 2px solid $primary;
     padding-bottom: 0.5rem;
     margin-top: 0;
     margin-bottom: 1rem;
@@ -173,7 +183,7 @@ $cor-borda: #eee;
 
 .resenhas-section {
   margin-top: 3rem;
-  border: 2px solid $cor-borda;
+  border: 2px solid $border;
   border-radius: 12px;
   padding: 2rem;
   background-color: #fff;
@@ -183,7 +193,7 @@ $cor-borda: #eee;
     font-size: 2rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
-    color: $cor-principal;
+    color: $primary;
   }
 }
 
@@ -192,18 +202,111 @@ $cor-borda: #eee;
 }
 
 .resenha-item {
-  border: 1px solid $cor-borda;
-  border-radius: 8px;
+  border: 1px solid $border;
+  border-radius: $card-radius;
   padding: 1.25rem;
-  margin-bottom: 1rem;
-  background-color: $cor-fundo-claro;
-  transition: box-shadow 0.2s ease;
+  margin-bottom: $space-md;
+  background-color: $bg-light;
+  transition: box-shadow 0.18s ease, transform 0.12s ease;
 
-  &:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: relative; 
+
+  &:hover { box-shadow: $card-shadow; transform: translateY(-3px); }
+
+  p { margin: 0.5rem 0; color: $text; }
+}
+
+/* Destaque para a avaliação do próprio usuário (pendente) */
+  .sua-avaliacao-card {
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  background-color: #fff7f0;
+  overflow: hidden;
+
+    .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background-color: #fff;
+    border-bottom: 1px solid $border;
   }
 
-  p {
-    margin: 0.5rem 0;
+  .title { font-weight: 800; color: $primary; }
+
+    .status-wrapper {
+      .status-badge {
+        display: inline-flex; align-items:center; gap:8px;
+        padding: 0.35rem 0.8rem; border-radius: 999px; font-weight:700; font-size:0.9rem;
+      }
+
+      .status-pendente {
+        background: $warning;
+        color: #fff;
+        border: 1px solid color.adjust($warning, $lightness: -8%);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      }
+    }
+
+  .card-body {
+    padding: 1rem 1.25rem 1.5rem 1.25rem;
+
+    .meta { margin-bottom: 0.25rem; color: $muted; }
+    .nota { margin-bottom: 0.5rem; color: $text; }
+    .conteudo { margin-bottom: 0.5rem; color: $text; line-height:1.6; }
+    .small-muted { color: $muted; font-size: 0.95rem; }
   }
 }
+
+.comment-actions { margin-top: 0.5rem; display:flex; gap:12px; align-items:center; }
+.like-btn, .dislike-btn {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:36px;
+  padding:0 8px;
+  border-radius:8px;
+  border:1px solid $border;
+  background:#fff;
+  cursor:pointer;
+  font-weight:700;
+  color:$muted;
+}
+.like-btn i, .dislike-btn i { font-size:16px; }
+.like-btn:hover { color: $primary; transform: translateY(-1px); }
+.dislike-btn:hover { color: $danger; transform: translateY(-1px); }
+.like-btn[disabled], .dislike-btn[disabled] { opacity:0.6; cursor:not-allowed; }
+.like-btn.liked { color: $primary; background: color.adjust($primary, $alpha: -0.92); border-color: color.adjust($primary, $lightness: 30%); }
+.dislike-btn.disliked { color: $danger; background: color.adjust($danger, $alpha: -0.92); border-color: color.adjust($danger, $lightness: 30%); }
+
+.like-btn .reaction-count, .dislike-btn .reaction-count {
+  font-weight:700;
+  color: $muted;
+  font-size:0.95rem;
+  line-height:1;
+}
+
+.delete-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:8px; border:1px solid $border; cursor:pointer;
+  background: #fff; color: $muted; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.12s ease; position: absolute; z-index: 5;
+}
+.delete-btn i { font-size:14px; }
+.delete-btn:hover { transform: translateY(-2px); color: $danger; background: color.adjust($danger, $lightness: 90%); }
+.delete-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.delete-btn.top-right { top: 10px; right: 10px; }
+
+.rating { display:flex; flex-direction:column; gap:6px; margin: 0.5rem 0; }
+.rating .stars { display:flex; gap:8px; align-items:center; }
+.rating .stars i { color: #ddd; font-size:20px; }
+.rating .stars i.active { color: $primary; }
+.rating .nota-num { font-size:0.95rem; color: $muted; font-weight:700; }
+
+.badge.pending-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; background:$warning; color:#fff; border-radius:8px; font-weight:700; font-size:0.9rem; }
+
+.nota-num { margin-top: 0; }
+
+.resenha-item .comentario-text { margin-top: 0.6rem; }
