@@ -110,7 +110,7 @@ $cor-texto: #333;
   margin: 0;
   padding: 0;
   align-items: center;
-  gap: 0.5rem;
+  gap: 2rem;
 }
 
 .nav-item {
@@ -123,28 +123,28 @@ $cor-texto: #333;
     font-weight: 500;
     cursor: pointer;
     padding: 0.6rem 1.2rem;
-    border-radius: 0;
+    border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
     position: relative;
+    background-color: transparent;
+    border: none;
 
     &:hover {
-      border-radius: 8px;
-      background-color: rgba(255, 255, 255, 0.1);
-      transform: scale(1.05);
+      background-color: rgba(255, 255, 255, 0.12);
       text-decoration: none;
     }
 
     &:active {
-      transform: scale(0.95);
-      transition: transform 0.1s ease-in-out;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: background-color 0.1s ease-in-out;
     }
   }
 }
 
 // Carrinho
 .cart-item {
-  margin-left: 0.5rem;
+  margin-left: 0;
   
   .cart-link {
     position: relative;
@@ -152,19 +152,18 @@ $cor-texto: #333;
     align-items: center;
     justify-content: center;
     padding: 0.6rem 1rem;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: transparent;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     svg {
       width: 28px;
       height: 28px;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
+      background-color: rgba(255, 255, 255, 0.12);
       
       svg {
         transform: scale(1.1);
@@ -204,7 +203,7 @@ $cor-texto: #333;
 
 // Botão Login
 .login-btn {
-  background-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: transparent !important;
   border: 2px solid $cor-fundo !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
@@ -212,35 +211,31 @@ $cor-texto: #333;
   &:hover {
     background-color: $cor-fundo !important;
     color: $cor-principal !important;
-    transform: scale(1.05) !important;
   }
 }
 
 // Link Admin
 .admin-link {
-  background-color: rgba(255, 215, 0, 0.2) !important;
-  border: 2px solid rgba(255, 215, 0, 0.5) !important;
+  background-color: transparent !important;
+  border: none !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
   
   &:hover {
-    background-color: rgba(255, 215, 0, 0.3) !important;
-    border-color: rgba(255, 215, 0, 0.8) !important;
-    transform: scale(1.05) !important;
+    background-color: rgba(255, 215, 0, 0.2) !important;
   }
 }
 
 // Botão do Usuário
 .user-btn {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  border: 2px solid $cor-fundo !important;
+  background-color: transparent !important;
+  border: none !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.25) !important;
-    transform: scale(1.05) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
   }
 }
 

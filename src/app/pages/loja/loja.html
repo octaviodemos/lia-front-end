@@ -6,11 +6,12 @@
     🔍 Testar API (ver console)
   </button>
 
-  <div class="livros-grid" *ngIf="livros.length > 0; else noLivros">
-    <app-livro-card *ngFor="let livro of livros" [livro]="livro"></app-livro-card>
+  <div class="livros-grid" *ngIf="livrosFiltrados.length > 0; else noLivros">
+    <app-livro-card *ngFor="let livro of livrosFiltrados" [livro]="livro"></app-livro-card>
   </div>
 
   <ng-template #noLivros>
-    <p>Nenhum livro encontrado no momento.</p>
+    <p *ngIf="livros.length > 0" class="no-results">Nenhum livro encontrado com essa busca.</p>
+    <p *ngIf="livros.length === 0">Nenhum livro disponível no momento.</p>
   </ng-template>
 </div>

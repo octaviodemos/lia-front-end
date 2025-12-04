@@ -1,15 +1,17 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CarrinhoService } from '../../services/carrinho.service';
 import { ItemCarrinho } from '../../services/carrinho.service';
 import { AuthService } from '../../services/auth';
+import { BuscaService } from '../../services/busca.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink], 
+  imports: [CommonModule, RouterLink, FormsModule], 
   templateUrl: './header.html',
   styleUrls: ['./header.scss']
 })
@@ -20,14 +22,17 @@ export class Header implements OnInit, OnDestroy {
   isUserMenuOpen: boolean = false;
   cartItemCount: number = 0;
   isLoggedIn: boolean = false;
+  searchInputValue: string = '';
   private destroy$ = new Subject<void>();
+
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private carrinhoService: CarrinhoService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private buscaService: BuscaService
   ) {
-    // Inicializa o estado de login
     this.isLoggedIn = this.authService.isLoggedIn();
   }
 
@@ -63,14 +68,24 @@ export class Header implements OnInit, OnDestroy {
     return this.authService.isAdmin();
   }
 
-  onSearch(): void {
-    // TODO: Implementar lógica de busca
-    console.log('Buscando...');
+
+  onSearchInput(value: string): void {
+    this.searchInputValue = value;
+    this.buscaService.setSearchTerm(value);
   }
 
-  /**
-   * Observa mudanças no carrinho e atualiza o contador
-   */
+  onSearch(): void {
+    this.buscaService.setSearchTerm(this.searchInputValue);
+    this.router.navigate(['/loja']);
+  }
+
+
+  clearSearch(): void {
+    this.searchInputValue = '';
+    this.buscaService.clearSearch();
+  }
+
+
   private observarCarrinho(): void {
     this.carrinhoService.getCarrinho()
       .pipe(takeUntil(this.destroy$))
@@ -88,9 +103,7 @@ export class Header implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Observa mudanças no estado de login
-   */
+ 
   private observarLogin(): void {
     this.authService.loggedIn$
       .pipe(takeUntil(this.destroy$))
@@ -109,9 +122,7 @@ export class Header implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  /**
-   * Fecha dropdown ao clicar fora
-   */
+ 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

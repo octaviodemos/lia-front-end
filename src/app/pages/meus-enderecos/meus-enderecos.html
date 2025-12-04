@@ -18,7 +18,7 @@
     
     <!-- CEP com máscara e busca automática -->
     <div class="form-group">
-      <label for="cep">CEP *</label>
+      <label for="cep">CEP <span class="required">*</span></label>
       <div class="input-with-loader">
         <input 
           id="cep" 
@@ -37,7 +37,7 @@
 
     <!-- Rua (preenchida automaticamente ou manual) -->
     <div class="form-group">
-      <label for="rua">Rua/Logradouro *</label>
+      <label for="rua">Rua/Logradouro <span class="required">*</span></label>
       <input 
         id="rua" 
         type="text" 
@@ -47,7 +47,7 @@
 
     <!-- Número -->
     <div class="form-group">
-      <label for="numero">Número *</label>
+      <label for="numero">Número <span class="required">*</span></label>
       <input 
         id="numero" 
         type="text" 
@@ -77,7 +77,7 @@
 
     <!-- Estado (dropdown) -->
     <div class="form-group">
-      <label for="estado">Estado *</label>
+      <label for="estado">Estado <span class="required">*</span></label>
       <select id="estado" formControlName="estado">
         <option value="">Selecione o Estado</option>
         <option *ngFor="let estado of estados" [value]="estado.sigla">
@@ -88,7 +88,7 @@
 
     <!-- Cidade (dropdown dinâmico) -->
     <div class="form-group">
-      <label for="cidade">Cidade *</label>
+      <label for="cidade">Cidade <span class="required">*</span></label>
       <div class="select-with-loader">
         <select 
           id="cidade" 
