@@ -26,4 +26,16 @@ export class PublicacaoService {
   criarComentario(idPublicacao: string, comentarioData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idPublicacao}/comentarios`, comentarioData);
   }
+
+  getReactions(resourceId: string) {
+    return this.http.get(`${this.apiUrl}/${resourceId}/reactions`);
+  }
+
+  postReaction(resourceId: string, type: 'LIKE' | 'DISLIKE') {
+    return this.http.post(`${this.apiUrl}/${resourceId}/reactions`, { type });
+  }
+
+  deleteReaction(resourceId: string) {
+    return this.http.delete(`${this.apiUrl}/${resourceId}/reactions`);
+  }
 }
