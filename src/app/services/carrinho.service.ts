@@ -127,7 +127,6 @@ export class CarrinhoService {
     
     // Verificar se tem cache válido
     if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
-      console.log(`📦 Usando cache para ID ${id_estoque}: ${dadosCache.disponivel} unidades`);
       return of({
         disponivel: dadosCache.disponivel,
         suficiente: dadosCache.disponivel > 0
@@ -361,7 +360,6 @@ export class CarrinhoService {
     const itemRemovido = carrinhoAtual.find(i => i.livroId === livroId);
     
     if (!itemRemovido) {
-      console.log(`⚠️ Item com livroId ${livroId} não encontrado no carrinho local`);
       return;
     }
     
@@ -372,22 +370,15 @@ export class CarrinhoService {
     // TODO: Remover lista negra quando backend estiver funcionando
     // this.adicionarItemRemovidoLocal(itemRemovido);
     
-    console.log(`🗑️ Item ${itemRemovido.titulo} removido localmente. Quantidade restante: ${carrinhoNovo.length}`);
     
     // Tentar remover do backend via atualização do carrinho
     const token = this.authService.getToken();
     if (token && itemRemovido.cartItemId) {
-      console.log(`🌐 Removendo item ${itemRemovido.titulo} do backend via atualização`);
-      
       // Como DELETE não existe, vamos atualizar cada item restante no carrinho
       this.sincronizarCarrinhoComBackend(carrinhoNovo);
 
     } else if (token && !itemRemovido.cartItemId) {
-      console.log(`⚠️ Item ${itemRemovido.titulo} não tem cartItemId (item apenas local)`);
-      // Item apenas local, não precisa remover do backend
     } else {
-      console.log(`💾 Modo offline: item ${itemRemovido.titulo} removido apenas localmente`);
-      // Sem token, modo offline - manter apenas remoção local
     }
   }
 
@@ -465,8 +456,8 @@ export class CarrinhoService {
     const token = this.authService.getToken();
     if (token) {
       this.http.delete(`${this.apiUrl}/cart`).subscribe({
-        next: () => console.log('✅ Carrinho limpo no backend'),
-        error: (err) => console.log('❌ Erro ao limpar carrinho no backend:', err)
+        next: () => {/* cart cleared on backend */},
+        error: (err) => {/* error clearing cart on backend */}
       });
     }
   }
@@ -559,7 +550,6 @@ export class CarrinhoService {
       if (!jaExiste) {
         itensRemovidos.push(itemRemovido);
         localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(itensRemovidos));
-        console.log(`📝 Item ${item.titulo} adicionado à lista negra`);
       }
     } catch (error) {
       console.error('❌ Erro ao salvar item removido:', error);
@@ -584,7 +574,6 @@ export class CarrinhoService {
         // Salvar lista filtrada de volta
         if (lista24h.length !== lista.length) {
           localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(lista24h));
-          console.log(`🧹 Limpeza automática: removidos ${lista.length - lista24h.length} itens antigos da lista negra`);
         }
         
         return lista24h;
@@ -606,7 +595,7 @@ export class CarrinhoService {
       return of(carrinhoAtual);
     }
 
-    console.log('🔄 Atualizando informações de estoque (com cache)...');
+    // updating stock info (with cache)
     
     // Agrupar itens únicos por ID para evitar duplicatas
     const idsUnicos = new Set<number>();
@@ -644,10 +633,8 @@ export class CarrinhoService {
       }),
       tap(itensAtualizados => {
         this.carrinho$.next(itensAtualizados);
-        console.log('✅ Informações de estoque atualizadas');
       }),
       catchError(() => {
-        console.log('❌ Erro ao atualizar estoque, mantendo dados atuais');
         return of(carrinhoAtual);
       })
     );
@@ -666,7 +653,6 @@ export class CarrinhoService {
       
       if (novaLista.length !== itensRemovidos.length) {
         localStorage.setItem(this.REMOVED_ITEMS_KEY, JSON.stringify(novaLista));
-        console.log(`✅ Item ${item.titulo} removido da lista negra`);
       }
     } catch (error) {
       console.error('❌ Erro ao remover item da lista negra:', error);
@@ -677,23 +663,18 @@ export class CarrinhoService {
    * Sincroniza o carrinho local com o backend recriando todos os itens
    */
   private sincronizarCarrinhoComBackend(itensLocais: ItemCarrinho[]): void {
-    console.log(`🔄 Sincronizando ${itensLocais.length} itens com o backend...`);
+    // syncing items with backend
     
     // Primeiro, limpar o carrinho no backend
     this.http.delete(`${this.apiUrl}/cart`).subscribe({
       next: () => {
-        console.log(`🗑️ Carrinho limpo no backend`);
-        
-        // Depois, recriar todos os itens locais no backend
+        // backend cart cleared
         if (itensLocais.length > 0) {
           this.recriarItensNoBackend(itensLocais);
-        } else {
-          console.log(`✅ Sincronização completa - carrinho vazio`);
         }
       },
       error: (err) => {
-        console.log(`❌ Erro ao limpar carrinho no backend:`, err.status);
-        console.log(`💾 Mantendo apenas remoção local`);
+        // error clearing backend cart
       }
     });
   }
@@ -705,7 +686,7 @@ export class CarrinhoService {
     let processados = 0;
     const total = itens.length;
     
-    console.log(`🔄 Recriando ${total} itens no backend...`);
+    // recreating items in backend
     
     itens.forEach((item, index) => {
       // Usar o id_estoque para recriar o item
@@ -717,19 +698,9 @@ export class CarrinhoService {
       }).subscribe({
         next: () => {
           processados++;
-          console.log(`✅ Item ${index + 1}/${total} recriado: ${item.titulo}`);
-          
-          if (processados === total) {
-            console.log(`🎉 Sincronização completa - todos os itens recriados`);
-          }
         },
         error: (err) => {
           processados++;
-          console.log(`❌ Erro ao recriar item ${item.titulo}:`, err.status);
-          
-          if (processados === total) {
-            console.log(`⚠️ Sincronização completa com alguns erros`);
-          }
         }
       });
     });
@@ -740,7 +711,6 @@ export class CarrinhoService {
    */
   limparCacheEstoque(): void {
     this.estoqueCache.clear();
-    console.log('🗑️ Cache de estoque limpo');
   }
 
   /**
@@ -760,11 +730,8 @@ export class CarrinhoService {
     
     // Verificar se tem cache válido
     if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
-      console.log(`👤 Usando cache do autor para livro ${idLivro}: ${dadosCache.autor}`);
       return of(dadosCache.autor);
     }
-    
-    console.log(`👤 Buscando autor do backend para livro: ${idLivro}`);
     
     return this.http.get(`${this.apiUrl}/livros/${idLivro}/autor`).pipe(
       map((response: any) => {
@@ -781,8 +748,6 @@ export class CarrinhoService {
           autor: autor,
           timestamp: agora
         });
-        
-        console.log(`👤 Autor encontrado para livro ${idLivro}: ${autor}`);
         return autor;
       }),
       catchError(error => {
@@ -803,7 +768,7 @@ export class CarrinhoService {
         };
         
         const autorFallback = autoresFallback[idLivro] || 'Autor desconhecido';
-        console.log(`📚 Usando autor fallback para livro ${idLivro}: ${autorFallback}`);
+        // using author fallback
         
         return of(autorFallback);
       })
@@ -814,7 +779,7 @@ export class CarrinhoService {
    * Extrai autor diretamente dos dados que já vêm do backend (carrinho completo)
    */
   private extrairAutorDosdados(livro: any, item: any): string | null {
-    console.log('👤 Extraindo autor dos dados completos:', { livro, item });
+    // extracting author from provided data
 
     // Primeiro tentar pegar dos dados do livro que já vêm completos
     let autor = null;
@@ -838,7 +803,7 @@ export class CarrinhoService {
       autor = this.extrairAutor(livro);
     }
     
-    console.log(`👤 Autor extraído: ${autor}`);
+    // author extracted
     return autor;
   }
 
@@ -847,7 +812,6 @@ export class CarrinhoService {
    */
   private extrairAutor(livro: any): string | null {
     if (!livro) {
-      console.log('🔍 extrairAutor: livro é null/undefined');
       return null;
     }
 
@@ -867,32 +831,25 @@ export class CarrinhoService {
     // Tentar buscar por título primeiro
     if (livro.titulo && autoresPorTitulo[livro.titulo]) {
       const autor = autoresPorTitulo[livro.titulo];
-      console.log(`📚 Autor encontrado por título "${livro.titulo}": ${autor}`);
       return autor;
     }
-
-    console.log('🔍 extrairAutor: estrutura do livro:', livro);
 
     // Tentar diferentes estruturas de autor
     if (livro.autor) {
       if (typeof livro.autor === 'string') {
-        console.log('📝 Encontrou autor (string):', livro.autor);
         return livro.autor;
       }
       if (livro.autor.nome) {
-        console.log('📝 Encontrou autor.nome:', livro.autor.nome);
         return livro.autor.nome;
       }
     }
 
     if (livro.author) {
       if (typeof livro.author === 'string') {
-        console.log('📝 Encontrou author (string):', livro.author);
         return livro.author;
       }
       if (livro.author.nome || livro.author.name) {
         const nome = livro.author.nome || livro.author.name;
-        console.log('📝 Encontrou author.nome/name:', nome);
         return nome;
       }
     }
@@ -901,15 +858,12 @@ export class CarrinhoService {
     if (livro.autores && Array.isArray(livro.autores) && livro.autores.length > 0) {
       const primeiroAutor = livro.autores[0];
       if (typeof primeiroAutor === 'string') {
-        console.log('📝 Encontrou autores[0] (string):', primeiroAutor);
         return primeiroAutor;
       }
       if (primeiroAutor.nome) {
-        console.log('📝 Encontrou autores[0].nome:', primeiroAutor.nome);
         return primeiroAutor.nome;
       }
       if (primeiroAutor.name) {
-        console.log('📝 Encontrou autores[0].name:', primeiroAutor.name);
         return primeiroAutor.name;
       }
     }
@@ -917,27 +871,21 @@ export class CarrinhoService {
     if (livro.authors && Array.isArray(livro.authors) && livro.authors.length > 0) {
       const primeiroAutor = livro.authors[0];
       if (typeof primeiroAutor === 'string') {
-        console.log('📝 Encontrou authors[0] (string):', primeiroAutor);
         return primeiroAutor;
       }
       if (primeiroAutor.nome || primeiroAutor.name) {
         const nome = primeiroAutor.nome || primeiroAutor.name;
-        console.log('📝 Encontrou authors[0].nome/name:', nome);
         return nome;
       }
     }
 
     // Campos alternativos
     if (livro.escritor) {
-      console.log('📝 Encontrou escritor:', livro.escritor);
       return livro.escritor;
     }
     if (livro.writer) {
-      console.log('📝 Encontrou writer:', livro.writer);
       return livro.writer;
     }
-
-    console.log('❌ Nenhum autor encontrado. Campos disponíveis:', Object.keys(livro));
     return null;
   }
 }

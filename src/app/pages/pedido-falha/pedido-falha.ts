@@ -24,11 +24,7 @@ export class PedidoFalha implements OnInit {
       this.orderId = params['external_reference'] || params['orderId'] || null;
       this.paymentStatus = params['status'] || params['payment_status'] || null;
 
-      console.log('Parâmetros de falha do retorno:', {
-        paymentId: this.paymentId,
-        orderId: this.orderId,
-        status: this.paymentStatus
-      });
+
     });
   }
 }

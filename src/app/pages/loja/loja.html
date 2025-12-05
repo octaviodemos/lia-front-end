@@ -2,9 +2,7 @@
   <h1>Loja</h1>
   <p>Encontre seus próximos livros favoritos.</p>
   
-  <button (click)="testarAPI()" class="btn-testar">
-    🔍 Testar API (ver console)
-  </button>
+  <!-- debug tester button removed -->
 
   <div class="livros-grid" *ngIf="livrosFiltrados.length > 0; else noLivros">
     <app-livro-card *ngFor="let livro of livrosFiltrados" [livro]="livro"></app-livro-card>

@@ -85,7 +85,6 @@ export class MeusEnderecos implements OnInit {
     this.buscandoCep = true;
     this.enderecoUtilsService.buscarCep(cep).subscribe({
       next: (endereco) => {
-        console.log('Resposta da API de CEP:', endereco);
         
         // Verifica se tem dados básicos (cidade/estado)
         const temDadosBasicos = endereco.localidade && endereco.uf;
@@ -145,7 +144,7 @@ export class MeusEnderecos implements OnInit {
     if (this.enderecoForm.valid) {
       this.enderecoService.addEndereco(this.enderecoForm.value).subscribe({
         next: (response: any) => {
-          console.log('Endereço salvo!', response);
+          // endereço salvo com sucesso
           this.carregarEnderecos();
           this.enderecoForm.reset();
           this.municipios = [];

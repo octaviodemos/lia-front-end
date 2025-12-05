@@ -31,10 +31,9 @@ export class PedidoDetalhes implements OnInit {
   getFriendlyLabel = getFriendlyLabelFn;
 
   ngOnInit(): void {
-    console.log('PedidoDetalhes ngOnInit - route params:', this.route.snapshot.paramMap);
+    // ngOnInit: route params inspected
     const id = this.route.snapshot.paramMap.get('id');
       const navState: any = history.state || {};
-      console.log('PedidoDetalhes navState:', navState);
       if (navState && navState.pedido) {
         this.pedido = navState.pedido;
         this.normalizeItemsForDisplay(this.pedido);
@@ -53,22 +52,18 @@ export class PedidoDetalhes implements OnInit {
   }
 
   loadPedido(id: string) {
-    console.log('loadPedido called for id=', id);
     this.carregando = true;
     this.erro = null;
 
     this.pedidoService.getPedido(id).subscribe({
       next: (resp: any) => {
-        console.log('getPedido next response:', resp);
-        // Guardar resposta bruta para debugging
         this.rawResponse = resp;
 
         const normalized = this.normalizePedidoResponse(resp);
         if (!normalized) {
           console.warn('Resposta do servidor não contém pedido esperado:', resp);
-            console.log('Fallback: tentando localizar pedido na lista de meus pedidos, id=', id);
             this.tryFindInMyOrders(id).then(found => {
-              console.log('Fallback result for id=', id, 'found=', found);
+              // Fallback result processed
               if (!found) {
                 this.erro = 'Resposta do servidor inválida para este pedido.';
                 this.carregando = false;
@@ -186,11 +181,9 @@ export class PedidoDetalhes implements OnInit {
   private async tryFindInMyOrders(id: string): Promise<boolean> {
     try {
       const resp: any = await lastValueFrom(this.pedidoService.getMeusPedidos());
-      console.log('tryFindInMyOrders - resposta getMeusPedidos raw:', resp);
       this.rawResponse = resp;
       const items = Array.isArray(resp) ? resp : (resp?.data || resp?.orders || resp?.payload || []);
       const found = (items || []).find((o: any) => String(o.id || o.id_pedido || o.order_id) === String(id));
-      console.log('tryFindInMyOrders - procurando id=', id, 'achou=', !!found);
       if (found) {
         this.pedido = found;
         this.normalizeItemsForDisplay(this.pedido);
@@ -202,9 +195,7 @@ export class PedidoDetalhes implements OnInit {
       
       // Se não encontrou, tentar rota alternativa que alguns backends expõem
       try {
-        console.log('tryFindInMyOrders - tentando rota alternativa /api/orders/my-order');
         const altResp: any = await lastValueFrom(this.pedidoService.getPedidoAlternativo(id));
-        console.log('tryFindInMyOrders - resposta alternativa:', altResp);
         this.rawResponse = altResp;
         const normalized = this.normalizePedidoResponse(altResp);
         if (normalized) {

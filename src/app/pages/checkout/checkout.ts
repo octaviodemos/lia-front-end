@@ -68,7 +68,6 @@ export class Checkout implements OnInit {
           s + (it.preco_unitario * it.quantidade), 0
         );
         
-        console.log(`💰 Checkout - Total: R$ ${total.toFixed(2)} | ${mappedItems.length} itens`);
         this.cart = { items: mappedItems, total };
       },
       error: (err: any) => console.error('Erro ao buscar carrinho', err)
@@ -144,30 +143,21 @@ export class Checkout implements OnInit {
     const userId = user?.id || user?._id || user?.userId || user?.user_id || user?.id_usuario || null;
     if (userId) dadosComprador.userId = userId;
 
-    // Não enviar `frontend_total` ou `frontend_items` — backend é a fonte da verdade
-    console.log('📋 Dados do comprador sendo enviados (sem frontend totals/items):', dadosComprador);
-    console.log('📄 CPF limpo:', dadosComprador.cpf);
-    console.log('👤 Nome completo:', dadosComprador.name, dadosComprador.surname);
 
     // Logs de depuração adicional: mostrar itens e total calculados localmente
     if (dadosComprador.frontend_items) {
-      console.log('🧾 Itens calculados (frontend):', dadosComprador.frontend_items);
       const soma = dadosComprador.frontend_items.reduce((s: number, it: any) => s + (Number(it.unit_price) * Number(it.quantity)), 0);
-      console.log('Σ frontend_items (soma):', soma.toFixed(2));
-    }
-    if (dadosComprador.frontend_total != null) {
-      console.log('🏷️ frontend_total enviado:', Number(dadosComprador.frontend_total).toFixed(2));
     }
 
     // Criar sessão de checkout via Stripe (backend: espera userId e email)
     // Criar sessão de checkout via Stripe (backend: autentica via JWT; não envie userId)
     this.pagamentoService.criarCheckoutStripe(dadosComprador).subscribe({
       next: (response) => {
-        console.log('💳 Resposta do create-checkout:', response);
+        // resposta do create-checkout recebida
         // Suporte a múltiplos formatos de resposta do backend
         const url = response?.url || response?.data?.url || response?.data?.checkout_url;
         if (url) {
-          console.log('🔗 Redirecionando para Stripe Checkout:', url);
+          // redirecionando para Stripe Checkout
           // Abrir em nova aba para isolar contexto (pode usar mesmo aba se preferir)
           window.open(url, '_blank', 'noopener,noreferrer');
           alert('Redirecionando para Stripe Checkout...');
@@ -196,7 +186,7 @@ export class Checkout implements OnInit {
           this.router.navigate(['/carrinho']).then(() => {
             this.cartService.refreshCarrinho().subscribe({
               next: () => {
-                console.log('Carrinho sincronizado após erro 400; o usuário pode tentar novamente o pagamento.');
+                      // carrinho sincronizado após erro 400
               },
               error: (e) => console.error('Falha ao sincronizar carrinho após redirecionamento:', e)
             });
@@ -222,7 +212,7 @@ export class Checkout implements OnInit {
 
     this.pedidoService.confirmarPedido(this.enderecoSelecionadoId, 'cartao_credito').subscribe({
       next: (response: any) => {
-        console.log('Pedido confirmado:', response);
+        // pedido confirmado (resposta do servidor)
         if (response && response.success) {
           this.router.navigate(['/pedido/sucesso']);
         } else {

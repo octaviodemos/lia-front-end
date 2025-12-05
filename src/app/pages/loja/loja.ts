@@ -38,17 +38,6 @@ export class Loja implements OnInit, OnDestroy {
       next: (response: any) => {
         this.livros = response;
         this.livrosFiltrados = this.livros;
-        console.log('📚 Total de livros:', this.livros.length);
-        
-        // Log detalhado de TODOS os livros
-        this.livros.forEach((livro, index) => {
-          console.log(`\n📖 Livro ${index + 1}:`, {
-            titulo: livro.titulo,
-            estoque: livro.estoque,
-            preco: livro.estoque?.preco,
-            tipo_preco: typeof livro.estoque?.preco
-          });
-        });
       },
       error: (err: any) => {
         console.error('❌ Erro ao carregar livros:', err);
@@ -64,7 +53,6 @@ export class Loja implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((searchTerm: string) => {
         this.livrosFiltrados = this.buscaService.filtrarLivros(this.livros, searchTerm);
-        console.log(`🔍 Busca: "${searchTerm}" - ${this.livrosFiltrados.length} resultado(s)`);
       });
   }
 
@@ -72,16 +60,6 @@ export class Loja implements OnInit, OnDestroy {
     fetch('http://localhost:3333/api/books')
       .then(res => res.json())
       .then(data => {
-        console.log('\n🔥 RESPOSTA DIRETA DA API (SEM NORMALIZAÇÃO):');
-        console.log('Total:', data.length);
-        data.slice(0, 3).forEach((livro: any, i: number) => {
-          console.log(`\n📦 Livro ${i + 1} RAW:`, {
-            titulo: livro.titulo,
-            preco: livro.preco,
-            estoque: livro.estoque,
-            id_estoque: livro.id_estoque
-          });
-        });
       })
       .catch(err => console.error('❌ Erro no fetch:', err));
   }

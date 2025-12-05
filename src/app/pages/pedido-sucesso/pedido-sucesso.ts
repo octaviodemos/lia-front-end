@@ -44,12 +44,11 @@ export class PedidoSucesso implements OnInit {
     this.route.queryParams.subscribe(params => {
       const sessionId = params['session_id'] || params['sessionId'];
       if (sessionId) {
-        console.log('Stripe session_id encontrado:', sessionId);
         this.prepareInitialOrders().then(() => {
           if (!this.foundOrder) {
             this.startPollingFlow(sessionId);
           } else {
-            console.log('Pedido já encontrado durante prepareInitialOrders, não iniciando polling.');
+            // Pedido já encontrado during prepareInitialOrders
           }
         }).catch(() => {
           this.startPollingFlow(sessionId);
@@ -66,7 +65,6 @@ export class PedidoSucesso implements OnInit {
       next: (sess) => {
         this.dadosPagamento = sess;
         this.carregando = false;
-        console.log('Dados da sessão Stripe:', sess);
         const paymentStatus = (sess?.data?.payment_status) || (sess?.payment_status) || (sess?.data?.payment_intent?.status) || sess?.status;
         if (paymentStatus && String(paymentStatus).toLowerCase() === 'approved') {
           this.successVisible = false;
@@ -99,11 +97,10 @@ export class PedidoSucesso implements OnInit {
         return status === 'paid' || status === 'aprovado' || status === 'approved' || status === 'pago';
       });
 
-      if (paidLike) {
+        if (paidLike) {
         this.foundOrder = paidLike;
         this.polling = false;
         this.carregando = false;
-        console.log('Pedido já estava confirmado ao preparar pedidos iniciais:', paidLike);
         this.foundVisible = false;
         setTimeout(() => this.foundVisible = true, 10);
       }
@@ -137,7 +134,6 @@ export class PedidoSucesso implements OnInit {
       try {
         // Checa a sessão na API
         const sess: any = await lastValueFrom(this.pagamentoService.obterSessaoStripe(sessionId));
-        console.log('Polling - sessão:', sess);
 
         const paymentStatus = (sess?.data?.payment_status) || (sess?.payment_status) || (sess?.data?.payment_intent?.status) || sess?.status;
         if (paymentStatus) {
@@ -176,7 +172,6 @@ export class PedidoSucesso implements OnInit {
           this.polling = false;
           this.carregando = false;
           this.pollingMessage = null;
-          console.log('Pedido detectado via polling:', found);
           // animate found order panel
           this.foundVisible = false;
           setTimeout(() => this.foundVisible = true, 10);
@@ -204,8 +199,6 @@ export class PedidoSucesso implements OnInit {
         this.pollingMessage = 'Verificando pedidos...';
         const resp: any = await lastValueFrom(this.pedidoService.getMeusPedidos());
         const pedidos = Array.isArray(resp) ? resp : (resp?.data || resp?.orders || []);
-        console.debug('manualCheckOrders - initialOrdersStatusMap:', this.initialOrdersStatusMap);
-        console.debug('manualCheckOrders - fetched pedidos count:', (pedidos || []).length);
 
         const found = (pedidos || []).find((o: any) => {
           const id = o.id || o.id_pedido || o.order_id;
@@ -225,7 +218,6 @@ export class PedidoSucesso implements OnInit {
           this.polling = false;
           this.carregando = false;
           this.pollingMessage = null;
-          console.log('Pedido detectado via manualCheckOrders:', found);
           this.foundVisible = false;
           setTimeout(() => this.foundVisible = true, 10);
         } else {
