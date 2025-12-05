@@ -35,9 +35,20 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
+/* Variáveis de layout: ajuste se o header/footer mudarem de tamanho */
+:root {
+  --header-height: 140px;
+  --footer-height: 180px;
+}
+
 /* Garante que app-root preenche a tela */
 app-root {
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: 100vh;
+}
+
+main {
+  flex: 1 1 auto;
 }

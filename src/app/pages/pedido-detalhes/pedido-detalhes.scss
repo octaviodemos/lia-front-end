@@ -4,6 +4,9 @@
 	padding: 12px;
 	font-family: var(--font-family, Arial, sans-serif);
 	color: #222;
+	min-height: calc(100vh - var(--header-height) - var(--footer-height));
+	display: flex;
+	flex-direction: column;
 }
 
 .loading { display:flex; align-items:center; gap:10px; }

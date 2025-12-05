@@ -6,11 +6,15 @@ $cor-fundo-claro: #fdfaf5; // Tom de bege claro
   width: 100%;
   background-color: $cor-principal;
   color: $cor-fundo-claro;
-  padding: 3rem 2rem;
+  padding: 3rem 2rem 4rem 2rem;
+  position: relative;
   margin-top: 4rem;
-  min-height: 200px;
+  padding: 3rem 2rem 4rem 2rem;
+  min-height: 180px;
   display: flex;
   align-items: center;
+  z-index: 2;
+  border-top: 6px solid rgba(0,0,0,0.08);
 }
 
 .footer-content {
@@ -92,7 +96,7 @@ $cor-fundo-claro: #fdfaf5; // Tom de bege claro
   height: 100%;
 
   .footer-logo {
-    height: 220px;
+    height: 180px;
     width: auto;
     object-fit: contain;
     max-height: 90%;
