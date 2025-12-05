@@ -1,7 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 import { AvaliacaoService } from '../../services/avaliacao.service';
+
+const MIN_RATING = 1;
+const MAX_RATING = 5;
+const MIN_COMMENT_LENGTH = 10;
+const SUCCESS_MESSAGE_DURATION = 4000;
+const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
+const LOCAL_ID_PREFIX = 'local_';
 
 @Component({
   selector: 'app-avaliacao-form',
@@ -25,77 +33,138 @@ export class AvaliacaoForm implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.createForm();
+  }
+
+  private createForm(): void {
     this.avaliacaoForm = this.fb.group({
-      nota: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
-      comentario: ['', [Validators.required, Validators.minLength(10)]]
+      nota: [null, [Validators.required, Validators.min(MIN_RATING), Validators.max(MAX_RATING)]],
+      comentario: ['', [Validators.required, Validators.minLength(MIN_COMMENT_LENGTH)]]
     });
   }
 
   onSubmit(): void {
+    this.clearMessages();
+
+    const validationError = this.validateForm();
+    if (validationError) {
+      this.mensagemErro = validationError;
+      return;
+    }
+
+    if (this.isDuplicateSubmission()) {
+      this.mensagemErro = 'Você já enviou uma avaliação igual e ela ainda está pendente de aprovação.';
+      return;
+    }
+
+    this.submitAvaliacao();
+  }
+
+  private clearMessages(): void {
     this.mensagemErro = '';
     this.mensagemSucesso = '';
+  }
 
+  private validateForm(): string | null {
     if (!this.idLivro) {
-      this.mensagemErro = 'Erro: ID do livro não encontrado';
-      return;
+      return 'Erro: ID do livro não encontrado';
     }
 
     if (this.avaliacaoForm.invalid) {
-      this.mensagemErro = 'Por favor, preencha todos os campos corretamente (comentário mínimo de 10 caracteres)';
-      return;
+      return `Por favor, preencha todos os campos corretamente (comentário mínimo de ${MIN_COMMENT_LENGTH} caracteres)`;
     }
 
-    // Prevenir envios duplicados: verificar no localStorage se existem avaliações pendentes com o mesmo conteúdo.
+    return null;
+  }
+
+  private isDuplicateSubmission(): boolean {
     try {
-      const stored = localStorage.getItem('pendingAvaliacoes');
-      if (stored) {
-        const list = JSON.parse(stored) as any[];
-        const dup = list.find(i => String(i.livroId) === String(this.idLivro) && String(i.nota) === String(this.avaliacaoForm.value.nota) && (i.comentario || '') === (this.avaliacaoForm.value.comentario || ''));
-        if (dup) {
-          this.mensagemErro = 'Você já enviou uma avaliação igual e ela ainda está pendente de aprovação.';
-          return;
-        }
-      }
-    } catch (e) {
-      // ignore parse errors and continue
+      const pendingItems = this.getPendingFromStorage();
+      return this.findDuplicate(pendingItems) !== null;
+    } catch (error) {
+      return false; // Em caso de erro, permite o envio
     }
+  }
 
+  private getPendingFromStorage(): any[] {
+    try {
+      const stored = localStorage.getItem(PENDING_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  private findDuplicate(pendingItems: any[]): any | null {
+    const formValues = this.avaliacaoForm.value;
+    
+    return pendingItems.find(item => 
+      String(item.livroId) === String(this.idLivro) &&
+      String(item.nota) === String(formValues.nota) &&
+      (item.comentario || '') === (formValues.comentario || '')
+    ) || null;
+  }
+
+  private submitAvaliacao(): void {
     this.enviando = true;
-    const payload = {
+    const payload = this.createPayload();
+
+    this.avaliacaoService.criarAvaliacao(this.idLivro, payload).subscribe({
+      next: (response: any) => this.handleSubmitSuccess(response),
+      error: (error: any) => this.handleSubmitError(error, payload)
+    });
+  }
+
+  private createPayload(): any {
+    return {
       ...this.avaliacaoForm.value,
       nota: Number(this.avaliacaoForm.value.nota)
     };
+  }
 
+  private handleSubmitSuccess(response: any): void {
+    this.mensagemSucesso = 'Sua avaliação foi enviada e ficará pendente de aprovação.';
+    this.avaliacaoForm.reset();
+    this.avaliacaoSalva.emit(response);
+    this.enviando = false;
 
-    this.avaliacaoService.criarAvaliacao(this.idLivro, payload).subscribe({
-      next: (response: any) => {
-        this.mensagemSucesso = 'Sua avaliação foi enviada e ficará pendente de aprovação.';
-        this.avaliacaoForm.reset();
-        // Emitimos para o pai para que ele possa decidir se mostra imediatamente
-        this.avaliacaoSalva.emit(response);
-        this.enviando = false;
+    this.clearSuccessMessageAfterDelay();
+  }
 
-        // Limpa mensagem de sucesso após 4 segundos
-        setTimeout(() => {
-          this.mensagemSucesso = '';
-        }, 4000);
-      },
-      error: (err: any) => {
-        console.error('❌ Erro ao salvar avaliação:', err);
-        this.enviando = false;
-        
-        if (err.status === 401) {
-          this.mensagemErro = 'Você precisa estar logado para avaliar';
-        } else if (err.error?.message) {
-          if (Array.isArray(err.error.message)) {
-            this.mensagemErro = err.error.message.join(', ');
-          } else {
-            this.mensagemErro = err.error.message;
-          }
-        } else {
-          this.mensagemErro = 'Erro ao enviar avaliação. Tente novamente.';
-        }
-      }
-    });
+  private handleSubmitError(error: any, payload: any): void {
+    const localResponse = this.createLocalResponse(payload);
+    this.avaliacaoSalva.emit(localResponse);
+    
+    this.enviando = false;
+    this.mensagemErro = this.getErrorMessage(error);
+  }
+
+  private createLocalResponse(payload: any): any {
+    return {
+      ...payload,
+      id_avaliacao: LOCAL_ID_PREFIX + Date.now(),
+      aprovado: false,
+      data_avaliacao: new Date().toISOString()
+    };
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.status === 401) {
+      return 'Você precisa estar logado para avaliar';
+    }
+    
+    if (error.error?.message) {
+      return Array.isArray(error.error.message) 
+        ? error.error.message.join(', ')
+        : error.error.message;
+    }
+    
+    return 'Erro ao enviar avaliação. Tente novamente.';
+  }
+
+  private clearSuccessMessageAfterDelay(): void {
+    setTimeout(() => {
+      this.mensagemSucesso = '';
+    }, SUCCESS_MESSAGE_DURATION);
   }
 }

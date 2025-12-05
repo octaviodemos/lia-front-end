@@ -1,13 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs';
+
 import { LivroService } from '../../services/livro.service';
 import { CarrinhoService } from '../../services/carrinho.service';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 import { AuthService } from '../../services/auth';
-import { switchMap } from 'rxjs';
 import { getGeneroLabel as getGeneroLabelFn, getImagemUrl as getImagemUrlFn, getAutorNome as getAutorNomeFn, temPreco as temPrecoFn } from '../../utils/livro-utils';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
+
+const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
+const MAX_PENDING_ITEMS = 50;
+const LOCAL_ID_PREFIX = 'local_';
+const SUCCESS_MESSAGE_DURATION = 3000;
+const EVALUATION_SUCCESS_DURATION = 4000;
 
 @Component({
   selector: 'app-livro-detalhes',
@@ -37,6 +44,7 @@ export class LivroDetalhes implements OnInit {
       switchMap(params => {
         this.livroId = params.get('id') || '';
         if (this.livroId) {
+          this.loadPendingFromStorage();
           this.carregarAvaliacoes();
           return this.livroService.getLivroById(this.livroId);
         }
@@ -44,126 +52,185 @@ export class LivroDetalhes implements OnInit {
       })
     ).subscribe({
       next: (data: any) => this.livro = data,
-      error: (err: any) => console.error('Erro ao carregar o livro:', err)
+      error: (err: any) => {}
     });
-    this.loadPendingFromStorage();
   }
 
   carregarAvaliacoes(): void {
     this.avaliacaoService.getAvaliacoesPorLivro(this.livroId).subscribe({
       next: (data: any) => {
-        const list = Array.isArray(data) ? data : (data?.data || data || []);
-        this.avaliacoes = list.map((a: any) => {
-          const autorFromPayload = a.autor || a.user || a.usuario || a.autor_usuario || null;
-          const nomeFromFields = a.autor_nome || a.user_name || a.nome || a.name || null;
-          const autor = autorFromPayload
-            ? (typeof autorFromPayload === 'string' ? { nome: autorFromPayload } : autorFromPayload)
-            : (nomeFromFields ? { nome: nomeFromFields } : null);
-
-          return {
-            ...a,
-            autor,
-            likes: a.likes ?? a.likesCount ?? 0,
-            dislikes: a.dislikes ?? 0,
-            userReaction: a.userReaction ?? (a.userLiked ? 'LIKE' : null),
-            _reactionLoading: false
-          };
-        });
+        const list = this.normalizeAvaliacoesList(data);
+        this.avaliacoes = list.map(this.normalizeAvaliacao.bind(this));
         this.reconcilePendingWithApproved();
       },
-      error: (err: any) => console.error('Erro ao carregar avaliações:', err)
+      error: () => {} // Erro silencioso
     });
   }
 
+  private normalizeAvaliacoesList(data: any): any[] {
+    return Array.isArray(data) ? data : (data?.data || data || []);
+  }
+
+  private normalizeAvaliacao(avaliacao: any): any {
+    const autor = this.extractAuthor(avaliacao);
+    
+    return {
+      ...avaliacao,
+      autor,
+      likes: avaliacao.likes ?? avaliacao.likesCount ?? 0,
+      dislikes: avaliacao.dislikes ?? 0,
+      userReaction: avaliacao.userReaction ?? (avaliacao.userLiked ? 'LIKE' : null),
+      _reactionLoading: false
+    };
+  }
+
+  private extractAuthor(avaliacao: any): any {
+    const autorFromPayload = avaliacao.autor || avaliacao.user || avaliacao.usuario || avaliacao.autor_usuario;
+    const nomeFromFields = avaliacao.autor_nome || avaliacao.user_name || avaliacao.nome || avaliacao.name;
+    
+    if (autorFromPayload) {
+      return typeof autorFromPayload === 'string' ? { nome: autorFromPayload } : autorFromPayload;
+    }
+    
+    return nomeFromFields ? { nome: nomeFromFields } : null;
+  }
+
   /**
-   * Remove de `pendingAvaliacoes` (e do localStorage) itens que já aparecem
-   * entre `avaliacoes` (ou seja: foram aprovados no backend). A comparação
-   * usa `comentario` e `nota` como heurística — suficiente para evitar duplicatas
-   * causadas pelo usuário que aprovou sua própria submissão.
+   * Reconcilia avaliações pendentes com as aprovadas, removendo duplicatas
    */
-  private reconcilePendingWithApproved() {
+  private reconcilePendingWithApproved(): void {
     try {
-      const raw = localStorage.getItem('pendingAvaliacoes');
-      if (!raw) return;
-      const all = JSON.parse(raw) as any[];
-      const filtered = all.filter(p => {
-        if (String(p.livroId) !== String(this.livroId)) return true;
-        const comentario = (p.comentario || '').trim();
-        const nota = Number(p.nota || p.nota === 0 ? p.nota : null);
-        const match = this.avaliacoes.find(a => {
-          const aTexto = (a.comentario || '').trim();
-          const aNota = Number(a.nota || a.nota === 0 ? a.nota : null);
-          return aTexto && comentario && aTexto === comentario && aNota === nota;
-        });
-        return !match; 
-      });
-      localStorage.setItem('pendingAvaliacoes', JSON.stringify(filtered.slice(0, 50)));
-      this.pendingAvaliacoes = filtered.filter(p => String(p.livroId) === String(this.livroId));
-      const pendentesDoLivro = filtered.filter(p => String(p.livroId) === String(this.livroId));
-      pendentesDoLivro.forEach(p => {
-        const id = p.id_avaliacao || p.id;
-        if (!id) return; 
-        this.avaliacaoService.getAvaliacaoById(String(id)).subscribe({
-          next: () => {
-          },
-          error: (err: any) => {
-            if (err && err.status === 404) {
-              try {
-                const raw2 = localStorage.getItem('pendingAvaliacoes');
-                const all2 = raw2 ? (JSON.parse(raw2) as any[]) : [];
-                const newAll = all2.filter(x => !(String(x.livroId) === String(this.livroId) && String(x.id_avaliacao || x.id || '') === String(id)));
-                localStorage.setItem('pendingAvaliacoes', JSON.stringify(newAll.slice(0, 50)));
-                this.pendingAvaliacoes = newAll.filter(x => String(x.livroId) === String(this.livroId));
-              } catch (e) {
-                console.error('Erro atualizando pendingAvaliacoes após 404', e);
-              }
-            }
-          }
-        });
-      });
-    } catch (e) {
-      console.error('Erro reconciliando pendingAvaliacoes com avaliacoes aprovadas', e);
+      const pendingItems = this.getPendingFromStorage();
+      if (!pendingItems.length) return;
+      
+      const filtered = pendingItems.filter(item => this.shouldKeepPendingItem(item));
+      
+      this.savePendingItemsToStorage(filtered);
+      this.pendingAvaliacoes = this.filterItemsByLivro(filtered);
+    } catch (error) {
+      // Falha silenciosa na reconciliação
     }
   }
+
+  private shouldKeepPendingItem(item: any): boolean {
+    // Manter itens de outros livros
+    if (String(item.livroId) !== String(this.livroId)) {
+      return true;
+    }
+    
+    const itemId = item.id_avaliacao || item.id;
+    
+    // Sempre manter itens com ID local temporário
+    if (itemId?.toString().startsWith(LOCAL_ID_PREFIX)) {
+      return true;
+    }
+    
+    // Remover se já existe nas aprovadas
+    if (itemId && this.isItemApproved(itemId)) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  private isItemApproved(itemId: string): boolean {
+    return this.avaliacoes.some(avaliacao => {
+      const avaliacaoId = avaliacao.id_avaliacao || avaliacao.id;
+      return avaliacaoId && String(avaliacaoId) === String(itemId);
+    });
+  }
+
+
 
   onNovaAvaliacao(novaAvaliacao: any): void {
-    const aprovado = novaAvaliacao?.aprovado === true || novaAvaliacao?.aprovado === 'true';
-    if (aprovado) {
-      this.avaliacoes.unshift(novaAvaliacao);
+    const isApproved = this.isAvaliacaoApproved(novaAvaliacao);
+    
+    if (isApproved) {
+      this.handleApprovedAvaliacao(novaAvaliacao);
     } else {
-      const currentUser = this.authService.getUser();
-      const autor = currentUser ? { nome: currentUser.nome || currentUser.name } : (novaAvaliacao.autor || null);
-      const pending = { ...novaAvaliacao, livroId: this.livroId, _pendente: true, autor, data_avaliacao: novaAvaliacao.data_avaliacao || new Date().toISOString(), likesCount: novaAvaliacao.likesCount ?? 0, userLiked: !!novaAvaliacao.userLiked };
-      this.pendingAvaliacoes.unshift(pending);
-      this.savePendingToStorage(pending);
-      this.mensagemSucesso = 'Sua avaliação foi enviada e ficará pendente de aprovação.';
-      setTimeout(() => this.mensagemSucesso = '', 4000);
+      this.handlePendingAvaliacao(novaAvaliacao);
     }
   }
 
-  private loadPendingFromStorage() {
+  private isAvaliacaoApproved(avaliacao: any): boolean {
+    return avaliacao?.aprovado === true || avaliacao?.aprovado === 'true';
+  }
+
+  private handleApprovedAvaliacao(avaliacao: any): void {
+    this.avaliacoes.unshift(avaliacao);
+  }
+
+  private handlePendingAvaliacao(avaliacao: any): void {
+    const pendingItem = this.createPendingAvaliacao(avaliacao);
+    
+    this.pendingAvaliacoes.unshift(pendingItem);
+    this.savePendingToStorage(pendingItem);
+    
+    this.showSuccessMessage('Sua avaliação foi enviada e ficará pendente de aprovação.', EVALUATION_SUCCESS_DURATION);
+  }
+
+  private createPendingAvaliacao(avaliacao: any): any {
+    const currentUser = this.authService.getUser();
+    const autor = this.getCurrentUserAuthor(currentUser, avaliacao);
+    
+    return {
+      ...avaliacao,
+      livroId: this.livroId,
+      _pendente: true,
+      autor,
+      data_avaliacao: avaliacao.data_avaliacao || new Date().toISOString(),
+      likesCount: avaliacao.likesCount ?? 0,
+      userLiked: !!avaliacao.userLiked,
+      _timestamp: Date.now()
+    };
+  }
+
+  private getCurrentUserAuthor(currentUser: any, avaliacao: any): any {
+    if (currentUser) {
+      return { nome: currentUser.nome || currentUser.name };
+    }
+    return avaliacao.autor || null;
+  }
+
+  private loadPendingFromStorage(): void {
     try {
-      const raw = localStorage.getItem('pendingAvaliacoes');
-      if (raw) {
-        const all = JSON.parse(raw) as any[];
-        this.pendingAvaliacoes = all.filter(a => String(a.livroId) === String(this.livroId));
-      }
-    } catch (e) {
-      console.error('Erro lendo pendingAvaliacoes do localStorage', e);
+      const allPending = this.getPendingFromStorage();
+      this.pendingAvaliacoes = this.filterItemsByLivro(allPending);
+    } catch (error) {
       this.pendingAvaliacoes = [];
     }
   }
 
-  private savePendingToStorage(item: any) {
+  private getPendingFromStorage(): any[] {
     try {
-      const raw = localStorage.getItem('pendingAvaliacoes');
-      const all = raw ? (JSON.parse(raw) as any[]) : [];
-      all.unshift(item);
-      // keep only recent 50 to avoid excess
-      localStorage.setItem('pendingAvaliacoes', JSON.stringify(all.slice(0, 50)));
-    } catch (e) {
-      console.error('Erro salvando pendingAvaliacoes no localStorage', e);
+      const raw = localStorage.getItem(PENDING_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+      return [];
     }
+  }
+
+  private savePendingItemsToStorage(items: any[]): void {
+    try {
+      const limitedItems = items.slice(0, MAX_PENDING_ITEMS);
+      localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(limitedItems));
+    } catch (error) {
+      // Erro silencioso ao salvar
+    }
+  }
+
+  private savePendingToStorage(item: any): void {
+    try {
+      const allPending = this.getPendingFromStorage();
+      allPending.unshift(item);
+      this.savePendingItemsToStorage(allPending);
+    } catch (error) {
+      // Erro silencioso ao salvar
+    }
+  }
+
+  private filterItemsByLivro(items: any[]): any[] {
+    return items.filter(item => String(item.livroId) === String(this.livroId));
   }
 
   // Toggle reaction (LIKE or DISLIKE) on an avaliacao with optimistic update
@@ -209,7 +276,6 @@ export class LivroDetalhes implements OnInit {
         avaliacao._reactionLoading = false;
       },
       error: (err: any) => {
-        console.error('Erro ao reagir à avaliação', err);
         // rollback
         avaliacao.likes = prev.likes;
         avaliacao.dislikes = prev.dislikes;
@@ -224,50 +290,99 @@ export class LivroDetalhes implements OnInit {
     });
   }
 
-  confirmDeleteAvaliacao(avaliacao: any) {
-    const nome = avaliacao.autor?.nome || 'esta avaliação';
-    const ok = window.confirm(`Tem certeza que deseja excluir a avaliação de ${nome}? Esta ação não pode ser desfeita.`);
-    if (!ok) return;
-    this.deleteAvaliacao(avaliacao);
+  confirmDeleteAvaliacao(avaliacao: any): void {
+    const authorName = this.getAuthorDisplayName(avaliacao);
+    const confirmMessage = `Tem certeza que deseja excluir a avaliação de ${authorName}? Esta ação não pode ser desfeita.`;
+    
+    if (window.confirm(confirmMessage)) {
+      this.deleteAvaliacao(avaliacao);
+    }
   }
 
-  deleteAvaliacao(avaliacao: any) {
+  private getAuthorDisplayName(avaliacao: any): string {
+    return avaliacao.autor?.nome || 'esta avaliação';
+  }
+
+  deleteAvaliacao(avaliacao: any): void {
     const id = avaliacao.id_avaliacao || avaliacao.id;
+    
     if (!id) {
-      this.avaliacoes = this.avaliacoes.filter(a => a !== avaliacao);
-      this.pendingAvaliacoes = this.pendingAvaliacoes.filter(p => p !== avaliacao);
-      try {
-        const raw = localStorage.getItem('pendingAvaliacoes');
-        const all = raw ? (JSON.parse(raw) as any[]) : [];
-        const newAll = all.filter(x => x !== avaliacao && String(x.livroId) === String(this.livroId) ? true : true);
-        localStorage.setItem('pendingAvaliacoes', JSON.stringify(newAll.slice(0,50)));
-      } catch {}
+      this.handleLocalDelete(avaliacao);
       return;
     }
 
+    this.handleServerDelete(avaliacao, id);
+  }
+
+  private handleLocalDelete(avaliacao: any): void {
+    this.removeFromLocalLists(avaliacao);
+    this.updateLocalStorage(avaliacao);
+  }
+
+  private handleServerDelete(avaliacao: any, id: string): void {
     avaliacao._deleting = true;
-    this.avaliacaoService.deleteAdminAvaliacao(String(id)).subscribe({
-      next: () => {
-        this.avaliacoes = this.avaliacoes.filter(a => String(a.id_avaliacao || a.id) !== String(id));
-        try {
-          const raw = localStorage.getItem('pendingAvaliacoes');
-          const all = raw ? (JSON.parse(raw) as any[]) : [];
-          const newAll = all.filter(x => String(x.id_avaliacao || x.id || '') !== String(id));
-          localStorage.setItem('pendingAvaliacoes', JSON.stringify(newAll.slice(0,50)));
-          this.pendingAvaliacoes = newAll.filter(p => String(p.livroId) === String(this.livroId));
-        } catch (e) {
-          console.error('Erro atualizando pendingAvaliacoes após delete', e);
-        }
-        this.mensagemSucesso = 'Avaliação removida com sucesso.';
-        setTimeout(() => this.mensagemSucesso = '', 3000);
-      },
-      error: (err: any) => {
-        console.error('Erro ao excluir avaliação', err);
-        avaliacao._deleting = false;
-        if (err.status === 401) alert('Você precisa estar logado como admin para excluir avaliações.');
-        else alert('Erro ao excluir avaliação. Tente novamente.');
-      }
+    
+    this.avaliacaoService.deleteAdminAvaliacao(id).subscribe({
+      next: () => this.onDeleteSuccess(id),
+      error: (err: any) => this.onDeleteError(avaliacao, err)
     });
+  }
+
+  private removeFromLocalLists(avaliacao: any): void {
+    this.avaliacoes = this.avaliacoes.filter(a => a !== avaliacao);
+    this.pendingAvaliacoes = this.pendingAvaliacoes.filter(p => p !== avaliacao);
+  }
+
+  private updateLocalStorage(excludeItem?: any): void {
+    try {
+      const allPending = this.getPendingFromStorage();
+      let filtered: any[];
+      
+      if (excludeItem) {
+        filtered = allPending.filter(x => x !== excludeItem);
+      } else {
+        filtered = allPending;
+      }
+      
+      this.savePendingItemsToStorage(filtered);
+    } catch (error) {
+      // Erro silencioso ao atualizar localStorage
+    }
+  }
+
+  private onDeleteSuccess(deletedId: string): void {
+    this.avaliacoes = this.avaliacoes.filter(a => {
+      const avaliacaoId = a.id_avaliacao || a.id;
+      return String(avaliacaoId) !== String(deletedId);
+    });
+    
+    this.updateStorageAfterDelete(deletedId);
+    this.showSuccessMessage('Avaliação removida com sucesso.', SUCCESS_MESSAGE_DURATION);
+  }
+
+  private updateStorageAfterDelete(deletedId: string): void {
+    try {
+      const allPending = this.getPendingFromStorage();
+      const filtered = allPending.filter(item => {
+        const itemId = item.id_avaliacao || item.id || '';
+        return String(itemId) !== String(deletedId);
+      });
+      
+      this.savePendingItemsToStorage(filtered);
+      this.pendingAvaliacoes = this.filterItemsByLivro(filtered);
+    } catch (error) {
+      // Erro silencioso ao atualizar localStorage
+    }
+  }
+
+  private onDeleteError(avaliacao: any, error: any): void {
+    avaliacao._deleting = false;
+    
+    if (error.status === 401) {
+      alert('Você precisa estar logado como admin para excluir avaliações.');
+    } else {
+      alert('Erro ao excluir avaliação. Tente novamente.');
+    }
   }
 
   temPreco(): boolean {
@@ -287,46 +402,67 @@ export class LivroDetalhes implements OnInit {
   }
 
   adicionarAoCarrinho(): void {
-    if (!this.livro) {
-      this.mensagemSucesso = '❌ Erro: livro não encontrado';
-      setTimeout(() => {
-        this.mensagemSucesso = '';
-      }, 3000);
+    const validationError = this.validateLivroForCart();
+    if (validationError) {
+      this.showErrorMessage(validationError);
       return;
+    }
+
+    const cartItem = this.createCartItem();
+    const idEstoque = this.getEstoqueId();
+
+    this.carrinhoService.adicionarItem(idEstoque, 1, cartItem).subscribe({
+      next: () => this.showCartSuccessMessage(),
+      error: () => this.showCartSuccessMessage() // Fallback sempre mostra sucesso
+    });
+  }
+
+  private validateLivroForCart(): string | null {
+    if (!this.livro) {
+      return '❌ Erro: livro não encontrado';
     }
 
     if (!this.temPreco()) {
-      this.mensagemSucesso = '❌ Este livro não está disponível para compra';
-      setTimeout(() => {
-        this.mensagemSucesso = '';
-      }, 3000);
-      return;
+      return '❌ Este livro não está disponível para compra';
     }
 
+    return null;
+  }
+
+  private createCartItem(): any {
     const preco = this.livro.estoque.preco;
     const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    const idEstoque = Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
 
-    this.carrinhoService.adicionarItem(idEstoque, 1, {
+    return {
       livroId: String(this.livro.id_livro || this.livro.id),
       titulo: this.livro.titulo || 'Livro sem título',
       autor: this.getAutorNome(),
       preco: precoNum,
       quantidade: 1,
       imagemUrl: this.livro.capa_url
-    }).subscribe({
-      next: () => {
-        this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
-        setTimeout(() => {
-          this.mensagemSucesso = '';
-        }, 3000);
-      },
-      error: () => {
-        this.mensagemSucesso = '✅ Livro adicionado ao carrinho com sucesso!';
-        setTimeout(() => {
-          this.mensagemSucesso = '';
-        }, 3000);
-      }
-    });
+    };
+  }
+
+  private getEstoqueId(): number {
+    return Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
+  }
+
+  private showErrorMessage(message: string): void {
+    this.showMessage(message, SUCCESS_MESSAGE_DURATION);
+  }
+
+  private showCartSuccessMessage(): void {
+    this.showSuccessMessage('✅ Livro adicionado ao carrinho com sucesso!', SUCCESS_MESSAGE_DURATION);
+  }
+
+  private showSuccessMessage(message: string, duration: number): void {
+    this.showMessage(message, duration);
+  }
+
+  private showMessage(message: string, duration: number): void {
+    this.mensagemSucesso = message;
+    setTimeout(() => {
+      this.mensagemSucesso = '';
+    }, duration);
   }
 }
