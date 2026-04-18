@@ -1,3 +1,5 @@
+import { urlImagemPrincipalDoLivro } from './livro-imagem-helpers';
+
 export function getGeneroLabel(livro: any): string {
   if (!livro) return 'Não informado';
   if (livro.generos && Array.isArray(livro.generos) && livro.generos.length > 0) {
@@ -13,12 +15,7 @@ export function getGeneroLabel(livro: any): string {
 
 export function getImagemUrl(livro: any): string {
   if (!livro) return 'assets/placeholder.svg';
-  const url = livro.capa_url;
-  if (!url || url.includes('placeholder') || url.includes('200x300') || url.includes('text=')) {
-    return 'assets/placeholder.svg';
-  }
-  if (!url.startsWith('http')) return url;
-  return url;
+  return urlImagemPrincipalDoLivro(livro);
 }
 
 export function getAutorNome(livro: any): string {

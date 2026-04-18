@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReformaService } from '../../../services/reforma.service';
 import { getFriendlyLabel, badgeClass } from '../../../utils/status-utils';
+import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
+import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
 @Component({
   selector: 'app-admin-reformas',
@@ -84,5 +86,33 @@ export class AdminReformas implements OnInit {
       },
       error: (err: any) => console.error('Erro ao atualizar status', err)
     });
+  }
+
+  midiasSolicitacao(s: any): Array<{ url: string; tipo: string }> {
+    const imagens = s?.imagens;
+    if (Array.isArray(imagens) && imagens.length) {
+      return imagens
+        .filter((i: any) => i?.url_imagem && String(i.url_imagem).trim())
+        .map((i: any) => ({ url: String(i.url_imagem), tipo: String(i.tipo_imagem ?? '') }));
+    }
+    const fotos = s?.fotos || [];
+    return fotos
+      .map((f: any) => {
+        if (typeof f === 'string') {
+          return { url: f, tipo: '' };
+        }
+        const url = f?.url_foto || f?.url_imagem || '';
+        const tipo = f?.tipo_imagem != null ? String(f.tipo_imagem) : '';
+        return { url: String(url), tipo };
+      })
+      .filter((m: { url: string }) => !!m.url.trim());
+  }
+
+  rotuloMidia(tipo: string): string {
+    return tipo ? rotuloTipoImagemLegivel(tipo) : 'Foto';
+  }
+
+  urlMidia(url: string): string {
+    return resolverUrlMidiaApi(url);
   }
 }

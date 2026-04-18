@@ -68,14 +68,94 @@ $space-lg: 24px;
   }
 }
 
-.livro-imagem {
-  flex-basis: 40%;
-  img {
+.livro-media {
+  flex: 0 0 40%;
+  max-width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+  &--unica img {
     width: 100%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
+}
+
+.galeria-principal {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  &__badge {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(106, 0, 0, 0.88);
+    border-radius: 4px;
+  }
+}
+
+.galeria-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.galeria-thumb {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 0;
+  cursor: pointer;
+  background: $bg-light;
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+  &--ativa {
+    border-color: $primary;
+    box-shadow: 0 0 0 1px $primary;
+  }
+}
+
+.galeria-thumb__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 4.75rem;
+  img {
+    width: 100%;
+    height: 4.5rem;
+    object-fit: cover;
+    border-radius: 4px 4px 0 0;
+    display: block;
+  }
+}
+
+.galeria-thumb__rotulo {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.2rem 0.15rem;
+  color: $text;
+  line-height: 1.2;
+  max-width: 4.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .livro-info {

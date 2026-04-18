@@ -10,19 +10,32 @@
 
   <div class="livro-content">
     
-    <div class="livro-imagem">
-      <img [src]="getImagemUrl()" [alt]="livro.titulo" [title]="livro.titulo">
-    </div>
-    <ng-template #firstPendingAvaliacao let-pa>
-      <p class="meta"><strong>[Você]</strong><span class="muted">: {{ pa.data_avaliacao | date:'short' }}</span></p>
-      <div class="rating">
-        <div class="stars" aria-hidden="true">
-          <i *ngFor="let n of [1,2,3,4,5]" [ngClass]="n <= (pa.nota || 0) ? 'fa-solid fa-star active' : 'fa-regular fa-star'"></i>
-        </div>
-        <div class="nota-num">Nota: {{ pa.nota }}</div>
+    <div class="livro-media" *ngIf="imagensGaleria.length > 0; else capaUnica">
+      <div class="galeria-principal">
+        <img [src]="urlDestaqueGaleria()" [alt]="livro.titulo + ' — ' + rotuloDestaqueGaleria()" [title]="rotuloDestaqueGaleria()">
+        <span class="galeria-principal__badge">{{ rotuloDestaqueGaleria() }}</span>
       </div>
-      <p class="conteudo">{{ pa.comentario }}</p>
-      <p class="small-muted">Sua resenha está aguardando moderação e ficará visível após aprovação.</p>
+      <div class="galeria-thumbs" role="list">
+        <button
+          type="button"
+          class="galeria-thumb"
+          *ngFor="let im of imagensGaleria; let i = index"
+          [class.galeria-thumb--ativa]="i === indiceGaleria"
+          (click)="selecionarMiniatura(i)"
+          [attr.aria-pressed]="i === indiceGaleria"
+          [attr.aria-label]="'Mostrar ' + rotuloTipoImagem(im.tipo_imagem)"
+        >
+          <span class="galeria-thumb__visual">
+            <img [src]="urlMiniatura(im)" [alt]="rotuloTipoImagem(im.tipo_imagem)">
+            <span class="galeria-thumb__rotulo">{{ rotuloTipoImagem(im.tipo_imagem) }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+    <ng-template #capaUnica>
+      <div class="livro-media livro-media--unica">
+        <img [src]="getImagemUrl()" [alt]="livro.titulo" [title]="livro.titulo">
+      </div>
     </ng-template>
 
     <div class="livro-info">
@@ -115,6 +128,18 @@
     </app-avaliacao-form>
   </div>
 </div>
+
+<ng-template #firstPendingAvaliacao let-pa>
+  <p class="meta"><strong>[Você]</strong><span class="muted">: {{ pa.data_avaliacao | date:'short' }}</span></p>
+  <div class="rating">
+    <div class="stars" aria-hidden="true">
+      <i *ngFor="let n of [1,2,3,4,5]" [ngClass]="n <= (pa.nota || 0) ? 'fa-solid fa-star active' : 'fa-regular fa-star'"></i>
+    </div>
+    <div class="nota-num">Nota: {{ pa.nota }}</div>
+  </div>
+  <p class="conteudo">{{ pa.comentario }}</p>
+  <p class="small-muted">Sua resenha está aguardando moderação e ficará visível após aprovação.</p>
+</ng-template>
 
 <ng-template #carregando>
   <p class="loading">Carregando detalhes do livro...</p>

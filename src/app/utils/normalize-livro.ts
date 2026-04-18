@@ -1,4 +1,5 @@
 import { Livro, LivroRaw, Estoque } from '../models/livro';
+import type { LivroImagem } from '../models/livro-imagem';
 
 function parseNumberFromString(v: any): number | null {
   if (v == null) return null;
@@ -106,6 +107,18 @@ export function normalizeLivro(raw: LivroRaw): Livro {
       }
     }
 
+  let imagens: LivroImagem[] | null = null;
+  if (Array.isArray(raw.imagens) && raw.imagens.length > 0) {
+    imagens = raw.imagens.map((item: any) => ({
+      id: item?.id ?? item?.id_imagem ?? undefined,
+      url_imagem: String(item?.url_imagem ?? item?.url ?? ''),
+      tipo_imagem: String(item?.tipo_imagem ?? item?.tipo ?? '')
+    })).filter((img) => img.url_imagem.length > 0);
+    if (imagens.length === 0) {
+      imagens = null;
+    }
+  }
+
   return {
     id_livro: raw.id_livro,
     titulo: raw.titulo,
@@ -113,7 +126,7 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     editora: raw.editora ?? null,
     ano_publicacao: raw.ano_publicacao ?? null,
     isbn: raw.isbn ?? null,
-    capa_url: raw.capa_url ?? null,
+    imagens,
     estoque,
     generos: generosArray ?? [],
     autores: autoresArray ?? []

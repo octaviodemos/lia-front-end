@@ -8,6 +8,9 @@ import { CarrinhoService } from '../../services/carrinho.service';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 import { AuthService } from '../../services/auth';
 import { getGeneroLabel as getGeneroLabelFn, getImagemUrl as getImagemUrlFn, getAutorNome as getAutorNomeFn, temPreco as temPrecoFn } from '../../utils/livro-utils';
+import { rotuloTipoImagemLegivel } from '../../utils/livro-imagem-helpers';
+import { resolverUrlMidiaApi } from '../../utils/media-url';
+import type { LivroImagem } from '../../models/livro-imagem';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
 
 const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
@@ -30,6 +33,8 @@ export class LivroDetalhes implements OnInit {
   pendingAvaliacoes: any[] = [];
   livroId: string = '';
   mensagemSucesso: string = '';
+  imagensGaleria: LivroImagem[] = [];
+  indiceGaleria = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,8 +56,11 @@ export class LivroDetalhes implements OnInit {
         return [];
       })
     ).subscribe({
-      next: (data: any) => this.livro = data,
-      error: (err: any) => {}
+      next: (data: any) => {
+        this.livro = data;
+        this.atualizarGaleria();
+      },
+      error: () => {}
     });
   }
 
@@ -401,6 +409,46 @@ export class LivroDetalhes implements OnInit {
     return getImagemUrlFn(this.livro);
   }
 
+  private atualizarGaleria(): void {
+    const imgs = this.livro?.imagens;
+    this.imagensGaleria = Array.isArray(imgs)
+      ? imgs.filter((i: LivroImagem) => !!(i?.url_imagem && String(i.url_imagem).trim()))
+      : [];
+    if (!this.imagensGaleria.length) {
+      this.indiceGaleria = 0;
+      return;
+    }
+    const capaIx = this.imagensGaleria.findIndex((img) => img.tipo_imagem === 'Capa');
+    this.indiceGaleria = capaIx >= 0 ? capaIx : 0;
+  }
+
+  selecionarMiniatura(indice: number): void {
+    if (indice >= 0 && indice < this.imagensGaleria.length) {
+      this.indiceGaleria = indice;
+    }
+  }
+
+  urlDestaqueGaleria(): string {
+    if (!this.imagensGaleria.length) {
+      return this.getImagemUrl();
+    }
+    const raw = this.imagensGaleria[this.indiceGaleria]?.url_imagem;
+    const abs = resolverUrlMidiaApi(raw);
+    return abs || this.getImagemUrl();
+  }
+
+  rotuloTipoImagem(tipo: string | null | undefined): string {
+    return rotuloTipoImagemLegivel(tipo);
+  }
+
+  rotuloDestaqueGaleria(): string {
+    return rotuloTipoImagemLegivel(this.imagensGaleria[this.indiceGaleria]?.tipo_imagem);
+  }
+
+  urlMiniatura(img: LivroImagem): string {
+    return resolverUrlMidiaApi(img.url_imagem) || this.getImagemUrl();
+  }
+
   adicionarAoCarrinho(): void {
     const validationError = this.validateLivroForCart();
     if (validationError) {
@@ -439,7 +487,7 @@ export class LivroDetalhes implements OnInit {
       autor: this.getAutorNome(),
       preco: precoNum,
       quantidade: 1,
-      imagemUrl: this.livro.capa_url
+      imagemUrl: this.getImagemUrl()
     };
   }
 

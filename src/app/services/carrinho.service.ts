@@ -3,15 +3,18 @@ import { BehaviorSubject, Observable, of, throwError, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, switchMap, map } from 'rxjs/operators';
 import { AuthService } from './auth';
+import type { LivroImagem } from '../models/livro-imagem';
+import { urlImagemPrincipalDoLivro } from '../utils/livro-imagem-helpers';
 
 export interface ItemCarrinho {
   livroId: string;
-  cartItemId?: number; // ID do item no carrinho do backend
+  cartItemId?: number;
   titulo: string;
   autor: string;
   preco: number;
   quantidade: number;
   imagemUrl?: string;
+  imagens?: LivroImagem[];
   estoqueDisponivel?: number;
   estoqueId?: number;
 }
@@ -304,12 +307,12 @@ export class CarrinhoService {
           0
         ),
         quantidade: item.quantidade || 1,
-        imagemUrl: 
-          livro.capa_url || 
-          livro.image || 
+        imagens: Array.isArray(livro.imagens) ? livro.imagens : undefined,
+        imagemUrl:
+          livro.image ||
           livro.imagemUrl ||
-          item.imagemUrl || 
-          ''
+          item.imagemUrl ||
+          urlImagemPrincipalDoLivro(livro)
       };
       
       return mapped;

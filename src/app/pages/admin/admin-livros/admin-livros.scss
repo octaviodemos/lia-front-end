@@ -95,46 +95,27 @@
   font-size: 0.875rem;
 }
 
-.pending-panel {
-  margin-top: 1.5rem;
-
-  .panel-header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#fafafa;
-    padding:0.75rem 1rem;
-    border:1px solid #e6e6e6;
-    border-radius:6px;
-    cursor:pointer;
-
-    h3 { margin:0; font-size:1rem; }
-    .count { color:#666; font-weight:normal; margin-left:0.5rem; }
-    .toggle { background:transparent; border:0; color:#0b5ed7; cursor:pointer; }
-  }
-
-  .panel-body { margin-top:0.75rem; }
-
-  .empty { color:#666; padding:0.75rem; }
-
-  .cards { display:grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap:0.75rem; }
-
-  .card {
-    border:1px solid #e9ecef;
-    padding:0.75rem;
-    border-radius:6px;
-    background:#fff;
-    box-shadow:0 1px 2px rgba(0,0,0,0.02);
-
-    &.processing { opacity:0.7; }
-
-    .card-header { font-weight:600; display:flex; flex-direction:column; gap:0.25rem; }
-    .card-body { margin:0.5rem 0; color:#333; }
-    .card-actions { display:flex; gap:0.5rem; align-items:center; }
-
-    .btn-approve { background:#198754; color:#fff; border:0; padding:0.4rem 0.6rem; border-radius:4px; cursor:pointer; }
-    .btn-reject, .btn-danger { background:#dc3545; color:#fff; border:0; padding:0.4rem 0.6rem; border-radius:4px; cursor:pointer; }
-    .btn-reject { background:#f06565; }
-    button[disabled] { opacity:0.6; cursor:not-allowed; }
-  }
-}
+.imagens-grid__titulo{display:block;font-weight:600;margin-bottom:.35rem}
+.imagens-grid__intro{margin:0 0 1rem;color:#555;font-size:.95rem}
+.imagens-grid__lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.slot-imagem{border:1px solid #e9ecef;border-radius:8px;padding:.75rem 1rem;background:#fafafa}
+.slot-imagem__titulo{display:block;font-weight:600}
+.slot-imagem__desc{display:block;color:#6c757d;line-height:1.35;margin:.25rem 0 .5rem}
+.image-preview--slot img{max-width:100%;max-height:220px}
+.pending-panel{margin-top:1.5rem}
+.pending-panel .panel-header{display:flex;justify-content:space-between;align-items:center;background:#fafafa;padding:.75rem 1rem;border:1px solid #e6e6e6;border-radius:6px;cursor:pointer}
+.pending-panel .panel-header h3{margin:0;font-size:1rem}
+.pending-panel .panel-header .count{color:#666;font-weight:400;margin-left:.5rem}
+.pending-panel .panel-header .toggle{background:transparent;border:0;color:#0b5ed7;cursor:pointer}
+.pending-panel .panel-body{margin-top:.75rem}
+.pending-panel .empty{color:#666;padding:.75rem}
+.pending-panel .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+.pending-panel .card{border:1px solid #e9ecef;padding:.75rem;border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+.pending-panel .card.processing{opacity:.7}
+.pending-panel .card .card-header{font-weight:600;display:flex;flex-direction:column;gap:.25rem}
+.pending-panel .card .card-body{margin:.5rem 0;color:#333}
+.pending-panel .card .card-actions{display:flex;gap:.5rem;align-items:center}
+.pending-panel .card .btn-approve{background:#198754;color:#fff;border:0;padding:.4rem .6rem;border-radius:4px;cursor:pointer}
+.pending-panel .card .btn-reject,.pending-panel .card .btn-danger{background:#dc3545;color:#fff;border:0;padding:.4rem .6rem;border-radius:4px;cursor:pointer}
+.pending-panel .card .btn-reject{background:#f06565}
+.pending-panel .card button[disabled]{opacity:.6;cursor:not-allowed}

@@ -1,3 +1,7 @@
+import type { LivroImagem } from './livro-imagem';
+
+export type { LivroImagem } from './livro-imagem';
+
 export interface Estoque {
   id_estoque: number | null;
   id_livro?: number | null;
@@ -21,7 +25,7 @@ export interface LivroRaw {
   editora?: string | null;
   ano_publicacao?: number | null;
   isbn?: string | null;
-  capa_url?: string | null;
+  imagens?: LivroImagem[] | null;
   estoque?: any; 
   preco?: any; 
   id_estoque?: any; 
@@ -38,7 +42,7 @@ export interface Livro {
   editora?: string | null;
   ano_publicacao?: number | null;
   isbn?: string | null;
-  capa_url?: string | null;
+  imagens?: LivroImagem[] | null;
   estoque?: Estoque | null;
   generos?: Genero[] | null;
   autores?: Autor[] | null;

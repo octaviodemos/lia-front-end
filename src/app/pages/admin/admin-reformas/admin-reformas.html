@@ -18,8 +18,13 @@
       <div class="reforma-body">
         <div class="reforma-desc">{{ s.descricao_problema }}</div>
 
-        <div class="reforma-thumbs" *ngIf="(s.fotos || []).length > 0">
-          <img *ngFor="let f of s.fotos" [src]="('http://localhost:3333' + (f.url_foto || f))" alt="foto" />
+        <div class="reforma-imagens" *ngIf="midiasSolicitacao(s).length">
+          <div class="admin-imagens-grid">
+            <figure *ngFor="let m of midiasSolicitacao(s)" class="admin-imagens-grid__item">
+              <figcaption class="admin-imagens-grid__titulo">{{ rotuloMidia(m.tipo) }}</figcaption>
+              <img [src]="urlMidia(m.url)" [alt]="rotuloMidia(m.tipo)" loading="lazy" />
+            </figure>
+          </div>
         </div>
 
         <div class="reforma-actions">

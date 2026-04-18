@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { OfertaVendaService } from '../../../services/oferta-venda.service';
+import type { LivroImagem } from '../../../models/livro-imagem';
+import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
+import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
 @Component({
   selector: 'app-admin-ofertas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   templateUrl: './admin-ofertas.html',
   styleUrls: ['./admin-ofertas.scss']
 })
@@ -14,10 +16,9 @@ export class AdminOfertas implements OnInit {
 
   ofertas: any[] = [];
   respostaMap: { [key: string]: string } = {};
+  expandidoPorId: Record<string, boolean> = {};
 
-  constructor(
-    private ofertaVendaService: OfertaVendaService
-  ) {}
+  constructor(private ofertaVendaService: OfertaVendaService) {}
 
   ngOnInit(): void {
     this.carregarOfertas();
@@ -31,28 +32,54 @@ export class AdminOfertas implements OnInit {
   }
 
   onRespostaInput(ofertaId: any, event: Event): void {
-    try {
-      const target = event.target as HTMLTextAreaElement | null;
-      if (!target) return;
-      this.respostaMap[String(ofertaId)] = target.value || '';
-    } catch (e) {
-      // fallback: try any cast
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const val = (event as any)?.target?.value;
-      this.respostaMap[String(ofertaId)] = val || '';
+    const target = event.target as HTMLTextAreaElement | null;
+    const key = String(ofertaId);
+    if (target) {
+      this.respostaMap[key] = target.value || '';
+      return;
     }
+    const val = (event as { target?: { value?: string } })?.target?.value;
+    this.respostaMap[key] = val || '';
+  }
+
+  chaveOferta(oferta: any): string {
+    return String(oferta?.id_oferta_venda ?? oferta?.id ?? '');
+  }
+
+  alternarDetalhes(oferta: any): void {
+    const k = this.chaveOferta(oferta);
+    this.expandidoPorId = { ...this.expandidoPorId, [k]: !this.expandidoPorId[k] };
+  }
+
+  detalhesAbertos(oferta: any): boolean {
+    return !!this.expandidoPorId[this.chaveOferta(oferta)];
+  }
+
+  imagensDaOferta(oferta: any): LivroImagem[] {
+    const arr = oferta?.imagens;
+    if (!Array.isArray(arr)) {
+      return [];
+    }
+    return arr.filter((i: LivroImagem) => !!(i?.url_imagem && String(i.url_imagem).trim()));
+  }
+
+  rotuloTipo(tipo: string | null | undefined): string {
+    return rotuloTipoImagemLegivel(tipo);
+  }
+
+  urlMidia(url: string | null | undefined): string {
+    return resolverUrlMidiaApi(url);
   }
 
   handleResposta(ofertaId: any, novoStatus: 'aceita' | 'recusada'): void {
     const key = String(ofertaId);
     const resposta = this.respostaMap[key] || '';
 
-    this.ofertaVendaService.responderOferta(key, { 
-      status_oferta: novoStatus, 
-      resposta_admin: resposta 
+    this.ofertaVendaService.responderOferta(key, {
+      status_oferta: novoStatus,
+      resposta_admin: resposta
     }).subscribe({
-      next: (response: any) => {
-        console.log('Oferta respondida!', response);
+      next: () => {
         this.carregarOfertas();
         this.respostaMap[key] = '';
       },

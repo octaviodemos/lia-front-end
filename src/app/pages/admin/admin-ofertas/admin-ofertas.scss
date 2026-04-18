@@ -159,3 +159,45 @@
 @media (min-width: 1200px) {
   .ofertas-lista { grid-template-columns: repeat(3, 1fr); }
 }
+
+.oferta-fotos-toggle { margin: 0.75rem 0 0; }
+
+.btn-fotos {
+  padding: 0.45rem 0.85rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-imagens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.admin-imagens-grid__titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #333;
+}
+
+.admin-imagens-grid__item {
+  margin: 0;
+  img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    border: 1px solid #e5e5e5;
+  }
+}

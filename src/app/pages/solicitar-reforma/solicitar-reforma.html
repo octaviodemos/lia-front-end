@@ -1,6 +1,7 @@
 <div class="reforma-container">
   <h2>Solicitar Reforma de Livro</h2>
   <p>Tem um livro com valor sentimental que precisa de reparo? A LIA pode te ajudar. Descreva o problema e anexe fotos para uma avaliação.</p>
+  <p class="destaque-avarias">Em especial, envie fotos nítidas em «Detalhes e avarias» para mostrar rasgos, umidade, folhas soltas ou desgaste da encadernação.</p>
 
   <form [formGroup]="reformaForm" (ngSubmit)="onSubmit()">
     
@@ -9,17 +10,31 @@
       <textarea id="descricao_problema" formControlName="descricao_problema" rows="5"></textarea>
     </div>
 
-    <div class="form-group">
-      <label for="fotos">Anexe fotos do livro (Obrigatório)</label>
-      <input 
-        id="fotos" 
-        type="file" 
-        multiple 
-        (change)="onFileSelected($event)" 
-        accept="image/*">
+    <div class="form-group imagens-cliente">
+      <span class="imagens-cliente__titulo">Fotos do livro (obrigatório enviar ao menos uma)</span>
+      <div class="imagens-cliente__grid">
+        <div class="slot-imagem-cliente" *ngFor="let slot of slotsImagens">
+          <span class="slot-imagem-cliente__titulo">{{ slot.titulo }}</span>
+          <small class="slot-imagem-cliente__desc">{{ slot.descricao }}</small>
+          <div class="upload-linha">
+            <input
+              type="file"
+              [id]="idInputArquivo(slot.formFieldName)"
+              (change)="aoSelecionarArquivo(slot.formFieldName, $event)"
+              accept="image/*"
+            >
+            <label [for]="idInputArquivo(slot.formFieldName)" class="upload-linha__btn">{{ nomesArquivos[slot.formFieldName] || 'Anexar' }}</label>
+            <button type="button" class="upload-linha__limpar" *ngIf="arquivosPorTipo[slot.formFieldName]" (click)="limparArquivo(slot.formFieldName)">Remover</button>
+          </div>
+          <div class="preview-mini" *ngIf="previewsPorTipo[slot.formFieldName]">
+            <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="slot.titulo">
+          </div>
+        </div>
+      </div>
+      <small class="hint-fotos">Máximo 5MB por imagem.</small>
     </div>
     
-    <button type="submit" [disabled]="reformaForm.invalid || selectedFiles.length === 0">Enviar Solicitação</button>
+    <button type="submit" [disabled]="reformaForm.invalid">Enviar Solicitação</button>
   </form>
 
   <div *ngIf="mensagemSucesso" class="mensagem-sucesso">

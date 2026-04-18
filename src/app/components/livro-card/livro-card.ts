@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CarrinhoService } from '../../services/carrinho.service';
+import { getImagemUrl as resolverUrlImagemLivro } from '../../utils/livro-utils';
 
 @Component({
   selector: 'app-livro-card',
@@ -58,23 +59,7 @@ export class LivroCard {
   }
 
   getImagemUrl(): string {
-    if (!this.livro) {
-      return 'assets/placeholder.svg';
-    }
-    
-    const url = this.livro.capa_url;
-    
-    // Se não tem URL ou é inválida (bloqueia placeholders)
-    if (!url || url.includes('placeholder') || url.includes('200x300') || url.includes('text=')) {
-      return 'assets/placeholder.svg';
-    }
-    
-    // Se a URL não começa com http/https, assume que é relativa
-    if (!url.startsWith('http')) {
-      return url;
-    }
-    
-    return url;
+    return resolverUrlImagemLivro(this.livro);
   }
 
   adicionarAoCarrinho(): void {
@@ -97,7 +82,7 @@ export class LivroCard {
       autor: this.getAutorNome(),
       preco: precoNum,
       quantidade: 1,
-      imagemUrl: this.livro.capa_url
+      imagemUrl: this.getImagemUrl()
     }).subscribe({
       next: () => {
         this.mensagemSucesso = '✅ Adicionado ao carrinho!';

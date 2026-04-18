@@ -1,6 +1,7 @@
 <div class="oferta-container">
   <h2>Venda seu Livro para a LIA</h2>
   <p>Tem um livro em bom estado e quer vendê-lo? Preencha o formulário abaixo e nossa equipe analisará sua oferta.</p>
+  <p class="destaque-fotos">Fotos por região do livro (capa, lombada, miolo, etc.) ajudam na futura avaliação automatizada. Envie o que puder.</p>
 
   <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
     
@@ -27,6 +28,30 @@
     <div class="form-group">
       <label for="preco_sugerido">Preço sugerido (R$)</label>
       <input id="preco_sugerido" type="number" formControlName="preco_sugerido">
+    </div>
+
+    <div class="form-group imagens-cliente">
+      <span class="imagens-cliente__titulo">Fotos do exemplar</span>
+      <div class="imagens-cliente__grid">
+        <div class="slot-imagem-cliente" *ngFor="let slot of slotsImagens">
+          <span class="slot-imagem-cliente__titulo">{{ slot.titulo }}</span>
+          <small class="slot-imagem-cliente__desc">{{ slot.descricao }}</small>
+          <div class="upload-linha">
+            <input
+              type="file"
+              [id]="idInputArquivo(slot.formFieldName)"
+              (change)="aoSelecionarArquivo(slot.formFieldName, $event)"
+              accept="image/*"
+            >
+            <label [for]="idInputArquivo(slot.formFieldName)" class="upload-linha__btn">{{ nomesArquivos[slot.formFieldName] || 'Anexar' }}</label>
+            <button type="button" class="upload-linha__limpar" *ngIf="arquivosPorTipo[slot.formFieldName]" (click)="limparArquivo(slot.formFieldName)">Remover</button>
+          </div>
+          <div class="preview-mini" *ngIf="previewsPorTipo[slot.formFieldName]">
+            <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="slot.titulo">
+          </div>
+        </div>
+      </div>
+      <small class="hint-fotos">Imagens opcionais; máximo 5MB cada.</small>
     </div>
 
     <button type="submit" [disabled]="ofertaForm.invalid">Enviar Oferta</button>

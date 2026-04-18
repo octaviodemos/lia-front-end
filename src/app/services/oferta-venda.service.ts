@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import type { OfertaVenda } from '../models/oferta-venda';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ export class OfertaVendaService {
 
   constructor(private http: HttpClient) { }
 
-  criarOferta(ofertaData: any): Observable<any> {
-    return this.http.post(this.apiUrl, ofertaData);
+  criarOferta(formData: FormData): Observable<OfertaVenda> {
+    return this.http.post<OfertaVenda>(this.apiUrl, formData);
   }
 
   getMinhasOfertas(): Observable<any> {

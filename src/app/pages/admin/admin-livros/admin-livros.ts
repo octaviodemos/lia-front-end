@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LivroService } from '../../../services/livro.service';
+import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../../models/livro-imagem';
+import { anexarImagensLivroNoFormData, mensagemErroArquivoImagem } from '../../../utils/livro-imagem-helpers';
 
 @Component({
   selector: 'app-admin-livros',
@@ -14,9 +16,12 @@ export class AdminLivros implements OnInit {
 
   livroForm!: FormGroup;
   mensagemSucesso: string = '';
-  selectedFile: File | null = null;
-  selectedFileName: string = '';
-  imagePreview: string | null = null;
+  readonly slotsImagens = LIVRO_IMAGEM_FORM_SLOTS;
+  private readonly tamanhoMaxArquivo = 5 * 1024 * 1024;
+
+  arquivosPorTipo: Partial<Record<LivroImagemFormFieldName, File | null>> = {};
+  nomesArquivos: Partial<Record<LivroImagemFormFieldName, string>> = {};
+  previewsPorTipo: Partial<Record<LivroImagemFormFieldName, string | null>> = {};
 
   constructor(
     private fb: FormBuilder,
@@ -29,95 +34,79 @@ export class AdminLivros implements OnInit {
       sinopse: [''],
       editora: [''],
       ano_publicacao: [null],
-      isbn: [''],
-      capa_url: ['']
+      isbn: ['']
     });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      
-      // Validar tamanho (máx 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.mensagemSucesso = 'Arquivo muito grande. Tamanho máximo: 5MB';
-        return;
-      }
-      
-      // Validar tipo
-      if (!file.type.startsWith('image/')) {
-        this.mensagemSucesso = 'Por favor, selecione uma imagem válida';
-        return;
-      }
-      
-      this.selectedFile = file;
-      this.selectedFileName = file.name;
-      
-      // Criar preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-      };
-      reader.readAsDataURL(file);
-      
-      // Limpar URL se houver arquivo
-      this.livroForm.patchValue({ capa_url: '' });
-    }
+  idInputArquivo(campo: LivroImagemFormFieldName): string {
+    return `arquivo-${campo}`;
   }
-  
-  clearFile(): void {
-    this.selectedFile = null;
-    this.selectedFileName = '';
-    this.imagePreview = null;
-    const fileInput = document.getElementById('file-input') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
+
+  aoSelecionarArquivo(campo: LivroImagemFormFieldName, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.[0]) {
+      return;
+    }
+    const arquivo = input.files[0];
+    const erro = mensagemErroArquivoImagem(arquivo, this.tamanhoMaxArquivo);
+    if (erro) {
+      this.mensagemSucesso = erro;
+      input.value = '';
+      return;
+    }
+    this.arquivosPorTipo = { ...this.arquivosPorTipo, [campo]: arquivo };
+    this.nomesArquivos = { ...this.nomesArquivos, [campo]: arquivo.name };
+    const leitor = new FileReader();
+    leitor.onload = (e: ProgressEvent<FileReader>) => {
+      this.previewsPorTipo = { ...this.previewsPorTipo, [campo]: String(e.target?.result ?? '') };
+    };
+    leitor.readAsDataURL(arquivo);
+  }
+
+  limparArquivo(campo: LivroImagemFormFieldName): void {
+    const proximoArquivos = { ...this.arquivosPorTipo };
+    delete proximoArquivos[campo];
+    this.arquivosPorTipo = proximoArquivos;
+    const proximoNomes = { ...this.nomesArquivos };
+    delete proximoNomes[campo];
+    this.nomesArquivos = proximoNomes;
+    const proximoPreviews = { ...this.previewsPorTipo };
+    delete proximoPreviews[campo];
+    this.previewsPorTipo = proximoPreviews;
+    const el = document.getElementById(this.idInputArquivo(campo)) as HTMLInputElement | null;
+    if (el) {
+      el.value = '';
     }
   }
 
   onSubmit(): void {
-    console.log('Form válido?', this.livroForm.valid);
-    console.log('Form value:', this.livroForm.value);
-    console.log('Form errors:', this.livroForm.errors);
-    
     if (this.livroForm.valid) {
       const formData = new FormData();
-      
-      // Adicionar campos do formulário
-      Object.keys(this.livroForm.value).forEach(key => {
+      Object.keys(this.livroForm.value).forEach((key) => {
         const value = this.livroForm.value[key];
         if (value !== null && value !== '') {
           formData.append(key, value);
         }
       });
-      
-      // Adicionar arquivo se houver
-      if (this.selectedFile) {
-        formData.append('capa_file', this.selectedFile, this.selectedFile.name);
-      }
-      
-      console.log('Payload sendo enviado (FormData)');
-      
+      anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
       this.livroService.criarLivro(formData).subscribe({
         next: (response: any) => {
           this.mensagemSucesso = `Livro "${response.titulo}" criado com sucesso!`;
           this.livroForm.reset();
-          this.clearFile();
+          this.arquivosPorTipo = {};
+          this.nomesArquivos = {};
+          this.previewsPorTipo = {};
+          this.slotsImagens.forEach((s) => {
+            const el = document.getElementById(this.idInputArquivo(s.formFieldName)) as HTMLInputElement | null;
+            if (el) {
+              el.value = '';
+            }
+          });
         },
         error: (err: any) => {
-          console.error('Erro completo:', err);
-          console.error('Status:', err.status);
-          console.error('Mensagem:', err.error?.message);
-          console.error('Detalhes:', err.error);
-          
           if (err.status === 500) {
             this.mensagemSucesso = 'Erro interno no servidor. Verifique os logs do backend para mais detalhes.';
           } else if (Array.isArray(err.error?.message)) {
-            console.error('Erros de validação:');
-            err.error.message.forEach((msg: string, i: number) => {
-              console.error(`  ${i + 1}. ${msg}`);
-            });
             this.mensagemSucesso = err.error.message.join(', ');
           } else {
             this.mensagemSucesso = err.error?.message || 'Erro ao criar livro.';
@@ -126,6 +115,4 @@ export class AdminLivros implements OnInit {
       });
     }
   }
-
-  // avaliações agora são moderadas no componente `AdminAvaliacoes`
 }
