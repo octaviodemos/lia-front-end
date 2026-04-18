@@ -41,6 +41,22 @@
     <div class="livro-info">
       <h1>{{ livro.titulo }}</h1>
       <p class="autor"><strong>Autor:</strong> {{ getAutorNome() }}</p>
+
+      <div class="media-comunidade" *ngIf="mostrarBlocoMediaComunidade()">
+        <div class="media-comunidade__estrelas" role="img" [attr.aria-label]="getAriaLabelMediaComunidade()">
+          <i *ngFor="let n of [1,2,3,4,5]" [ngClass]="getClasseEstrelaMediaComunidade(n)"></i>
+        </div>
+        <p class="media-comunidade__resumo">
+          <span class="media-comunidade__emoji" aria-hidden="true">⭐</span>
+          <ng-container *ngIf="getNotaMediaAvaliacoes() !== null; else resumoSoContagem">
+            {{ getNotaMediaAvaliacoes() | number:'1.1-1' }}
+            <span class="media-comunidade__total">({{ getTotalAvaliacoes() }} {{ getTotalAvaliacoes() === 1 ? 'avaliação' : 'avaliações' }})</span>
+          </ng-container>
+          <ng-template #resumoSoContagem>
+            <span class="media-comunidade__total">({{ getTotalAvaliacoes() }} {{ getTotalAvaliacoes() === 1 ? 'avaliação' : 'avaliações' }})</span>
+          </ng-template>
+        </p>
+      </div>
       
       <p class="preco" *ngIf="getPrecoSelecionadoNumero() !== null">R$ {{ getPrecoSelecionadoNumero() | number:'1.2-2' }}</p>
       <p class="preco no-price" *ngIf="getPrecoSelecionadoNumero() === null">Preço sob consulta</p>
@@ -95,7 +111,7 @@
 
   <div class="resenhas-section">
     <h2>Resenhas</h2>
-    <!-- Sua Avaliação em destaque (pendente) -->
+    <p class="resenhas-edicao-aviso">As resenhas e notas desta página são baseadas na edição da obra e valem para todos os exemplares disponíveis.</p>
     <div *ngIf="pendingAvaliacoes && pendingAvaliacoes.length > 0" class="sua-avaliacao-card">
       <div class="card-header">
         <div class="title">Sua Avaliação</div>

@@ -13,6 +13,10 @@
     </div>
     <div class="card-info">
       <h3 class="card-title">{{ livro.titulo }}</h3>
+      <div class="card-media-comunidade" *ngIf="exibeNotaComunidade()">
+        <span class="card-media-comunidade__icone" aria-hidden="true">⭐</span>
+        <span class="card-media-comunidade__valor">{{ getNotaMediaComunidadeTexto() }}</span>
+      </div>
       <p class="card-author">{{ getAutorNome() }}</p>
     </div>
   </a>

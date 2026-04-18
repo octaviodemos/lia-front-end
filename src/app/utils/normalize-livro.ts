@@ -16,6 +16,19 @@ function parseNotaConservacao(v: any): number | null {
   return arredondada;
 }
 
+function parseNotaMediaAvaliacoes(v: any): number | null {
+  const n = parseNumberFromString(v);
+  if (n === null) return null;
+  const lim = Math.min(5, Math.max(0, n));
+  return Math.round(lim * 10) / 10;
+}
+
+function parseTotalAvaliacoes(v: any): number {
+  if (v == null || v === '') return 0;
+  const n = typeof v === 'number' ? v : parseInt(String(v).trim(), 10);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
 export function normalizePrecoToString(precoRaw: any): string | null {
   const n = parseNumberFromString(precoRaw);
   return n === null ? (precoRaw != null ? String(precoRaw) : null) : n.toFixed(2);
@@ -151,6 +164,8 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     isbn: raw.isbn ?? null,
     nota_conservacao: parseNotaConservacao(raw.nota_conservacao),
     descricao_conservacao: descricaoConservacao,
+    nota_media_avaliacoes: parseNotaMediaAvaliacoes(raw.nota_media_avaliacoes),
+    total_avaliacoes: parseTotalAvaliacoes(raw.total_avaliacoes),
     imagens,
     estoque,
     estoques: estoquesList.length ? estoquesList : null,

@@ -171,8 +171,52 @@ $space-lg: 24px;
   .autor {
     font-size: 1.05rem;
     color: $muted;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.75rem;
     font-weight: 600;
+  }
+
+  .media-comunidade {
+    margin-bottom: 1.15rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid $border;
+  }
+
+  .media-comunidade__estrelas {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+
+    i {
+      font-size: 1.2rem;
+      color: color.adjust($muted, $lightness: 22%);
+    }
+
+    .media-comunidade__estrela--ativa {
+      color: $warning;
+    }
+  }
+
+  .media-comunidade__resumo {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $text;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .media-comunidade__emoji {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .media-comunidade__total {
+    font-weight: 600;
+    color: $muted;
+    font-size: 0.95rem;
   }
 
   .preco {
@@ -387,9 +431,20 @@ $space-lg: 24px;
   h2 {
     font-size: 2rem;
     margin-top: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.65rem;
     color: $primary;
   }
+}
+
+.resenhas-edicao-aviso {
+  font-size: 0.9rem;
+  color: $muted;
+  line-height: 1.55;
+  margin: 0 0 1.35rem 0;
+  padding: 0.65rem 0.9rem;
+  background: $bg-light;
+  border-radius: 8px;
+  border: 1px solid $border;
 }
 
 .lista-avaliacoes {

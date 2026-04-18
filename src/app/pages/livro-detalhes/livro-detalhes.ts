@@ -495,6 +495,47 @@ export class LivroDetalhes implements OnInit {
     return (this.livro?.descricao_conservacao ?? '').trim();
   }
 
+  getNotaMediaAvaliacoes(): number | null {
+    if (!this.livro) return null;
+    const v = this.livro.nota_media_avaliacoes;
+    if (v === null || v === undefined || v === '') return null;
+    const num = typeof v === 'string' ? parseFloat(v) : Number(v);
+    if (!Number.isFinite(num)) return null;
+    return Math.min(5, Math.max(0, Math.round(num * 10) / 10));
+  }
+
+  getTotalAvaliacoes(): number {
+    if (!this.livro) return 0;
+    const t = this.livro.total_avaliacoes;
+    const n = typeof t === 'number' ? t : parseInt(String(t ?? '').trim(), 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+
+  mostrarBlocoMediaComunidade(): boolean {
+    return this.getNotaMediaAvaliacoes() !== null || this.getTotalAvaliacoes() > 0;
+  }
+
+  getClasseEstrelaMediaComunidade(indice: number): string {
+    const m = this.getNotaMediaAvaliacoes();
+    const baseVazia = 'fa-regular fa-star media-comunidade__estrela';
+    const baseCheia = 'fa-solid fa-star media-comunidade__estrela media-comunidade__estrela--ativa';
+    const baseMeia = 'fa-solid fa-star-half-stroke media-comunidade__estrela media-comunidade__estrela--ativa';
+    if (m === null) return baseVazia;
+    if (indice <= Math.floor(m + 1e-9)) return baseCheia;
+    if (indice - 0.5 <= m + 1e-9 && m < indice) return baseMeia;
+    return baseVazia;
+  }
+
+  getAriaLabelMediaComunidade(): string {
+    const m = this.getNotaMediaAvaliacoes();
+    const t = this.getTotalAvaliacoes();
+    const rotuloContagem = t === 1 ? '1 avaliação' : `${t} avaliações`;
+    if (m !== null) {
+      return `Média ${m} de 5, ${rotuloContagem}`;
+    }
+    return rotuloContagem;
+  }
+
   private atualizarGaleria(): void {
     const imgs = this.livro?.imagens;
     this.imagensGaleria = Array.isArray(imgs)

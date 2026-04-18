@@ -80,6 +80,36 @@ export class LivroCard {
     return this.getNotaConservacao() !== null;
   }
 
+  private getNotaMediaAvaliacoesNumero(): number | null {
+    if (!this.livro) return null;
+    const v = this.livro.nota_media_avaliacoes;
+    if (v === null || v === undefined || v === '') return null;
+    const num = typeof v === 'string' ? parseFloat(v) : Number(v);
+    if (!Number.isFinite(num)) return null;
+    return Math.min(5, Math.max(0, Math.round(num * 10) / 10));
+  }
+
+  private getTotalAvaliacoesNumero(): number {
+    if (!this.livro) return 0;
+    const t = this.livro.total_avaliacoes;
+    const n = typeof t === 'number' ? t : parseInt(String(t ?? '').trim(), 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+
+  exibeNotaComunidade(): boolean {
+    return this.getNotaMediaAvaliacoesNumero() !== null || this.getTotalAvaliacoesNumero() > 0;
+  }
+
+  getNotaMediaComunidadeTexto(): string {
+    const m = this.getNotaMediaAvaliacoesNumero();
+    const t = this.getTotalAvaliacoesNumero();
+    if (m !== null) {
+      const s = m.toFixed(1).replace('.', ',');
+      return `${s} (${t})`;
+    }
+    return String(t);
+  }
+
   adicionarAoCarrinho(): void {
     if (!this.livro || !this.temPreco()) {
       this.mensagemSucesso = '❌ Este livro não está disponível para compra';
