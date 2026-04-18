@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CarrinhoService } from '../../services/carrinho.service';
-import { getImagemUrl as resolverUrlImagemLivro } from '../../utils/livro-utils';
+import { getImagemUrl as resolverUrlImagemLivro, temPreco as temPrecoLivro } from '../../utils/livro-utils';
 
 @Component({
   selector: 'app-livro-card',
@@ -19,21 +19,25 @@ export class LivroCard {
   constructor(private carrinhoService: CarrinhoService) {}
 
   temPreco(): boolean {
-    if (!this.livro) return false;
-    const preco = this.livro.estoque?.preco;
-    if (!preco && preco !== 0) return false;
-    
-    // Converte para número
-    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    
-    // Verifica se é número válido e maior que 0
-    return !isNaN(precoNum) && isFinite(precoNum) && precoNum > 0;
+    return temPrecoLivro(this.livro);
+  }
+
+  private getEstoqueParaExibicao(): any {
+    if (!this.livro) return null;
+    if (Array.isArray(this.livro.estoques) && this.livro.estoques.length) {
+      const d = this.livro.estoques.find((x: any) => x.disponivel);
+      return d || this.livro.estoques[0];
+    }
+    return this.livro.estoque;
   }
 
   getPrecoFormatado(): string {
-    if (!this.livro || !this.livro.estoque?.preco) return '0,00';
-    const preco = this.livro.estoque.preco;
-    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
+    const e = this.getEstoqueParaExibicao();
+    if (!e) return '0,00';
+    const raw = e.preco;
+    if (raw == null || raw === '') return '0,00';
+    const precoNum = typeof raw === 'string' ? parseFloat(raw) : Number(raw);
+    if (!Number.isFinite(precoNum)) return '0,00';
     return precoNum.toFixed(2).replace('.', ',');
   }
 
@@ -86,16 +90,33 @@ export class LivroCard {
       return;
     }
 
-    const preco = this.livro.estoque.preco;
-    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    const idEstoque = Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
+    const e = this.getEstoqueParaExibicao();
+    if (!e?.disponivel) {
+      this.mensagemSucesso = '❌ Este livro não está disponível para compra';
+      this.mostrarMensagem = true;
+      setTimeout(() => {
+        this.mostrarMensagem = false;
+      }, 2000);
+      return;
+    }
 
-    this.carrinhoService.adicionarItem(idEstoque, 1, {
+    const preco = e.preco;
+    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
+    const idEstoque = Number(e.id_estoque);
+    if (!Number.isFinite(idEstoque)) {
+      this.mensagemSucesso = '❌ Este livro não está disponível para compra';
+      this.mostrarMensagem = true;
+      setTimeout(() => {
+        this.mostrarMensagem = false;
+      }, 2000);
+      return;
+    }
+
+    this.carrinhoService.adicionarItem(idEstoque, {
       livroId: String(this.livro.id_livro || this.livro.id),
       titulo: this.livro.titulo || 'Livro sem título',
       autor: this.getAutorNome(),
       preco: precoNum,
-      quantidade: 1,
       imagemUrl: this.getImagemUrl()
     }).subscribe({
       next: () => {

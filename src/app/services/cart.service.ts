@@ -15,7 +15,7 @@ export class CartService {
     return this.http.get(this.apiUrl);
   }
 
-  addItem(id_estoque: string, quantidade: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/items`, { id_estoque, quantidade });
+  addItem(id_estoque: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/items`, { id_estoque });
   }
 }

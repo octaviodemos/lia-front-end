@@ -42,6 +42,7 @@ $cor-borda: #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease;
   gap: 1.5rem;
+  position: relative;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -123,61 +124,6 @@ $cor-borda: #eee;
         font-style: italic;
         animation: pulse 1.5s ease-in-out infinite alternate;
       }
-    }
-  }
-
-  .item-quantidade {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: $cor-fundo-creme;
-    padding: 0.5rem;
-    border-radius: 6px;
-
-    .btn-quantidade {
-      background-color: $cor-principal;
-      color: white;
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.2rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        background-color: color.adjust($cor-principal, $lightness: -10%);
-        transform: scale(1.1);
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      &.btn-desabilitado,
-      &:disabled {
-        background-color: #ccc;
-        color: #999;
-        cursor: not-allowed;
-        transform: none;
-
-        &:hover {
-          background-color: #ccc;
-          transform: none;
-        }
-      }
-    }
-
-    .quantidade-valor {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: $cor-texto;
-      min-width: 30px;
-      text-align: center;
     }
   }
 
@@ -358,10 +304,6 @@ $cor-borda: #eee;
       h3 {
         font-size: 1.1rem;
       }
-    }
-
-    .item-quantidade {
-      align-self: center;
     }
 
     .item-preco {

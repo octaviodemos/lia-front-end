@@ -66,11 +66,10 @@ export class MeusPedidos implements OnInit {
       const items = p.itens_pedido || p.items || p.items_pedido || p.frontend_items;
       try {
         const s = (items || []).reduce((acc: number, it: any) => {
-            const qty = Number(it.quantidade || it.quantity || 1);
             const up = this.tryNumber(it.preco_unitario) ?? this.tryNumber(it.preco) ?? this.tryNumber(it.unit_price) ?? this.tryNumber(it.unit_amount) ?? this.tryNumber(it.amount);
           if (up == null) return acc;
-          if (up > 1000) return acc + (up / 100) * qty;
-          return acc + up * qty;
+          if (up > 1000) return acc + up / 100;
+          return acc + up;
         }, 0);
         if (s > 0) n = Number(s.toFixed(2));
       } catch {

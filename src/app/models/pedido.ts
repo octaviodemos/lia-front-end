@@ -10,7 +10,6 @@ export interface PedidoItemLivroResumo {
 export interface PedidoItem {
   livro?: PedidoItemLivroResumo | null;
   estoque?: { livro?: PedidoItemLivroResumo | null; [k: string]: unknown } | null;
-  quantidade?: number | null;
   [k: string]: unknown;
 }
 

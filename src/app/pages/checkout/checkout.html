@@ -238,8 +238,8 @@
       <h2>Resumo do Pedido</h2>
       <div *ngIf="cart">
         <div *ngFor="let item of cart.items" class="resumo-item">
-          <span>{{ item.livro.titulo }} (x{{ item.quantidade }})</span>
-          <span>R$ {{ (item.preco_unitario * item.quantidade).toFixed(2) }}</span>
+          <span>{{ item.livro.titulo }}</span>
+          <span>R$ {{ item.preco_unitario.toFixed(2) }}</span>
         </div>
         <hr>
         <div class="resumo-total">

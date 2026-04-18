@@ -18,11 +18,6 @@
       <input id="preco" type="number" formControlName="preco">
     </div>
 
-<div class="form-group">
-  <label for="quantidade">Quantidade</label>
-  <input id="quantidade" type="number" formControlName="quantidade">
-</div>
-
     <div class="form-group">
       <label for="condicao">Condição</label>
       <select id="condicao" formControlName="condicao">
@@ -39,4 +34,25 @@
   <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
     {{ mensagemSucesso }}
   </div>
+
+  <section class="lista-estoque" *ngIf="itensLista.length">
+    <h3>Estoque cadastrado</h3>
+    <div class="tabela-estoque">
+      <div class="tabela-estoque__header">
+        <span>ID</span>
+        <span>Livro</span>
+        <span>Preço</span>
+        <span>Status</span>
+      </div>
+      <div class="tabela-estoque__row" *ngFor="let item of itensLista">
+        <span>{{ item.id_estoque ?? item.id ?? '—' }}</span>
+        <span>{{ tituloLivroNaLista(item) }}</span>
+        <span>{{ item.preco != null ? (item.preco | number:'1.2-2') : '—' }}</span>
+        <span>
+          <span class="badge-status badge-status--ok" *ngIf="itemDisponivel(item)">Disponível</span>
+          <span class="badge-status badge-status--off" *ngIf="!itemDisponivel(item)">Vendido</span>
+        </span>
+      </div>
+    </div>
+  </section>
 </div>

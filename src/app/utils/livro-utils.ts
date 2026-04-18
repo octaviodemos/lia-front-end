@@ -28,10 +28,19 @@ export function getAutorNome(livro: any): string {
   return 'Autor desconhecido';
 }
 
-export function temPreco(livro: any): boolean {
-  if (!livro || !livro.estoque) return false;
-  const preco = livro.estoque.preco;
-  if (preco == null && preco !== 0) return false;
+function linhaCompraValida(e: any): boolean {
+  if (!e || e.disponivel === false) return false;
+  const preco = e.preco;
+  if (preco == null || preco === '') return false;
   const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
   return !isNaN(precoNum) && isFinite(precoNum) && precoNum > 0;
+}
+
+export function temPreco(livro: any): boolean {
+  if (!livro) return false;
+  if (Array.isArray(livro.estoques) && livro.estoques.length > 0) {
+    return livro.estoques.some((e: any) => linhaCompraValida(e));
+  }
+  if (livro.estoque) return linhaCompraValida(livro.estoque);
+  return false;
 }

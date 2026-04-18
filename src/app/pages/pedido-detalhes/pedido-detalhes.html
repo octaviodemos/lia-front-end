@@ -37,9 +37,7 @@
         <thead>
           <tr>
             <th>Produto</th>
-            <th class="center">Qtd</th>
-            <th class="right">Unitário</th>
-            <th class="right">Subtotal</th>
+            <th class="right">Valor</th>
           </tr>
         </thead>
         <tbody>
@@ -48,9 +46,7 @@
               <div class="prod-title">{{ it.__produto?.titulo || it.estoque?.livro?.titulo || it.nome || it.description || it.title || it.product_name || it.livro?.titulo }}</div>
               <div class="prod-sub">{{ it.__produto?.autor || it.estoque?.livro?.autor || it.autor || it.author || it.livro?.autor || '' }}</div>
             </td>
-            <td class="center">{{ it.__quantity ?? it.quantidade ?? it.quantity ?? 1 }}</td>
-            <td class="right">{{ formatBRLSafe( (it.preco_unitario != null) ? it.preco_unitario : (it.__unitPrice != null ? it.__unitPrice : (it.preco_unitario_cents != null ? it.preco_unitario_cents/100 : null)) ) || '—' }}</td>
-            <td class="right">{{ formatBRLSafe( ( (it.preco_unitario != null) ? it.preco_unitario : (it.__unitPrice != null ? it.__unitPrice : (it.preco_unitario_cents != null ? it.preco_unitario_cents/100 : null)) ) * (it.quantidade ?? it.__quantity ?? 1) ) || '—' }}</td>
+            <td class="right">{{ formatBRLSafe( it.__subtotal ?? it.__unitPrice ?? (it.preco_unitario != null ? it.preco_unitario : (it.preco_unitario_cents != null ? it.preco_unitario_cents/100 : null)) ) || '—' }}</td>
           </tr>
         </tbody>
       </table>

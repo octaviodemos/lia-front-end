@@ -328,10 +328,9 @@ export class PedidoDetalhes implements OnInit {
       const items = p.itens_pedido || p.items || p.items_pedido || p.frontend_items || p.itens;
       try {
         const s = (items || []).reduce((acc: number, it: any) => {
-          const qty = Number(it.quantidade || it.quantity || it.qty || 1);
           const up = tryNumberMaybeCents(it.preco_unitario ?? it.preco ?? it.unit_price ?? it.price ?? it.unit_amount ?? it.amount_total ?? it.unit_amount_cents ?? it.valor);
           if (up == null) return acc;
-          return acc + up * qty;
+          return acc + up;
         }, 0);
         if (s > 0) n = Number(s.toFixed(2));
       } catch {
@@ -420,8 +419,6 @@ export class PedidoDetalhes implements OnInit {
     };
 
     for (const it of items) {
-      const qty = Number(it.quantidade ?? it.quantity ?? it.qty ?? 1) || 1;
-
       // Determine unit price in BRL (float)
       let up: number | null = null;
       if (it.unit_amount != null) up = tryNumberMaybeCents(it.unit_amount);
@@ -449,9 +446,8 @@ export class PedidoDetalhes implements OnInit {
         up = tryNumberMaybeCents(it.estoque.preco);
       }
 
-      it.__quantity = qty;
-      it.__unitPrice = up ?? null; // may be null
-      it.__subtotal = (it.__unitPrice != null) ? Number((it.__unitPrice * qty).toFixed(2)) : null;
+      it.__unitPrice = up ?? null;
+      it.__subtotal = it.__unitPrice != null ? Number(it.__unitPrice.toFixed(2)) : null;
     }
     // after normalizing numeric values, try to fetch product details for items that reference a book/product
     this.fetchProductsForItems(items).catch(e => {

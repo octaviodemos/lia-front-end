@@ -15,6 +15,7 @@ export class AdminEstoque implements OnInit {
 
   estoqueForm!: FormGroup;
   livrosDoCatalogo: any[] = [];
+  itensLista: any[] = [];
   mensagemSucesso: string = '';
 
   constructor(
@@ -25,11 +26,11 @@ export class AdminEstoque implements OnInit {
 
   ngOnInit(): void {
     this.carregarLivrosDoCatalogo();
+    this.carregarListaEstoque();
 
     this.estoqueForm = this.fb.group({
       id_livro: [null, Validators.required],
       preco: [null, [Validators.required, Validators.min(0)]],
-      quantidade: [1, [Validators.required, Validators.min(1)]],
       condicao: ['novo', Validators.required]
     });
   }
@@ -41,20 +42,33 @@ export class AdminEstoque implements OnInit {
     });
   }
 
+  carregarListaEstoque(): void {
+    this.estoqueService.listarEstoque().subscribe({
+      next: (res: any) => {
+        const arr = Array.isArray(res) ? res : (res?.data ?? res?.items ?? res?.estoques ?? []);
+        this.itensLista = Array.isArray(arr) ? arr : [];
+      },
+      error: () => {
+        this.itensLista = [];
+      }
+    });
+  }
+
   onSubmit(): void {
     if (this.estoqueForm.valid) {
       const formValue = this.estoqueForm.value;
       const payload = {
         id_livro: formValue.id_livro,
         preco: parseFloat(formValue.preco).toFixed(2),
-        quantidade: parseInt(formValue.quantidade),
-        condicao: formValue.condicao
+        condicao: formValue.condicao,
+        disponivel: true
       };
       
       this.estoqueService.adicionarItemEstoque(payload).subscribe({
-        next: (response: any) => {
+        next: () => {
           this.mensagemSucesso = 'Item adicionado ao estoque com sucesso!';
-          this.estoqueForm.reset({ quantidade: 1, condicao: 'novo' });
+          this.estoqueForm.reset({ id_livro: null, preco: null, condicao: 'novo' });
+          this.carregarListaEstoque();
         },
         error: (err: any) => {
           console.error('Erro:', err);
@@ -66,5 +80,14 @@ export class AdminEstoque implements OnInit {
         }
       });
     }
+  }
+
+  tituloLivroNaLista(item: any): string {
+    return item?.livro?.titulo || item?.titulo_livro || item?.livro_titulo || `Livro #${item?.id_livro ?? '—'}`;
+  }
+
+  itemDisponivel(item: any): boolean {
+    const v = item?.disponivel;
+    return v === true || v === 'true' || v === 1 || v === '1';
   }
 }

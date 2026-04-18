@@ -18,53 +18,16 @@
         <h3>{{ item.titulo }}</h3>
         <p class="item-autor">{{ item.autor }}</p>
         <p class="item-preco-unitario">R$ {{ formatarPreco(item.preco) }}</p>
-        
-        <!-- Informação de estoque -->
-        <div class="item-estoque">
-          <span class="estoque-info" 
-                *ngIf="getEstoqueDisponivel(item.livroId) > 0"
-                [class.estoque-baixo]="getEstoqueDisponivel(item.livroId) < 5"
-                [class.estoque-muito-baixo]="getEstoqueDisponivel(item.livroId) <= item.quantidade">
-            📦 {{ getEstoqueDisponivel(item.livroId) }} disponíveis
-          </span>
-          <span class="estoque-aviso" 
-                *ngIf="getEstoqueDisponivel(item.livroId) > 0 && getEstoqueDisponivel(item.livroId) <= item.quantidade">
-            ⚠️ Última(s) unidade(s)
-          </span>
-          <span class="estoque-carregando" 
-                *ngIf="getEstoqueDisponivel(item.livroId) === 0">
-            🔄 Carregando estoque...
-          </span>
-        </div>
-      </div>
-
-      <div class="item-quantidade">
-        <button 
-          class="btn-quantidade" 
-          (click)="decrementarQuantidade(item.livroId, item.quantidade)"
-          [attr.aria-label]="'Diminuir quantidade de ' + item.titulo">
-          -
-        </button>
-        <span class="quantidade-valor">{{ item.quantidade }}</span>
-        <button 
-          class="btn-quantidade" 
-          (click)="incrementarQuantidade(item.livroId, item.quantidade)"
-          [attr.aria-label]="'Aumentar quantidade de ' + item.titulo"
-          [disabled]="!podeIncrementar(item.livroId)"
-          [class.btn-desabilitado]="!podeIncrementar(item.livroId)"
-          [attr.title]="!podeIncrementar(item.livroId) ? 'Estoque esgotado' : 'Adicionar mais um'">
-          +
-        </button>
       </div>
 
       <div class="item-preco">
-        <strong>R$ {{ formatarPreco(item.preco * item.quantidade) }}</strong>
+        <strong>R$ {{ formatarPreco(item.preco) }}</strong>
       </div>
 
       <div class="item-remover">
         <button 
           class="btn-remover"
-          (click)="removerItem(item.livroId)"
+          (click)="removerItem(item)"
           [attr.aria-label]="'Remover ' + item.titulo"
           [attr.title]="'Remover ' + item.titulo">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -11,6 +11,7 @@ import { getGeneroLabel as getGeneroLabelFn, getImagemUrl as getImagemUrlFn, get
 import { rotuloTipoImagemLegivel } from '../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../utils/media-url';
 import type { LivroImagem } from '../../models/livro-imagem';
+import type { Estoque } from '../../models/livro';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
 
 const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
@@ -35,6 +36,7 @@ export class LivroDetalhes implements OnInit {
   mensagemSucesso: string = '';
   imagensGaleria: LivroImagem[] = [];
   indiceGaleria = 0;
+  idEstoqueSelecionado: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -58,6 +60,7 @@ export class LivroDetalhes implements OnInit {
     ).subscribe({
       next: (data: any) => {
         this.livro = data;
+        this.inicializarSelecaoEstoque();
         this.atualizarGaleria();
       },
       error: () => {}
@@ -397,6 +400,60 @@ export class LivroDetalhes implements OnInit {
     return temPrecoFn(this.livro);
   }
 
+  getOpcoesEstoque(): Estoque[] {
+    if (!this.livro) return [];
+    if (Array.isArray(this.livro.estoques) && this.livro.estoques.length) {
+      return this.livro.estoques as Estoque[];
+    }
+    if (this.livro.estoque) {
+      return [this.livro.estoque as Estoque];
+    }
+    return [];
+  }
+
+  private inicializarSelecaoEstoque(): void {
+    const opts = this.getOpcoesEstoque();
+    const first = opts.find((o) => o.disponivel) || opts[0];
+    this.idEstoqueSelecionado = first?.id_estoque != null ? Number(first.id_estoque) : null;
+  }
+
+  getEstoqueSelecionado(): Estoque | null {
+    const opts = this.getOpcoesEstoque();
+    if (!opts.length) return null;
+    const id = this.idEstoqueSelecionado;
+    if (id != null) {
+      const found = opts.find((o) => Number(o.id_estoque) === id);
+      if (found) return found;
+    }
+    return opts[0];
+  }
+
+  onChangeEstoqueSelecionado(ev: Event): void {
+    const v = Number((ev.target as HTMLSelectElement).value);
+    this.idEstoqueSelecionado = Number.isFinite(v) ? v : null;
+  }
+
+  formatOpcaoEstoque(e: Estoque): string {
+    const p = e.preco != null && e.preco !== '' ? `R$ ${e.preco}` : '—';
+    return `${p} — ${e.disponivel ? 'Disponível' : 'Vendido'}`;
+  }
+
+  getPrecoSelecionadoNumero(): number | null {
+    const e = this.getEstoqueSelecionado();
+    if (!e) return null;
+    const raw = e.preco;
+    if (raw == null || raw === '') return null;
+    const n = typeof raw === 'string' ? parseFloat(raw) : Number(raw);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return n;
+  }
+
+  podeAdicionarAoCarrinho(): boolean {
+    const e = this.getEstoqueSelecionado();
+    if (!e || !e.disponivel) return false;
+    return this.getPrecoSelecionadoNumero() !== null;
+  }
+
   getAutorNome(): string {
     return getAutorNomeFn(this.livro);
   }
@@ -488,7 +545,7 @@ export class LivroDetalhes implements OnInit {
     const cartItem = this.createCartItem();
     const idEstoque = this.getEstoqueId();
 
-    this.carrinhoService.adicionarItem(idEstoque, 1, cartItem).subscribe({
+    this.carrinhoService.adicionarItem(idEstoque, cartItem).subscribe({
       next: () => this.showCartSuccessMessage(),
       error: () => this.showCartSuccessMessage() // Fallback sempre mostra sucesso
     });
@@ -499,7 +556,7 @@ export class LivroDetalhes implements OnInit {
       return '❌ Erro: livro não encontrado';
     }
 
-    if (!this.temPreco()) {
+    if (!this.podeAdicionarAoCarrinho()) {
       return '❌ Este livro não está disponível para compra';
     }
 
@@ -507,21 +564,22 @@ export class LivroDetalhes implements OnInit {
   }
 
   private createCartItem(): any {
-    const preco = this.livro.estoque.preco;
-    const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
+    const e = this.getEstoqueSelecionado();
+    const precoNum = this.getPrecoSelecionadoNumero() ?? 0;
 
     return {
       livroId: String(this.livro.id_livro || this.livro.id),
       titulo: this.livro.titulo || 'Livro sem título',
       autor: this.getAutorNome(),
       preco: precoNum,
-      quantidade: 1,
-      imagemUrl: this.getImagemUrl()
+      imagemUrl: this.getImagemUrl(),
+      estoqueId: e?.id_estoque != null ? Number(e.id_estoque) : undefined
     };
   }
 
   private getEstoqueId(): number {
-    return Number(this.livro.estoque?.id_estoque || this.livro.id_livro);
+    const id = this.idEstoqueSelecionado ?? this.getEstoqueSelecionado()?.id_estoque;
+    return Number(id);
   }
 
   private showErrorMessage(message: string): void {

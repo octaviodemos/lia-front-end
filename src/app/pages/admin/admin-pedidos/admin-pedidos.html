@@ -27,8 +27,7 @@
           <div class="itens-header">
             <div class="col-thumb"></div>
             <div class="col-title">Título</div>
-            <div class="col-qtd">Qtd.</div>
-            <div class="col-preco">Preço</div>
+            <div class="col-preco">Valor</div>
           </div>
 
           <div *ngFor="let item of pedido.itens" class="itens-row">
@@ -36,7 +35,6 @@
               <img *ngIf="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" [src]="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" alt="capa" />
             </div>
             <div class="col-title">{{ item.estoque?.livro?.titulo || 'Livro' }}</div>
-            <div class="col-qtd">{{ item.quantidade }}</div>
             <div class="col-preco">R$ {{ item.preco_unitario | number:'1.2-2' }}</div>
           </div>
         </div>

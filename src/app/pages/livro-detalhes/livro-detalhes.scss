@@ -179,13 +179,60 @@ $space-lg: 24px;
     font-size: 2rem;
     font-weight: 700;
     color: $primary;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 
     &.no-price {
       color: #999;
       font-size: 1.5rem;
       font-style: italic;
     }
+  }
+
+  .estoque-disponibilidade {
+    margin-bottom: 1rem;
+  }
+
+  .tag-estoque {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .tag-estoque--ok {
+    background: color.adjust($success, $lightness: 48%);
+    color: color.adjust($success, $lightness: -35%);
+    border: 1px solid color.adjust($success, $lightness: 25%);
+  }
+
+  .tag-estoque--vendido {
+    background: #f1f1f1;
+    color: $muted;
+    border: 1px solid $border;
+  }
+
+  .estoque-seletor {
+    margin-bottom: 1.25rem;
+  }
+
+  .estoque-seletor__label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: $text;
+    margin-bottom: 0.35rem;
+  }
+
+  .estoque-seletor__select {
+    width: 100%;
+    max-width: 22rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid $border;
+    font-size: 0.95rem;
+    background: #fff;
+    color: $text;
   }
 
   .conservacao-fisica {

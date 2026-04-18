@@ -60,12 +60,11 @@ export class Checkout implements OnInit {
       next: (items: any[]) => {
         const mappedItems = items.map(i => ({
           livro: { titulo: i.titulo || i.title || i.nome },
-          quantidade: i.quantidade || i.quantity || 1,
           preco_unitario: i.preco || i.price || i.valor || i.preco_unitario || 0
         }));
         
         const total = mappedItems.reduce((s, it) => 
-          s + (it.preco_unitario * it.quantidade), 0
+          s + it.preco_unitario, 0
         );
         
         this.cart = { items: mappedItems, total };
@@ -145,10 +144,6 @@ export class Checkout implements OnInit {
 
 
     // Logs de depuração adicional: mostrar itens e total calculados localmente
-    if (dadosComprador.frontend_items) {
-      const soma = dadosComprador.frontend_items.reduce((s: number, it: any) => s + (Number(it.unit_price) * Number(it.quantity)), 0);
-    }
-
     // Criar sessão de checkout via Stripe (backend: espera userId e email)
     // Criar sessão de checkout via Stripe (backend: autentica via JWT; não envie userId)
     this.pagamentoService.criarCheckoutStripe(dadosComprador).subscribe({

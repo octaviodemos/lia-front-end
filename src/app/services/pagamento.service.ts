@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 export interface ItemPagamento {
   id: string;
   title: string;
-  quantity: number;
   unit_price: number;
   description: string;
 }

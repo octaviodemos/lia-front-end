@@ -11,6 +11,10 @@ export class EstoqueService {
 
   constructor(private http: HttpClient) { }
 
+  listarEstoque(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stock`);
+  }
+
   adicionarItemEstoque(itemData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/stock`, itemData);
   }

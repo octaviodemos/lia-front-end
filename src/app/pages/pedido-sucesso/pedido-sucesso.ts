@@ -260,11 +260,10 @@ export class PedidoSucesso implements OnInit {
       const items = order.itens_pedido || order.items || order.items_pedido;
       try {
         const s = (items || []).reduce((acc: number, it: any) => {
-          const qty = Number(it.quantidade || it.quantity || 1);
           const up = tryNumber(it.preco_unitario) ?? tryNumber(it.preco) ?? tryNumber(it.unit_price) ?? tryNumber(it.unit_amount) ?? tryNumber(it.amount);
           if (up == null) return acc;
-          if (up > 1000) return acc + (up / 100) * qty;
-          return acc + up * qty;
+          if (up > 1000) return acc + up / 100;
+          return acc + up;
         }, 0);
         if (s > 0) n = Number(s.toFixed(2));
       } catch {

@@ -21,50 +21,61 @@ export function normalizePrecoToString(precoRaw: any): string | null {
   return n === null ? (precoRaw != null ? String(precoRaw) : null) : n.toFixed(2);
 }
 
-export function extractPrimaryEstoque(raw: LivroRaw): Estoque | null {
-  if (!raw) return null;
+function coerceDisponivel(v: unknown): boolean {
+  if (v === true || v === 'true' || v === 1 || v === '1') return true;
+  if (v === false || v === 'false' || v === 0 || v === '0') return false;
+  return true;
+}
 
+function mapLinhaEstoque(rawLivroId: number, row: any): Estoque {
+  return {
+    id_estoque: row?.id_estoque != null ? Number(row.id_estoque) : null,
+    id_livro: row?.id_livro != null ? Number(row.id_livro) : Number(rawLivroId),
+    disponivel: coerceDisponivel(row?.disponivel),
+    preco: normalizePrecoToString(row?.preco ?? null),
+    condicao: row?.condicao ?? null
+  };
+}
 
-  if (raw.preco != null || raw.id_estoque != null) {
-    const result = {
-      id_estoque: raw.id_estoque ?? null,
-      preco: normalizePrecoToString(raw.preco ?? null)
-    } as Estoque;
-    return result;
+export function extractEstoquesFromRaw(raw: LivroRaw): Estoque[] {
+  if (!raw) return [];
+
+  if (raw.id_estoque != null || raw.preco != null) {
+    return [
+      {
+        id_estoque: raw.id_estoque != null ? Number(raw.id_estoque) : null,
+        id_livro: raw.id_livro,
+        disponivel: true,
+        preco: normalizePrecoToString(raw.preco ?? null),
+        condicao: null
+      }
+    ];
   }
 
   const e = raw.estoque;
-  if (!e) {
-    return null;
-  }
-  
+  if (!e) return [];
+
   if (Array.isArray(e)) {
-      if (e.length === 0) {
-      return null;
-    }
-    const first = e[0];
-    const result = {
-      id_estoque: first.id_estoque ?? null,
-      id_livro: first.id_livro ?? null,
-      quantidade: first.quantidade ?? null,
-      preco: normalizePrecoToString(first.preco ?? null),
-      condicao: first.condicao ?? null
-    } as Estoque;
-    return result;
+    if (e.length === 0) return [];
+    return e.map((row: any) => mapLinhaEstoque(raw.id_livro, row));
   }
 
-  const result = {
-    id_estoque: e.id_estoque ?? null,
-    id_livro: e.id_livro ?? null,
-    quantidade: e.quantidade ?? null,
-    preco: normalizePrecoToString(e.preco ?? null),
-    condicao: e.condicao ?? null
-  } as Estoque;
-  return result;
+  return [mapLinhaEstoque(raw.id_livro, e)];
+}
+
+export function pickPrimaryEstoque(estoques: Estoque[]): Estoque | null {
+  if (!estoques.length) return null;
+  const livre = estoques.find((x) => x.disponivel);
+  return livre ?? estoques[0];
+}
+
+export function extractPrimaryEstoque(raw: LivroRaw): Estoque | null {
+  return pickPrimaryEstoque(extractEstoquesFromRaw(raw));
 }
 
 export function normalizeLivro(raw: LivroRaw): Livro {
-  const estoque = extractPrimaryEstoque(raw);
+  const estoquesList = extractEstoquesFromRaw(raw);
+  const estoque = pickPrimaryEstoque(estoquesList);
 
   let generosArray: any[] | null = null;
     let autoresArray: any[] | null = null;
@@ -142,6 +153,7 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     descricao_conservacao: descricaoConservacao,
     imagens,
     estoque,
+    estoques: estoquesList.length ? estoquesList : null,
     generos: generosArray ?? [],
     autores: autoresArray ?? []
   } as Livro;

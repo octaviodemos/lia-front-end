@@ -5,7 +5,7 @@ export type { LivroImagem } from './livro-imagem';
 export interface Estoque {
   id_estoque: number | null;
   id_livro?: number | null;
-  quantidade?: number | null;
+  disponivel: boolean;
   preco?: string | null;
   condicao?: string | null;
 }
@@ -48,6 +48,7 @@ export interface Livro {
   descricao_conservacao?: string | null;
   imagens?: LivroImagem[] | null;
   estoque?: Estoque | null;
+  estoques?: Estoque[] | null;
   generos?: Genero[] | null;
   autores?: Autor[] | null;
 }

@@ -91,10 +91,7 @@ export class Header implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (itens: ItemCarrinho[]) => {
-          this.cartItemCount = itens.reduce(
-            (total: number, item: ItemCarrinho) => total + item.quantidade, 
-            0
-          );
+          this.cartItemCount = itens.length;
         },
         error: (err: Error) => {
           console.error('Erro ao observar carrinho:', err);

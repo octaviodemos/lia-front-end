@@ -16,3 +16,66 @@
   color: #0f5132;
   border-radius: 5px;
 }
+
+.lista-estoque {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e6ed;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    color: #333;
+  }
+}
+
+.tabela-estoque {
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tabela-estoque__header,
+.tabela-estoque__row {
+  display: grid;
+  grid-template-columns: 72px 1fr 100px 120px;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 1rem;
+}
+
+.tabela-estoque__header {
+  font-weight: 700;
+  background: #f4f7fa;
+  color: #333;
+  border-bottom: 1px solid #e0e6ed;
+}
+
+.tabela-estoque__row {
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 0.95rem;
+  color: #444;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-status--ok {
+  background: #d1f4e0;
+  color: #0f5132;
+}
+
+.badge-status--off {
+  background: #fdeaea;
+  color: #842029;
+}
