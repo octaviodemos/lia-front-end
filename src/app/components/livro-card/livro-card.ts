@@ -62,6 +62,20 @@ export class LivroCard {
     return resolverUrlImagemLivro(this.livro);
   }
 
+  getNotaConservacao(): number | null {
+    if (!this.livro) return null;
+    const bruto = this.livro.nota_conservacao;
+    const n = typeof bruto === 'string' ? parseFloat(bruto) : Number(bruto);
+    if (!Number.isFinite(n)) return null;
+    const arredondada = Math.round(n);
+    if (arredondada < 1 || arredondada > 5) return null;
+    return arredondada;
+  }
+
+  exibeBadgeConservacao(): boolean {
+    return this.getNotaConservacao() !== null;
+  }
+
   adicionarAoCarrinho(): void {
     if (!this.livro || !this.temPreco()) {
       this.mensagemSucesso = '❌ Este livro não está disponível para compra';

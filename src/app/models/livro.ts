@@ -25,6 +25,8 @@ export interface LivroRaw {
   editora?: string | null;
   ano_publicacao?: number | null;
   isbn?: string | null;
+  nota_conservacao?: number | string | null;
+  descricao_conservacao?: string | null;
   imagens?: LivroImagem[] | null;
   estoque?: any; 
   preco?: any; 
@@ -42,6 +44,8 @@ export interface Livro {
   editora?: string | null;
   ano_publicacao?: number | null;
   isbn?: string | null;
+  nota_conservacao?: number | null;
+  descricao_conservacao?: string | null;
   imagens?: LivroImagem[] | null;
   estoque?: Estoque | null;
   generos?: Genero[] | null;

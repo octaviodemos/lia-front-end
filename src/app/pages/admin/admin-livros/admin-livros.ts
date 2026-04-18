@@ -34,7 +34,9 @@ export class AdminLivros implements OnInit {
       sinopse: [''],
       editora: [''],
       ano_publicacao: [null],
-      isbn: ['']
+      isbn: [''],
+      nota_conservacao: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
+      descricao_conservacao: ['']
     });
   }
 
@@ -84,9 +86,23 @@ export class AdminLivros implements OnInit {
       const formData = new FormData();
       Object.keys(this.livroForm.value).forEach((key) => {
         const value = this.livroForm.value[key];
-        if (value !== null && value !== '') {
-          formData.append(key, value);
+        if (value === null || value === undefined || value === '') {
+          return;
         }
+        if (key === 'descricao_conservacao') {
+          if (typeof value !== 'string') {
+            return;
+          }
+          const cortado = value.trim();
+          if (!cortado) {
+            return;
+          }
+          formData.append(key, cortado);
+          return;
+        }
+        const payload =
+          typeof value === 'number' || typeof value === 'boolean' ? String(value) : value;
+        formData.append(key, payload as string | Blob);
       });
       anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
       this.livroService.criarLivro(formData).subscribe({

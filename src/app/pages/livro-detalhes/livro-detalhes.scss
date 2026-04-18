@@ -187,6 +187,74 @@ $space-lg: 24px;
       font-style: italic;
     }
   }
+
+  .conservacao-fisica {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid $border;
+    border-radius: $card-radius;
+    background-color: $bg-light;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.04);
+  }
+
+  .conservacao-fisica__titulo {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: $primary;
+  }
+
+  .conservacao-fisica__estrelas {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+
+    i {
+      font-size: 1.5rem;
+      color: color.adjust($muted, $lightness: 25%);
+    }
+
+    .conservacao-fisica__estrela--ativa {
+      color: $warning;
+    }
+  }
+
+  .conservacao-fisica__nota-numero {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: $text;
+  }
+
+  .conservacao-fisica__novo {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: color.adjust($success, $lightness: -12%);
+  }
+
+  .conservacao-fisica__observacoes {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid color.adjust($warning, $lightness: 22%);
+    background: color.adjust($warning, $lightness: 42%);
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: color.adjust($text, $lightness: -5%);
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.65;
+      color: $text;
+      font-weight: 600;
+    }
+  }
 }
 
 .botoes-acao {

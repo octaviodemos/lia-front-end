@@ -1,10 +1,29 @@
 @use 'mixins/admin-styles' as *;
 
+$admin-muted-text: #6c757d;
+
 .admin-container {
   @include admin-page-container;
   
   form {
     @include admin-form;
+
+    .conservacao__legenda {
+      list-style: disc;
+      margin: 0.5rem 0 0;
+      padding-left: 1.25rem;
+      font-size: 0.875rem;
+      color: $admin-muted-text;
+      line-height: 1.45;
+
+      li {
+        margin: 0.15rem 0;
+      }
+
+      strong {
+        color: #495057;
+      }
+    }
   }
 }
 

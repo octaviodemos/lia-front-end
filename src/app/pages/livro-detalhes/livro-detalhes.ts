@@ -409,6 +409,35 @@ export class LivroDetalhes implements OnInit {
     return getImagemUrlFn(this.livro);
   }
 
+  getNotaConservacao(): number | null {
+    if (!this.livro) return null;
+    const n = this.livro.nota_conservacao;
+    if (n === null || n === undefined) return null;
+    const num = typeof n === 'string' ? parseFloat(n) : Number(n);
+    if (!Number.isFinite(num)) return null;
+    const arredondada = Math.round(num);
+    if (arredondada < 1 || arredondada > 5) return null;
+    return arredondada;
+  }
+
+  mostrarSecaoConservacao(): boolean {
+    return this.getNotaConservacao() !== null;
+  }
+
+  ehConservacaoNotaMaxima(): boolean {
+    return this.getNotaConservacao() === 5;
+  }
+
+  mostrarObservacoesEstadoFisico(): boolean {
+    const n = this.getNotaConservacao();
+    const texto = (this.livro?.descricao_conservacao ?? '').trim();
+    return n !== null && n < 5 && texto.length > 0;
+  }
+
+  getDescricaoConservacao(): string {
+    return (this.livro?.descricao_conservacao ?? '').trim();
+  }
+
   private atualizarGaleria(): void {
     const imgs = this.livro?.imagens;
     this.imagensGaleria = Array.isArray(imgs)

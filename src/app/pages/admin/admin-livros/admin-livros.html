@@ -19,6 +19,31 @@
       <input id="ano_publicacao" type="number" formControlName="ano_publicacao">
     </div>
 
+    <div class="form-group conservacao">
+      <label for="nota_conservacao">Nota de Conservação</label>
+      <select id="nota_conservacao" formControlName="nota_conservacao">
+        <option *ngFor="let n of [1,2,3,4,5]" [ngValue]="n">{{ n }} — {{
+          n === 5 ? 'Perfeito / Novo' :
+          n === 4 ? 'Leves marcas' :
+          n === 3 ? 'Marcas de uso visíveis' :
+          n === 2 ? 'Danos na capa ou lombada' :
+          'Danos severos ou faltantes'
+        }}</option>
+      </select>
+      <ul class="conservacao__legenda" aria-label="Legenda da nota de conservação">
+        <li><strong>5</strong> = Perfeito/Novo</li>
+        <li><strong>4</strong> = Leves marcas</li>
+        <li><strong>3</strong> = Marcas de uso visíveis</li>
+        <li><strong>2</strong> = Danos na capa/lombada</li>
+        <li><strong>1</strong> = Danos severos/Faltantes</li>
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label for="descricao_conservacao">Descrição do estado (opcional)</label>
+      <textarea id="descricao_conservacao" formControlName="descricao_conservacao" rows="3" placeholder="Detalhes visíveis, páginas soltas, carimbos, etc."></textarea>
+    </div>
+
     <div class="form-group imagens-grid">
       <span class="imagens-grid__titulo">Imagens do livro</span>
       <p class="imagens-grid__intro">Um arquivo por tipo (imagem_Capa, imagem_Contracapa, imagem_Lombada, etc.).</p>

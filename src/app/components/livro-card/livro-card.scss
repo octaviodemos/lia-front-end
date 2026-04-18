@@ -70,6 +70,23 @@ $cor-borda: #eee;
   }
 }
 
+.card-badge-conservacao {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: color.adjust($cor-principal, $alpha: -0.12);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  line-height: 1.2;
+  max-width: calc(100% - 1rem);
+  text-align: right;
+}
+
 .card-info {
   padding: 1rem;
 }

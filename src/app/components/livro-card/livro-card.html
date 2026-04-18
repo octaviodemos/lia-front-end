@@ -7,6 +7,9 @@
   <a [routerLink]="['/livro', livro.id_livro]" class="card-link-main">
     <div class="card-image">
       <img [src]="getImagemUrl()" [alt]="livro.titulo" [title]="livro.titulo">
+      <span class="card-badge-conservacao" *ngIf="exibeBadgeConservacao()">
+        ⭐ {{ getNotaConservacao() }}/5
+      </span>
     </div>
     <div class="card-info">
       <h3 class="card-title">{{ livro.titulo }}</h3>

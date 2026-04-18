@@ -8,6 +8,14 @@ function parseNumberFromString(v: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function parseNotaConservacao(v: any): number | null {
+  const n = parseNumberFromString(v);
+  if (n === null) return null;
+  const arredondada = Math.round(n);
+  if (arredondada < 1 || arredondada > 5) return null;
+  return arredondada;
+}
+
 export function normalizePrecoToString(precoRaw: any): string | null {
   const n = parseNumberFromString(precoRaw);
   return n === null ? (precoRaw != null ? String(precoRaw) : null) : n.toFixed(2);
@@ -119,6 +127,10 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     }
   }
 
+  const descricaoConservacao = raw.descricao_conservacao != null
+    ? String(raw.descricao_conservacao).trim() || null
+    : null;
+
   return {
     id_livro: raw.id_livro,
     titulo: raw.titulo,
@@ -126,6 +138,8 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     editora: raw.editora ?? null,
     ano_publicacao: raw.ano_publicacao ?? null,
     isbn: raw.isbn ?? null,
+    nota_conservacao: parseNotaConservacao(raw.nota_conservacao),
+    descricao_conservacao: descricaoConservacao,
     imagens,
     estoque,
     generos: generosArray ?? [],

@@ -44,6 +44,19 @@
       
       <p class="preco" *ngIf="temPreco()">R$ {{ livro.estoque.preco | number:'1.2-2' }}</p>
       <p class="preco no-price" *ngIf="!temPreco()">Preço sob consulta</p>
+
+      <div class="conservacao-fisica" *ngIf="mostrarSecaoConservacao()">
+        <h2 class="conservacao-fisica__titulo">Estado de conservação</h2>
+        <div class="conservacao-fisica__estrelas" role="img" [attr.aria-label]="'Nota de conservação ' + getNotaConservacao() + ' de 5'">
+          <i *ngFor="let n of [1,2,3,4,5]" [ngClass]="n <= (getNotaConservacao() || 0) ? 'fa-solid fa-star conservacao-fisica__estrela--ativa' : 'fa-regular fa-star conservacao-fisica__estrela'"></i>
+        </div>
+        <p class="conservacao-fisica__nota-numero" *ngIf="!ehConservacaoNotaMaxima()">{{ getNotaConservacao() }}/5</p>
+        <p class="conservacao-fisica__novo" *ngIf="ehConservacaoNotaMaxima()">Livro em estado de novo</p>
+        <div class="conservacao-fisica__observacoes" *ngIf="mostrarObservacoesEstadoFisico()">
+          <h3>Observações sobre o estado físico:</h3>
+          <p>{{ getDescricaoConservacao() }}</p>
+        </div>
+      </div>
       
       <div class="botoes-acao">
         <button class="btn-adicionar" (click)="adicionarAoCarrinho()" [title]="'Adicionar ' + livro.titulo + ' ao carrinho'" [disabled]="!temPreco()">
