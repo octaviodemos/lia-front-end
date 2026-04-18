@@ -11,7 +11,7 @@ import { getGeneroLabel as getGeneroLabelFn, getImagemUrl as getImagemUrlFn, get
 import { rotuloTipoImagemLegivel } from '../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../utils/media-url';
 import type { LivroImagem } from '../../models/livro-imagem';
-import type { Estoque } from '../../models/livro';
+import type { Estoque, Livro } from '../../models/livro';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
 
 const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
@@ -534,6 +534,59 @@ export class LivroDetalhes implements OnInit {
       return `Média ${m} de 5, ${rotuloContagem}`;
     }
     return rotuloContagem;
+  }
+
+  getOutrasOpcoes(): Livro[] {
+    const arr = this.livro?.outras_opcoes;
+    if (!Array.isArray(arr) || !arr.length) return [];
+    const idAtual = this.livro?.id_livro;
+    return arr.filter((o) => o && o.id_livro != null && Number(o.id_livro) !== Number(idAtual));
+  }
+
+  temOutrasOpcoes(): boolean {
+    return this.getOutrasOpcoes().length > 0;
+  }
+
+  getImagemUrlOpcao(alvo: Livro): string {
+    return getImagemUrlFn(alvo as any);
+  }
+
+  getPrecoNumeroDeLivro(alvo: Livro): number | null {
+    const est = alvo.estoque;
+    if (!est) return null;
+    const raw = est.preco;
+    if (raw == null || raw === '') return null;
+    const n = typeof raw === 'string' ? parseFloat(raw) : Number(raw);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return n;
+  }
+
+  formatoPrecoOpcao(alvo: Livro): string {
+    const n = this.getPrecoNumeroDeLivro(alvo);
+    if (n === null) return 'Sob consulta';
+    return 'R$ ' + n.toFixed(2).replace('.', ',');
+  }
+
+  rotuloCondicaoOpcao(alvo: Livro): string {
+    const c = alvo.estoque?.condicao ?? (alvo as any).condicao;
+    if (!c) return 'Condição não informada';
+    const map: Record<string, string> = {
+      novo: 'Novo',
+      usado_como_novo: 'Usado — Como novo',
+      usado_bom: 'Usado — Bom',
+      usado_aceitavel: 'Usado — Aceitável'
+    };
+    return map[String(c)] || String(c);
+  }
+
+  getNotaConservacaoOpcao(alvo: Livro): number | null {
+    const n = alvo.nota_conservacao;
+    if (n === null || n === undefined) return null;
+    const num = typeof n === 'string' ? parseFloat(String(n)) : Number(n);
+    if (!Number.isFinite(num)) return null;
+    const ar = Math.round(num);
+    if (ar < 1 || ar > 5) return null;
+    return ar;
   }
 
   private atualizarGaleria(): void {

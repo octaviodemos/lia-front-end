@@ -29,6 +29,10 @@ function parseTotalAvaliacoes(v: any): number {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
+function parseDestaqueVitrine(v: any): boolean {
+  return v === true || v === 'true' || v === 1 || v === '1';
+}
+
 export function normalizePrecoToString(precoRaw: any): string | null {
   const n = parseNumberFromString(precoRaw);
   return n === null ? (precoRaw != null ? String(precoRaw) : null) : n.toFixed(2);
@@ -155,6 +159,18 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     ? String(raw.descricao_conservacao).trim() || null
     : null;
 
+  let outrasOpcoes: Livro[] | null = null;
+  const filhas = raw.outras_opcoes;
+  if (Array.isArray(filhas) && filhas.length) {
+    outrasOpcoes = filhas
+      .filter((item: any) => item != null && item.id_livro != null)
+      .map((item: any) => {
+        const copia = { ...item };
+        delete copia.outras_opcoes;
+        return normalizeLivro(copia as LivroRaw);
+      });
+  }
+
   return {
     id_livro: raw.id_livro,
     titulo: raw.titulo,
@@ -166,10 +182,12 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     descricao_conservacao: descricaoConservacao,
     nota_media_avaliacoes: parseNotaMediaAvaliacoes(raw.nota_media_avaliacoes),
     total_avaliacoes: parseTotalAvaliacoes(raw.total_avaliacoes),
+    destaque_vitrine: parseDestaqueVitrine(raw.destaque_vitrine),
     imagens,
     estoque,
     estoques: estoquesList.length ? estoquesList : null,
     generos: generosArray ?? [],
-    autores: autoresArray ?? []
+    autores: autoresArray ?? [],
+    outras_opcoes: outrasOpcoes && outrasOpcoes.length ? outrasOpcoes : null
   } as Livro;
 }

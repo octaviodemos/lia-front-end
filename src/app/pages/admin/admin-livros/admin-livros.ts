@@ -36,7 +36,8 @@ export class AdminLivros implements OnInit {
       ano_publicacao: [null],
       isbn: [''],
       nota_conservacao: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
-      descricao_conservacao: ['']
+      descricao_conservacao: [''],
+      destaque_vitrine: [false]
     });
   }
 

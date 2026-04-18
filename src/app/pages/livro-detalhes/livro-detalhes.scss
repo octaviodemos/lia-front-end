@@ -387,6 +387,98 @@ $space-lg: 24px;
   }
 }
 
+.outras-exemplares {
+  margin: 0 0 2rem 0;
+  padding: 1.15rem 1.25rem;
+  border: 2px dashed color.adjust($primary, $alpha: -0.45);
+  border-radius: 10px;
+  background: linear-gradient(165deg, #fff 0%, $bg-light 55%, color.adjust($bg-light, $lightness: -2%) 100%);
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.07);
+}
+
+.outras-exemplares__titulo {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: $primary;
+  letter-spacing: 0.01em;
+}
+
+.outras-exemplares__intro {
+  margin: 0 0 1rem 0;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.45;
+}
+
+.outras-exemplares__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 0.9rem;
+}
+
+.outras-exemplares__card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid $border;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: color.adjust($primary, $lightness: 28%);
+    box-shadow: 0 8px 20px rgba(123, 17, 32, 0.14);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $secondary;
+    outline-offset: 2px;
+  }
+}
+
+.outras-exemplares__thumb-wrap {
+  aspect-ratio: 3 / 4;
+  background: #ececec;
+  overflow: hidden;
+}
+
+.outras-exemplares__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.outras-exemplares__body {
+  padding: 0.55rem 0.65rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+}
+
+.outras-exemplares__preco {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: $primary;
+}
+
+.outras-exemplares__condicao {
+  color: $text;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.outras-exemplares__nota {
+  font-weight: 700;
+  color: color.adjust($text, $lightness: -4%);
+  margin-top: 0.1rem;
+}
+
 .detalhes-tecnicos {
   font-size: 0.9rem;
   color: #444;

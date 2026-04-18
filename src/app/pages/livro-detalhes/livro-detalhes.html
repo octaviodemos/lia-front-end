@@ -95,6 +95,28 @@
         </button>
       </div>
 
+      <aside class="outras-exemplares" *ngIf="temOutrasOpcoes()" aria-labelledby="outras-exemplares-titulo">
+        <h3 id="outras-exemplares-titulo" class="outras-exemplares__titulo">Outros exemplares disponíveis</h3>
+        <p class="outras-exemplares__intro">Compare preço e estado de outros exemplares do mesmo ISBN.</p>
+        <div class="outras-exemplares__grid" role="list">
+          <a
+            *ngFor="let op of getOutrasOpcoes()"
+            [routerLink]="['/livro', op.id_livro]"
+            class="outras-exemplares__card"
+            role="listitem"
+          >
+            <div class="outras-exemplares__thumb-wrap">
+              <img class="outras-exemplares__thumb" [src]="getImagemUrlOpcao(op)" [alt]="'Capa do exemplar ' + op.id_livro">
+            </div>
+            <div class="outras-exemplares__body">
+              <span class="outras-exemplares__preco">{{ formatoPrecoOpcao(op) }}</span>
+              <span class="outras-exemplares__condicao">{{ rotuloCondicaoOpcao(op) }}</span>
+              <span class="outras-exemplares__nota" *ngIf="getNotaConservacaoOpcao(op) !== null">⭐ {{ getNotaConservacaoOpcao(op) }}/5</span>
+            </div>
+          </a>
+        </div>
+      </aside>
+
       <div class="detalhes-tecnicos">
         <p><strong>Editora:</strong> {{ livro.editora || 'Não informada' }}</p>
         <p><strong>ISBN:</strong> {{ livro.isbn || 'Não informado' }}</p>

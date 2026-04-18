@@ -10,6 +10,16 @@
       <label for="isbn">ISBN</label>
       <input id="isbn" type="text" formControlName="isbn">
     </div>
+
+    <div class="form-group destaque-vitrine">
+      <label class="destaque-vitrine__switch">
+        <input type="checkbox" formControlName="destaque_vitrine">
+        <span class="destaque-vitrine__track" aria-hidden="true"></span>
+        <span class="destaque-vitrine__label-text">Definir como Destaque na Vitrine</span>
+      </label>
+      <p class="destaque-vitrine__hint">Se marcado, este será o exemplar principal mostrado na capa da loja para este ISBN.</p>
+    </div>
+
 <div class="form-group">
   <label for="editora">Editora</label>
   <input id="editora" type="text" formControlName="editora">

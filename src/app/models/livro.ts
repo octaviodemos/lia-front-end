@@ -29,6 +29,8 @@ export interface LivroRaw {
   descricao_conservacao?: string | null;
   nota_media_avaliacoes?: number | string | null;
   total_avaliacoes?: number | string | null;
+  destaque_vitrine?: boolean | string | number | null;
+  outras_opcoes?: LivroRaw[] | null;
   imagens?: LivroImagem[] | null;
   estoque?: any; 
   preco?: any; 
@@ -50,6 +52,8 @@ export interface Livro {
   descricao_conservacao?: string | null;
   nota_media_avaliacoes?: number | null;
   total_avaliacoes?: number;
+  destaque_vitrine?: boolean;
+  outras_opcoes?: Livro[] | null;
   imagens?: LivroImagem[] | null;
   estoque?: Estoque | null;
   estoques?: Estoque[] | null;
