@@ -16,6 +16,10 @@ export class OfertaVendaService {
     return this.http.post<OfertaVenda>(this.apiUrl, formData);
   }
 
+  enviarOferta(dados: FormData): Observable<OfertaVenda> {
+    return this.http.post<OfertaVenda>(this.apiUrl, dados);
+  }
+
   getMinhasOfertas(): Observable<any> {
     return this.http.get(`http://localhost:3333/api/offers/my-offers`);
   }

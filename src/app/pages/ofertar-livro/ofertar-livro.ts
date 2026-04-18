@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { OfertaVendaService } from '../../services/oferta-venda.service';
 import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../models/livro-imagem';
 import { anexarImagensLivroNoFormData, mensagemErroArquivoImagem } from '../../utils/livro-imagem-helpers';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ofertar-livro',
@@ -25,7 +26,8 @@ export class OfertarLivro implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private ofertaVendaService: OfertaVendaService
+    private ofertaVendaService: OfertaVendaService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -33,8 +35,8 @@ export class OfertarLivro implements OnInit {
       titulo_livro: ['', Validators.required],
       autor_livro: [''],
       isbn: [''],
-      condicao_livro: ['', Validators.required],
-      preco_sugerido: ['', [Validators.required, Validators.min(0)]]
+      descricao_condicao: [''],
+      preco_sugerido: ['', [Validators.required, Validators.pattern(/^\d+(?:[.,]\d{1,2})?$/)]]
     });
   }
 
@@ -92,14 +94,14 @@ export class OfertarLivro implements OnInit {
       if (v.isbn != null && v.isbn !== '') {
         formData.append('isbn', String(v.isbn));
       }
-      if (v.condicao_livro != null && v.condicao_livro !== '') {
-        formData.append('condicao_livro', String(v.condicao_livro));
+      if (v.descricao_condicao != null && v.descricao_condicao !== '') {
+        formData.append('descricao_condicao', String(v.descricao_condicao));
       }
-      formData.append('preco_sugerido', String(v.preco_sugerido));
+      formData.append('preco_sugerido', this.normalizarPrecoSugerido(v.preco_sugerido));
       anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
-      this.ofertaVendaService.criarOferta(formData).subscribe({
+      this.ofertaVendaService.enviarOferta(formData).subscribe({
         next: () => {
-          this.mensagemSucesso = 'Oferta enviada com sucesso! A LIA entrará em contato em breve.';
+          this.mensagemSucesso = 'Oferta enviada com sucesso! Nossa equipe analisará as fotos e entrará em contato via WhatsApp/E-mail.';
           this.ofertaForm.reset();
           this.arquivosPorTipo = {};
           this.nomesArquivos = {};
@@ -110,6 +112,9 @@ export class OfertarLivro implements OnInit {
               el.value = '';
             }
           });
+          setTimeout(() => {
+            this.router.navigate(['/minha-conta']);
+          }, 1500);
         },
         error: (err: any) => {
           console.error('Erro ao enviar oferta:', err);
@@ -117,5 +122,14 @@ export class OfertarLivro implements OnInit {
         }
       });
     }
+  }
+
+  private normalizarPrecoSugerido(valor: unknown): string {
+    const texto = String(valor ?? '').trim().replace(',', '.');
+    const numero = Number(texto);
+    if (!Number.isFinite(numero) || numero < 0) {
+      return '0.00';
+    }
+    return numero.toFixed(2);
   }
 }

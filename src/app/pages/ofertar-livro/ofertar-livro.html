@@ -1,7 +1,7 @@
 <div class="oferta-container">
   <h2>Venda seu Livro para a LIA</h2>
   <p>Tem um livro em bom estado e quer vendê-lo? Preencha o formulário abaixo e nossa equipe analisará sua oferta.</p>
-  <p class="destaque-fotos">Fotos por região do livro (capa, lombada, miolo, etc.) ajudam na futura avaliação automatizada. Envie o que puder.</p>
+  <p class="destaque-fotos">Envie fotos dos principais ângulos do exemplar para acelerar a análise da LIA.</p>
 
   <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
     
@@ -21,13 +21,16 @@
     </div>
 
     <div class="form-group">
-      <label for="condicao_livro">Descreva a condição do livro</label>
-      <textarea id="condicao_livro" formControlName="condicao_livro" rows="4"></textarea>
+      <label for="descricao_condicao">Descrição da Condição (Opcional)</label>
+      <textarea id="descricao_condicao" formControlName="descricao_condicao" rows="4"></textarea>
     </div>
 
     <div class="form-group">
       <label for="preco_sugerido">Preço sugerido (R$)</label>
-      <input id="preco_sugerido" type="number" formControlName="preco_sugerido">
+      <input id="preco_sugerido" type="text" inputmode="decimal" placeholder="Ex: 49,90" formControlName="preco_sugerido">
+      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.touched && ofertaForm.get('preco_sugerido')?.invalid">
+        Informe um valor válido no formato monetário.
+      </small>
     </div>
 
     <div class="form-group imagens-cliente">
