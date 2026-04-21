@@ -5,12 +5,20 @@ $cor-principal: #6a0000;
 $cor-fundo: #fdfaf5;     
 $cor-texto: #333;
 
-// Header Principal
 .main-header {
   width: 100%;
   background-color: $cor-principal;
   padding: 1rem 0; 
   border-bottom: 2px solid color.adjust($cor-principal, $lightness: -10%);
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+
+  &.scrolled {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    background-color: color.adjust($cor-principal, $lightness: -2%);
+  }
 }
 
 // Navbar Container

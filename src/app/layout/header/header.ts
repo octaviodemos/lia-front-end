@@ -23,6 +23,7 @@ export class Header implements OnInit, OnDestroy {
   cartItemCount: number = 0;
   isLoggedIn: boolean = false;
   searchInputValue: string = '';
+  isScrolled: boolean = false;
   private destroy$ = new Subject<void>();
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -130,5 +131,10 @@ export class Header implements OnInit, OnDestroy {
       this.isAdminMenuOpen = false;
       this.isUserMenuOpen = false;
     }
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 10;
   }
 }

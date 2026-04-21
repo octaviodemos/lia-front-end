@@ -13,12 +13,24 @@
     
     <div class="form-group">
       <label for="nota">Nota (1 a 5)</label>
-      <input id="nota" type="number" formControlName="nota" min="1" max="5">
+      <input id="nota" type="number" formControlName="nota" min="1" max="5" [class.input-error]="avaliacaoForm.get('nota')?.invalid && avaliacaoForm.get('nota')?.touched">
+      <div class="error-msg" *ngIf="avaliacaoForm.get('nota')?.hasError('required') && avaliacaoForm.get('nota')?.touched">
+        A nota é obrigatória.
+      </div>
+      <div class="error-msg" *ngIf="(avaliacaoForm.get('nota')?.hasError('min') || avaliacaoForm.get('nota')?.hasError('max')) && avaliacaoForm.get('nota')?.touched">
+        A nota deve ser entre 1 e 5.
+      </div>
     </div>
 
     <div class="form-group">
       <label for="comentario">Comentário</label>
-      <textarea id="comentario" formControlName="comentario" rows="4"></textarea>
+      <textarea id="comentario" formControlName="comentario" rows="4" [class.input-error]="avaliacaoForm.get('comentario')?.invalid && avaliacaoForm.get('comentario')?.touched"></textarea>
+      <div class="error-msg" *ngIf="avaliacaoForm.get('comentario')?.hasError('required') && avaliacaoForm.get('comentario')?.touched">
+        O comentário é obrigatório.
+      </div>
+      <div class="error-msg" *ngIf="avaliacaoForm.get('comentario')?.hasError('minlength') && avaliacaoForm.get('comentario')?.touched">
+        O comentário deve ter no mínimo 10 caracteres.
+      </div>
     </div>
 
     <button type="submit" [disabled]="avaliacaoForm.invalid || enviando">

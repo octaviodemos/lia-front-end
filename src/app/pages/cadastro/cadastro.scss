@@ -78,7 +78,7 @@ form {
         border-color: color.adjust($cor-borda, $lightness: -10%);
       }
 
-      // Validação visual
+      // Validação visual genérica do Angular
       &.ng-touched.ng-invalid {
         border-color: $cor-erro;
       }
@@ -86,6 +86,19 @@ form {
       &.ng-touched.ng-valid {
         border-color: #4caf50;
       }
+
+      // Erro customizado para o aviso de baixo
+      &.input-error {
+        border-color: #e74c3c !important;
+        background-color: #fdf2f2 !important;
+      }
+    }
+    
+    .error-msg {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+      font-weight: 500;
     }
   }
 
