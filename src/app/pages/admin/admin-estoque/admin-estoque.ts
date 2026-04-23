@@ -33,6 +33,26 @@ export class AdminEstoque implements OnInit {
       preco: [null, [Validators.required, Validators.min(0)]],
       condicao: ['novo', Validators.required]
     });
+
+    this.estoqueForm.get('id_livro')?.valueChanges.subscribe(id => {
+      if (id) {
+        this.livroService.getLivroById(id).subscribe({
+          next: (livroDetalhe: any) => {
+            const estoques = livroDetalhe.estoque || [];
+            if (estoques.length > 0) {
+              const ultimoEstoque = estoques[estoques.length - 1];
+              this.estoqueForm.patchValue({
+                preco: ultimoEstoque.preco,
+                condicao: ultimoEstoque.condicao || 'novo'
+              });
+            } else if (livroDetalhe.preco) {
+              // Fallback se tiver preco na raiz (via normalizeLivro)
+              this.estoqueForm.patchValue({ preco: livroDetalhe.preco });
+            }
+          }
+        });
+      }
+    });
   }
 
   carregarLivrosDoCatalogo(): void {

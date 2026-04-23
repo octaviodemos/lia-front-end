@@ -140,11 +140,21 @@
               <label for="dataNascimento">Data de Nascimento *</label>
               <input 
                 id="dataNascimento" 
-                type="date" 
+                type="text" 
+                #datePickerRef
                 formControlName="dataNascimento"
+                mask="d0/M0/0000"
+                [dropSpecialCharacters]="false"
+                placeholder="dd/mm/aaaa"
                 [class.error]="checkoutForm.get('dataNascimento')?.invalid && checkoutForm.get('dataNascimento')?.touched">
               <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('required') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
                 Data de nascimento é obrigatória
+              </small>
+              <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('dataInvalida') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
+                Data inválida
+              </small>
+              <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('anoInvalido') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
+                Insira um ano válido
               </small>
               <small *ngIf="checkoutForm.get('dataNascimento')?.hasError('menorIdade') && checkoutForm.get('dataNascimento')?.touched" class="error-text">
                 Você deve ter pelo menos 16 anos para comprar

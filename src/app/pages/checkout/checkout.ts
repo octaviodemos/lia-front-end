@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
@@ -8,6 +8,8 @@ import { PedidoService } from '../../services/pedido.service';
 import { PagamentoService } from '../../services/pagamento.service';
 import { AuthService } from '../../services/auth';
 import { Router, RouterLink } from '@angular/router';
+import flatpickr from 'flatpickr';
+import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
 
 @Component({
   selector: 'app-checkout',
@@ -27,6 +29,26 @@ export class Checkout implements OnInit {
   processandoPagamento = false;
   etapaAtual = 1; // 1: Endereço, 2: Dados do Cliente, 3: Pagamento
 
+  private _datePickerRef!: ElementRef;
+  @ViewChild('datePickerRef') set datePickerRef(el: ElementRef) {
+    this._datePickerRef = el;
+    if (el && el.nativeElement) {
+      setTimeout(() => {
+        if (this.flatpickrInstance) {
+          this.flatpickrInstance.destroy();
+        }
+        this.flatpickrInstance = flatpickr(el.nativeElement, {
+          dateFormat: 'd/m/Y',
+          allowInput: true,
+          locale: Portuguese,
+          maxDate: new Date() // Não pode ter nascido no futuro
+        });
+      }, 0);
+    }
+  }
+  
+  private flatpickrInstance: any;
+
   constructor(
     private cartService: CarrinhoService,
     private enderecoService: EnderecoService,
@@ -40,6 +62,12 @@ export class Checkout implements OnInit {
   ngOnInit(): void {
     this.inicializarFormulario();
     this.carregarDados();
+  }
+
+  ngOnDestroy(): void {
+    if (this.flatpickrInstance) {
+      this.flatpickrInstance.destroy();
+    }
   }
 
   private inicializarFormulario(): void {
@@ -233,9 +261,30 @@ export class Checkout implements OnInit {
     const dataNascimento = control.value;
     if (!dataNascimento) return null;
     
+    let nascimento: Date;
+    
+    // Tratando formato d/m/Y (que vem da máscara ou flatpickr)
+    if (typeof dataNascimento === 'string' && dataNascimento.includes('/')) {
+      const partes = dataNascimento.split('/');
+      if (partes.length === 3) {
+        // dd/MM/yyyy
+        nascimento = new Date(parseInt(partes[2], 10), parseInt(partes[1], 10) - 1, parseInt(partes[0], 10));
+      } else {
+        return { dataInvalida: true };
+      }
+    } else {
+      nascimento = new Date(dataNascimento);
+    }
+    
+    if (isNaN(nascimento.getTime())) return { dataInvalida: true };
+
+    const anoNascimento = nascimento.getFullYear();
+    if (anoNascimento < 1900) {
+      return { anoInvalido: true };
+    }
+
     const hoje = new Date();
-    const nascimento = new Date(dataNascimento);
-    const idade = hoje.getFullYear() - nascimento.getFullYear();
+    const idade = hoje.getFullYear() - anoNascimento;
     const mesAtual = hoje.getMonth();
     const mesNascimento = nascimento.getMonth();
     

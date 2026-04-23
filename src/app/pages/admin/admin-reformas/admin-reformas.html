@@ -12,7 +12,7 @@
     <div *ngFor="let s of solicitacoes" class="reforma-card">
       <div class="reforma-header">
         <div class="reforma-title">Solicitação #{{ s.id_solicitacao || s.id }} <span class="reforma-date">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
-        <div class="reforma-user">{{ s.usuario?.nome || s.usuario?.name || 'Usuário' }} <span class="email">({{ s.usuario?.email }})</span></div>
+        <div class="reforma-user">{{ s.usuario?.nome || s.usuario?.name || 'Usuário' }} <span class="email">({{ s.usuario?.email }})</span> <span class="telefone" *ngIf="s.usuario?.telefone"> | WhatsApp: {{ s.usuario?.telefone }}</span></div>
       </div>
 
       <div class="reforma-body">

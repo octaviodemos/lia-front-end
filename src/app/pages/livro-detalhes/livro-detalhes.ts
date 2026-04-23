@@ -405,6 +405,9 @@ export class LivroDetalhes implements OnInit {
     if (Array.isArray(this.livro.estoques) && this.livro.estoques.length) {
       return this.livro.estoques as Estoque[];
     }
+    if (Array.isArray(this.livro.estoque)) {
+      return this.livro.estoque as Estoque[];
+    }
     if (this.livro.estoque) {
       return [this.livro.estoque as Estoque];
     }
@@ -641,7 +644,11 @@ export class LivroDetalhes implements OnInit {
 
     this.carrinhoService.adicionarItem(idEstoque, cartItem).subscribe({
       next: () => this.showCartSuccessMessage(),
-      error: () => this.showCartSuccessMessage() // Fallback sempre mostra sucesso
+      error: (err) => {
+        console.error('Erro ao adicionar item:', err);
+        const errorMsg = err?.error?.message || 'Erro ao adicionar ao carrinho. Tente novamente.';
+        this.showErrorMessage(errorMsg);
+      }
     });
   }
 
