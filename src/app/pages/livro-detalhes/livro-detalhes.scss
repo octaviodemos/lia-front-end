@@ -197,19 +197,6 @@ $space-lg: 24px;
     flex: 1;
   }
 
-  .faixa-multi-exemplares__link {
-    display: inline-block;
-    margin-left: 0.35rem;
-    font-weight: 700;
-    color: $secondary;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-
-    &:hover {
-      color: color.adjust($secondary, $lightness: -12%);
-    }
-  }
-
   .autor {
     font-size: 1.05rem;
     color: $muted;
