@@ -453,7 +453,10 @@ export class LivroDetalhes implements OnInit {
 
   podeAdicionarAoCarrinho(): boolean {
     const e = this.getEstoqueSelecionado();
-    if (!e || !e.disponivel) return false;
+    if (!e) return false;
+    if (e.disponivel === false || e.disponivel === 0 || e.disponivel === 'false') {
+      return false;
+    }
     return this.getPrecoSelecionadoNumero() !== null;
   }
 
@@ -548,6 +551,10 @@ export class LivroDetalhes implements OnInit {
 
   temOutrasOpcoes(): boolean {
     return this.getOutrasOpcoes().length > 0;
+  }
+
+  getTotalExemplaresIsbnPagina(): number {
+    return this.getOutrasOpcoes().length + 1;
   }
 
   getImagemUrlOpcao(alvo: Livro): string {

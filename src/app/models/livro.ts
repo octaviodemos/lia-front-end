@@ -30,6 +30,7 @@ export interface LivroRaw {
   nota_media_avaliacoes?: number | string | null;
   total_avaliacoes?: number | string | null;
   destaque_vitrine?: boolean | string | number | null;
+  exemplares_mesmo_isbn?: number | string | null;
   outras_opcoes?: LivroRaw[] | null;
   imagens?: LivroImagem[] | null;
   estoque?: any; 
@@ -53,6 +54,7 @@ export interface Livro {
   nota_media_avaliacoes?: number | null;
   total_avaliacoes?: number;
   destaque_vitrine?: boolean;
+  exemplares_mesmo_isbn?: number;
   outras_opcoes?: Livro[] | null;
   imagens?: LivroImagem[] | null;
   estoque?: Estoque | null;

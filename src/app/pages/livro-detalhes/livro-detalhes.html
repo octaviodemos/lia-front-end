@@ -40,6 +40,13 @@
 
     <div class="livro-info">
       <h1>{{ livro.titulo }}</h1>
+      <div class="faixa-multi-exemplares" *ngIf="temOutrasOpcoes()" role="status">
+        <span class="faixa-multi-exemplares__icone" aria-hidden="true">📚</span>
+        <p class="faixa-multi-exemplares__texto">
+          Este ISBN tem <strong>{{ getTotalExemplaresIsbnPagina() }}</strong> exemplares na loja.
+          <a class="faixa-multi-exemplares__link" href="#bloco-outras-exemplares">Ver outras opções</a>
+        </p>
+      </div>
       <p class="autor"><strong>Autor:</strong> {{ getAutorNome() }}</p>
 
       <div class="media-comunidade" *ngIf="mostrarBlocoMediaComunidade()">
@@ -95,7 +102,7 @@
         </button>
       </div>
 
-      <aside class="outras-exemplares" *ngIf="temOutrasOpcoes()" aria-labelledby="outras-exemplares-titulo">
+      <aside id="bloco-outras-exemplares" class="outras-exemplares" *ngIf="temOutrasOpcoes()" aria-labelledby="outras-exemplares-titulo">
         <h3 id="outras-exemplares-titulo" class="outras-exemplares__titulo">Outros exemplares disponíveis</h3>
         <p class="outras-exemplares__intro">Compare preço e estado de outros exemplares do mesmo ISBN.</p>
         <div class="outras-exemplares__grid" role="list">

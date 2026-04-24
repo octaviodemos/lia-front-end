@@ -80,6 +80,24 @@ export class LivroCard {
     return this.getNotaConservacao() !== null;
   }
 
+  getTotalExemplaresMesmoIsbn(): number {
+    if (!this.livro) return 1;
+    const n = this.livro.exemplares_mesmo_isbn;
+    if (typeof n === 'number' && Number.isFinite(n) && n >= 1) return Math.floor(n);
+    const arr = this.livro.outras_opcoes;
+    if (Array.isArray(arr) && arr.length) return arr.length + 1;
+    return 1;
+  }
+
+  exibeSeloVariosExemplaresIsbn(): boolean {
+    return this.getTotalExemplaresMesmoIsbn() > 1;
+  }
+
+  getTituloSeloVariosExemplares(): string {
+    const t = this.getTotalExemplaresMesmoIsbn();
+    return `Mesmo ISBN: ${t} exemplares na loja. Abra a página para ver preços e estados.`;
+  }
+
   private getNotaMediaAvaliacoesNumero(): number | null {
     if (!this.livro) return null;
     const v = this.livro.nota_media_avaliacoes;
@@ -121,7 +139,17 @@ export class LivroCard {
     }
 
     const e = this.getEstoqueParaExibicao();
-    if (!e?.disponivel) {
+    if (!e) {
+      this.mensagemSucesso = '❌ Este livro não está disponível para compra';
+      this.mostrarMensagem = true;
+      setTimeout(() => {
+        this.mostrarMensagem = false;
+      }, 2000);
+      return;
+    }
+    const indisponivel =
+      e.disponivel === false || e.disponivel === 0 || e.disponivel === 'false';
+    if (indisponivel) {
       this.mensagemSucesso = '❌ Este livro não está disponível para compra';
       this.mostrarMensagem = true;
       setTimeout(() => {
@@ -132,8 +160,10 @@ export class LivroCard {
 
     const preco = e.preco;
     const precoNum = typeof preco === 'string' ? parseFloat(preco) : preco;
-    const idEstoque = Number(e.id_estoque);
-    if (!Number.isFinite(idEstoque)) {
+    const rawId = e.id_estoque;
+    const idEstoque =
+      rawId != null && rawId !== '' ? Number(rawId) : Number.NaN;
+    if (!Number.isFinite(idEstoque) || idEstoque < 1) {
       this.mensagemSucesso = '❌ Este livro não está disponível para compra';
       this.mostrarMensagem = true;
       setTimeout(() => {

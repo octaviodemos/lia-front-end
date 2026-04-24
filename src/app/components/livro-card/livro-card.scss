@@ -70,6 +70,25 @@ $cor-borda: #eee;
   }
 }
 
+.card-badge-isbn-multiplo {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 2;
+  max-width: calc(100% - 1rem);
+  padding: 0.28rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, #0d5c4a 0%, #1a8f75 100%);
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+  line-height: 1.2;
+  text-align: left;
+}
+
 .card-badge-conservacao {
   position: absolute;
   top: 0.5rem;

@@ -168,6 +168,48 @@ $space-lg: 24px;
     color: $primary;
   }
 
+  .faixa-multi-exemplares {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin: 0 0 1rem 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(
+      120deg,
+      color.adjust($secondary, $lightness: 48%) 0%,
+      $bg-light 55%
+    );
+    border: 1px solid color.adjust($secondary, $lightness: 25%);
+    border-radius: $card-radius;
+    box-shadow: $card-shadow;
+  }
+
+  .faixa-multi-exemplares__icone {
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .faixa-multi-exemplares__texto {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: $text;
+    flex: 1;
+  }
+
+  .faixa-multi-exemplares__link {
+    display: inline-block;
+    margin-left: 0.35rem;
+    font-weight: 700;
+    color: $secondary;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: color.adjust($secondary, $lightness: -12%);
+    }
+  }
+
   .autor {
     font-size: 1.05rem;
     color: $muted;

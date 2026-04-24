@@ -33,6 +33,13 @@ function parseDestaqueVitrine(v: any): boolean {
   return v === true || v === 'true' || v === 1 || v === '1';
 }
 
+function parseExemplaresMesmoIsbn(v: any): number | undefined {
+  if (v == null || v === '') return undefined;
+  const n = typeof v === 'number' ? v : Number(String(v).trim());
+  if (!Number.isFinite(n) || n < 1) return undefined;
+  return Math.floor(n);
+}
+
 export function normalizePrecoToString(precoRaw: any): string | null {
   const n = parseNumberFromString(precoRaw);
   return n === null ? (precoRaw != null ? String(precoRaw) : null) : n.toFixed(2);
@@ -171,6 +178,11 @@ export function normalizeLivro(raw: LivroRaw): Livro {
       });
   }
 
+  const outrosCount = outrasOpcoes?.length ?? 0;
+  const exCatalogo = parseExemplaresMesmoIsbn(raw.exemplares_mesmo_isbn);
+  const exemplares_mesmo_isbn =
+    exCatalogo != null ? exCatalogo : outrosCount > 0 ? outrosCount + 1 : undefined;
+
   return {
     id_livro: raw.id_livro,
     titulo: raw.titulo,
@@ -183,6 +195,7 @@ export function normalizeLivro(raw: LivroRaw): Livro {
     nota_media_avaliacoes: parseNotaMediaAvaliacoes(raw.nota_media_avaliacoes),
     total_avaliacoes: parseTotalAvaliacoes(raw.total_avaliacoes),
     destaque_vitrine: parseDestaqueVitrine(raw.destaque_vitrine),
+    exemplares_mesmo_isbn,
     imagens,
     estoque,
     estoques: estoquesList.length ? estoquesList : null,

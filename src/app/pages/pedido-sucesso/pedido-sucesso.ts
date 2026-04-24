@@ -40,6 +40,35 @@ export class PedidoSucesso implements OnInit {
   isApproved = isApproved;
   getFriendlyLabel = getFriendlyLabelFn;
 
+  dataPedidoParaExibir(o: any): string | Date | null {
+    if (!o) return null;
+    const v =
+      o.data_pedido ??
+      o.created_at ??
+      o.data_criacao ??
+      o.createdAt ??
+      o.updated_at ??
+      null;
+    return v ?? null;
+  }
+
+  formatDataPedido(o: any): string {
+    const v = this.dataPedidoParaExibir(o);
+    if (v == null || v === '') return '—';
+    const d =
+      v instanceof Date
+        ? v
+        : new Date(typeof v === 'number' ? v : String(v));
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const sessionId = params['session_id'] || params['sessionId'];
