@@ -24,9 +24,13 @@ import { AdminPedidos } from './pages/admin/admin-pedidos/admin-pedidos';
 import { AdminOfertas } from './pages/admin/admin-ofertas/admin-ofertas';
 import { AdminReformas } from './pages/admin/admin-reformas/admin-reformas';
 import { adminGuard } from './guards/admin-guard';
+import { PoliticaPrivacidade } from './pages/politica-privacidade/politica-privacidade';
+import { CondicoesUso } from './pages/condicoes-uso/condicoes-uso';
 
 export const routes: Routes = [
   { path: '', component: Home },
+  { path: 'politica-de-privacidade', component: PoliticaPrivacidade },
+  { path: 'condicoes-de-uso', component: CondicoesUso },
   { path: 'login', component: Login },
   { path: 'cadastro', component: Cadastro },
   { path: 'loja', component: Loja },

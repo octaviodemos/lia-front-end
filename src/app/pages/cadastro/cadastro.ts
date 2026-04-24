@@ -5,6 +5,24 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const password = control.get('password');
+  const confirmPassword = control.get('confirmarSenha');
+  if (password && confirmPassword && password.value !== confirmPassword.value) {
+    confirmPassword.setErrors({ passwordMismatch: true });
+    return { passwordMismatch: true };
+  } else {
+    if (confirmPassword?.hasError('passwordMismatch')) {
+      const errors = { ...confirmPassword.errors };
+      delete errors['passwordMismatch'];
+      confirmPassword.setErrors(Object.keys(errors).length ? errors : null);
+    }
+    return null;
+  }
+};
+
 @Component({
   selector: 'app-cadastro',
   standalone: true,
@@ -29,7 +47,7 @@ export class Cadastro implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmarSenha: ['', [Validators.required]]
-    });
+    }, { validators: passwordMatchValidator });
   }
 
   onSubmit(): void {

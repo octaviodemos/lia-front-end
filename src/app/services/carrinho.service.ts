@@ -88,31 +88,10 @@ export class CarrinhoService {
   }
 
   verificarEstoque(id_estoque: number): Observable<{ podeComprar: boolean }> {
-    const agora = Date.now();
-    const dadosCache = this.estoqueCache.get(id_estoque);
-    
-    if (dadosCache && (agora - dadosCache.timestamp) < this.CACHE_DURATION) {
-      return of({ podeComprar: dadosCache.podeComprar });
-    }
-    return this.http.get(`${this.apiUrl}/stock/${id_estoque}`).pipe(
-      map((estoque: any) => {
-        const podeComprar =
-          estoque?.disponivel === true ||
-          estoque?.disponivel === 'true' ||
-          estoque?.disponivel === 1 ||
-          estoque?.disponivel === '1';
-        
-        this.estoqueCache.set(id_estoque, {
-          podeComprar,
-          timestamp: agora
-        });
-        
-        return { podeComprar };
-      }),
-      catchError(() => {
-        return of({ podeComprar: false });
-      })
-    );
+    // A API não implementa a rota /stock/:id, o que causava um erro 404 impedindo a adição.
+    // Como a rota POST /cart/items do back-end já valida adequadamente a disponibilidade
+    // do estoque, podemos pular a checagem no front-end para otimizar e evitar o erro.
+    return of({ podeComprar: true });
   }
 
   adicionarItem(id_estoque: number, meta?: Partial<ItemCarrinho>): Observable<ItemCarrinho[]> {

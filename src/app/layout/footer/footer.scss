@@ -45,8 +45,8 @@ $cor-fundo-claro: #fdfaf5; // Tom de bege claro
 
   .contact-links {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    flex-direction: row;
+    gap: 1.5rem;
     margin-top: 0.5rem;
   }
 
@@ -54,35 +54,53 @@ $cor-fundo-claro: #fdfaf5; // Tom de bege claro
   .whatsapp-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
     color: $cor-fundo-claro;
     text-decoration: none;
-    font-size: 1.2rem;
     transition: opacity 0.2s ease-in-out;
     padding: 0.5rem 0;
 
     svg {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       transition: transform 0.2s ease-in-out;
     }
 
     &:hover {
       opacity: 0.8;
-
       svg {
         transform: scale(1.1);
       }
-    }
-
-    span {
-      font-weight: 500;
     }
   }
 
   .whatsapp-btn {
     svg {
       fill: #25D366;
+    }
+  }
+}
+
+/* Seção Institucional */
+.institucional {
+  text-align: center;
+  
+  .institutional-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    
+    a {
+      color: $cor-fundo-claro;
+      text-decoration: none;
+      font-size: 1.1rem;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+      
+      &:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
     }
   }
 }
