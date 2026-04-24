@@ -19,7 +19,14 @@ export class EstoqueService {
     return this.http.post(`${this.apiUrl}/stock`, itemData);
   }
 
-  atualizarItemEstoque(id: string, itemData: any): Observable<any> {
+  atualizarItemEstoque(
+    id: number,
+    itemData: { preco?: string; nota_conservacao?: number; disponivel?: boolean }
+  ): Observable<any> {
     return this.http.patch(`${this.apiUrl}/stock/${id}`, itemData);
+  }
+
+  excluirItemEstoque(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/stock/${id}`);
   }
 }

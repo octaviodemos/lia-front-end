@@ -1,66 +1,124 @@
 @use 'sass:color';
 
-$admin-bg: #f4f7fa;
-$sidebar-bg: #2c3e50;
-$sidebar-text: #ecf0f1;
-$sidebar-active: #3498db;
-$content-bg: #ffffff;
+$cor-principal: #6a0000;
+$cor-fundo: #fdfaf5;
+$sidebar-text: rgba(255, 255, 255, 0.95);
+$sidebar-link-hover: rgba(255, 255, 255, 0.1);
+$sidebar-active-bg: rgba(255, 255, 255, 0.16);
 
 .admin-layout-container {
   display: flex;
   min-height: 100vh;
+  background: $cor-fundo;
+  padding: 1rem 1.25rem 1rem 0;
+  box-sizing: border-box;
+  gap: 0.75rem;
 }
 
 .admin-sidebar {
-  width: 250px;
-  background-color: $sidebar-bg;
-  color: $sidebar-text;
+  width: 264px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  background: linear-gradient(
+    165deg,
+    color.adjust($cor-principal, $lightness: -5%) 0%,
+    $cor-principal 55%,
+    color.adjust($cor-principal, $lightness: -3%) 100%
+  );
+  color: $sidebar-text;
+  border-radius: 0 18px 18px 0;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  box-shadow:
+    0 12px 32px rgba(40, 0, 0, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  overflow: hidden;
 }
 
 .sidebar-header {
-  padding: 1.5rem;
+  padding: 1.35rem 1rem;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  border-bottom: 1px solid color.adjust($sidebar-bg, $lightness: +10%);
+  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  padding: 0.65rem 0.55rem 0.75rem;
+  gap: 0.28rem;
 
   a {
     color: $sidebar-text;
     text-decoration: none;
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    border-bottom: 1px solid color.adjust($sidebar-bg, $lightness: +5%);
-    transition: background-color 0.2s ease-in-out;
+    padding: 0.85rem 1rem;
+    font-size: 0.98rem;
+    border-radius: 12px;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
 
     &:hover {
-      background-color: color.adjust($sidebar-bg, $lightness: +10%);
+      background: $sidebar-link-hover;
     }
 
     &.active {
-      background-color: $sidebar-active;
-      font-weight: 600;
+      background: $sidebar-active-bg;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
     }
   }
 
   .back-to-site {
-    margin-top: auto; 
-    border-top: 1px solid color.adjust($sidebar-bg, $lightness: +10%);
-    background-color: color.adjust($sidebar-bg, $lightness: +3%);
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.9rem 1rem;
+    margin-left: 0.55rem;
+    margin-right: 0.55rem;
+    border-radius: 0 0 8px 8px;
+    background: rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.18);
+    }
   }
 }
 
 .admin-content {
   flex-grow: 1;
-  background-color: $admin-bg;
-  padding: 2rem;
+  min-width: 0;
+  background: #ffffff;
+  border-radius: 16px;
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  padding: 1.5rem 2rem 2.5rem;
   overflow-y: auto;
+  box-shadow: 0 8px 28px rgba(60, 20, 20, 0.08);
+  border: 1px solid color.adjust($cor-principal, $lightness: 38%);
+}
+
+@media (max-width: 900px) {
+  .admin-layout-container {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    border-radius: 16px;
+    margin: 0.25rem 0.25rem 0;
+  }
+
+  .admin-content {
+    border-radius: 16px;
+    margin: 0.5rem 0.25rem 0.25rem;
+  }
 }

@@ -2,6 +2,42 @@
   <h1>Minha Conta</h1>
   <p>Acompanhe seus pedidos e solicitações.</p>
 
+  <section class="secao-perfil" *ngIf="perfilForm" [formGroup]="perfilForm">
+    <h2>Dados do cadastro</h2>
+    <p class="secao-perfil__intro">O telefone é usado para contato (WhatsApp) em ofertas e reformas.</p>
+    <div class="form-perfil" *ngIf="!carregandoPerfil">
+      <div class="form-group">
+        <label for="perfil-nome">Nome</label>
+        <input id="perfil-nome" type="text" formControlName="nome" />
+      </div>
+      <div class="form-group">
+        <label for="perfil-email">E-mail</label>
+        <input id="perfil-email" type="email" formControlName="email" />
+      </div>
+      <div class="form-group">
+        <label for="perfil-telefone">Celular / WhatsApp</label>
+        <input
+          id="perfil-telefone"
+          type="text"
+          formControlName="telefone"
+          mask="(00) 00000-0000"
+          placeholder="(48) 99999-0000"
+          autocomplete="tel"
+        />
+      </div>
+      <button
+        type="button"
+        class="btn-salvar-perfil"
+        (click)="salvarTelefone()"
+        [disabled]="salvandoPerfil"
+      >
+        {{ salvandoPerfil ? 'Salvando...' : 'Salvar telefone' }}
+      </button>
+      <p *ngIf="mensagemPerfil" class="msg-perfil" role="status">{{ mensagemPerfil }}</p>
+    </div>
+    <p *ngIf="carregandoPerfil">Carregando dados…</p>
+  </section>
+
   <div class="conta-navegacao">
     <a routerLink="/meus-pedidos">Ver Meus Pedidos</a>
     <a routerLink="/meus-enderecos">Gerenciar Endereços</a>

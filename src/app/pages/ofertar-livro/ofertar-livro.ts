@@ -4,7 +4,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { OfertaVendaService } from '../../services/oferta-venda.service';
 import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../models/livro-imagem';
 import { anexarImagensLivroNoFormData, mensagemErroArquivoImagem } from '../../utils/livro-imagem-helpers';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ofertar-livro',
@@ -26,8 +25,7 @@ export class OfertarLivro implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private ofertaVendaService: OfertaVendaService,
-    private router: Router
+    private ofertaVendaService: OfertaVendaService
   ) {}
 
   ngOnInit(): void {
@@ -101,7 +99,8 @@ export class OfertarLivro implements OnInit {
       anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
       this.ofertaVendaService.enviarOferta(formData).subscribe({
         next: () => {
-          this.mensagemSucesso = 'Oferta enviada com sucesso! Nossa equipe analisará as fotos e entrará em contato via WhatsApp/E-mail.';
+          this.mensagemSucesso =
+            'Entraremos em contato via WhatsApp ou e-mail cadastrado na sua conta.';
           this.ofertaForm.reset();
           this.arquivosPorTipo = {};
           this.nomesArquivos = {};
@@ -112,9 +111,6 @@ export class OfertarLivro implements OnInit {
               el.value = '';
             }
           });
-          setTimeout(() => {
-            this.router.navigate(['/minha-conta']);
-          }, 1500);
         },
         error: (err: any) => {
           console.error('Erro ao enviar oferta:', err);

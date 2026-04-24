@@ -96,6 +96,7 @@
   z-index: -1;
 }
 
+.form-group label.upload-linha__btn,
 .upload-linha__btn {
   display: inline-block;
   padding: 0.45rem 0.85rem;
@@ -104,6 +105,7 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .upload-linha__limpar {

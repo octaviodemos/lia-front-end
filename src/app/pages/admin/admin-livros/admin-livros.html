@@ -29,6 +29,11 @@
       <input id="ano_publicacao" type="number" formControlName="ano_publicacao">
     </div>
 
+    <div class="form-group">
+      <label for="preco_cadastro">Preço (opcional)</label>
+      <input id="preco_cadastro" type="number" step="0.01" min="0" formControlName="preco" placeholder="Cria a primeira linha de estoque com este valor" />
+    </div>
+
     <div class="form-group conservacao">
       <label for="nota_conservacao">Nota de Conservação</label>
       <select id="nota_conservacao" formControlName="nota_conservacao">

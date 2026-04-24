@@ -38,6 +38,10 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/api/auth/profile`);
   }
 
+  updateProfile(body: { telefone?: string }): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/api/auth/profile`, body);
+  }
+
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/auth/login`, credentials).pipe(
       tap((response: any) => {

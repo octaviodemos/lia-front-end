@@ -1,56 +1,162 @@
 <div class="admin-container">
-  <h2>Painel de Admin - Adicionar Livro ao Estoque</h2>
-  
+  <h2>Painel de Admin — Gerenciar estoque</h2>
+  <p class="subtitulo-estoque">
+    Inclua novos exemplares, ajuste preço e nota de conservação ou exclua itens. Cada linha de estoque é um exemplar à venda. Os dados do catálogo (título, imagens, etc.) são atualizados no livro selecionado.
+  </p>
+
   <form [formGroup]="estoqueForm" (ngSubmit)="onSubmit()">
-    
+    <p *ngIf="modoEdicao" class="aviso-modo">Editando item #{{ idEstoqueEdicao }}</p>
+
     <div class="form-group">
-      <label for="id_livro">Selecione o Livro do Catálogo</label>
+      <label for="id_livro">Livro do catálogo</label>
       <select id="id_livro" formControlName="id_livro">
-        <option [ngValue]="null" disabled>Selecione...</option>
+        <option [ngValue]="null" disabled>Selecione…</option>
         <option *ngFor="let livro of livrosDoCatalogo" [ngValue]="livro.id_livro">
           {{ livro.titulo }}
         </option>
       </select>
     </div>
 
+    <h3 class="form-section-title">Dados do catálogo (livro)</h3>
+
     <div class="form-group">
-      <label for="preco">Preço de Venda (R$)</label>
-      <input id="preco" type="number" formControlName="preco">
+      <label for="titulo_estq">Título</label>
+      <input id="titulo_estq" type="text" formControlName="titulo" />
+    </div>
+    <div class="form-group">
+      <label for="isbn_estq">ISBN</label>
+      <input id="isbn_estq" type="text" formControlName="isbn" />
+    </div>
+    <div class="form-group">
+      <label for="editora_estq">Editora</label>
+      <input id="editora_estq" type="text" formControlName="editora" />
+    </div>
+    <div class="form-group">
+      <label for="ano_publicacao_estq">Ano de publicação</label>
+      <input id="ano_publicacao_estq" type="number" formControlName="ano_publicacao" />
+    </div>
+    <div class="form-group">
+      <label for="descricao_conservacao_estq">Descrição do estado (opcional)</label>
+      <textarea id="descricao_conservacao_estq" formControlName="descricao_conservacao" rows="3" placeholder="Detalhes de conservação do exemplar (catálogo)"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="sinopse_estq">Sinopse</label>
+      <textarea id="sinopse_estq" formControlName="sinopse" rows="4"></textarea>
+    </div>
+    <div class="form-group destaque-vitrine">
+      <label class="destaque-vitrine__switch" for="destaque_vitrine_estq">
+        <input type="checkbox" id="destaque_vitrine_estq" formControlName="destaque_vitrine" />
+        <span class="destaque-vitrine__track" aria-hidden="true"></span>
+        <span class="destaque-vitrine__label-text">Destaque na vitrine</span>
+      </label>
+      <p class="destaque-vitrine__hint">Se ativo, este exemplar tende a aparecer como opção principal para o ISBN na loja.</p>
+    </div>
+
+    <div class="form-group imagens-grid">
+      <span class="imagens-grid__titulo">Fotos do exemplar (substituem a imagem do slot ao enviar)</span>
+      <p class="imagens-grid__intro">Um arquivo por tipo (imagem_Capa, imagem_Contracapa, etc.).</p>
+      <div class="imagens-grid__lista">
+        <div class="slot-imagem" *ngFor="let slot of slotsImagens">
+          <span class="slot-imagem__titulo">{{ slot.titulo }}</span>
+          <small class="slot-imagem__desc">{{ slot.descricao }}</small>
+          <div class="file-upload-container">
+            <input
+              type="file"
+              [id]="idInputArquivo(slot.formFieldName)"
+              (change)="aoSelecionarArquivo(slot.formFieldName, $event)"
+              accept="image/*"
+            />
+            <label [for]="idInputArquivo(slot.formFieldName)" class="file-label">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 4V20M12 4L8 8M12 4L16 8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              {{ nomesArquivos[slot.formFieldName] || 'Escolher arquivo' }}
+            </label>
+            <button
+              type="button"
+              *ngIf="arquivosPorTipo[slot.formFieldName]"
+              (click)="limparArquivo(slot.formFieldName)"
+              class="btn-clear-file"
+            >
+              ✕
+            </button>
+          </div>
+          <div *ngIf="previewsPorTipo[slot.formFieldName]" class="image-preview image-preview--slot">
+            <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="'Pré-visualização ' + slot.titulo" />
+          </div>
+        </div>
+      </div>
+      <small class="hint">Formatos aceitos: JPG, PNG, GIF (máx. 5MB por arquivo)</small>
+    </div>
+
+    <h3 class="form-section-title">Dados do exemplar (estoque)</h3>
+
+    <div class="form-group">
+      <label for="preco">Preço de venda (R$)</label>
+      <input id="preco" type="number" step="0.01" min="0" formControlName="preco" placeholder="Ex.: 29,90" />
     </div>
 
     <div class="form-group">
-      <label for="condicao">Condição</label>
-      <select id="condicao" formControlName="condicao">
-        <option value="novo">Novo</option>
-        <option value="usado_como_novo">Usado - Como Novo</option>
-        <option value="usado_bom">Usado - Bom Estado</option>
-        <option value="usado_aceitavel">Usado - Aceitável</option>
+      <label for="nota_conservacao_estoque">Nota de conservação (1 a 5)</label>
+      <select id="nota_conservacao_estoque" formControlName="nota_conservacao">
+        <option *ngFor="let n of notasConservacao" [ngValue]="n">{{ n }} — {{ rotuloNota(n) }}</option>
       </select>
     </div>
 
-    <button type="submit" [disabled]="estoqueForm.invalid">Adicionar ao Estoque</button>
+    <div class="form-group" *ngIf="modoEdicao">
+      <label class="checkbox-linha">
+        <input type="checkbox" formControlName="disponivel" />
+        <span>Disponível para venda</span>
+      </label>
+    </div>
+
+    <div class="form-botoes-estoque">
+      <button type="submit" [disabled]="estoqueForm.invalid">
+        {{ modoEdicao ? 'Salvar alterações' : 'Incluir no estoque' }}
+      </button>
+      <button type="button" class="btn-sec" *ngIf="modoEdicao" (click)="cancelarEdicao()">Cancelar edição</button>
+    </div>
   </form>
 
-  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso" role="status">
     {{ mensagemSucesso }}
   </div>
 
   <section class="lista-estoque" *ngIf="itensLista.length">
-    <h3>Estoque cadastrado</h3>
+    <h3>Itens em estoque</h3>
     <div class="tabela-estoque">
       <div class="tabela-estoque__header">
         <span>ID</span>
         <span>Livro</span>
+        <span>Nota</span>
         <span>Preço</span>
         <span>Status</span>
+        <span class="tabela-estoque__acoes">Ações</span>
       </div>
       <div class="tabela-estoque__row" *ngFor="let item of itensLista">
         <span>{{ item.id_estoque ?? item.id ?? '—' }}</span>
         <span>{{ tituloLivroNaLista(item) }}</span>
-        <span>{{ item.preco != null ? (item.preco | number:'1.2-2') : '—' }}</span>
+        <span>{{ notaLivroNaLista(item) }}</span>
+        <span>{{ item.preco != null ? (item.preco | number: '1.2-2') : '—' }}</span>
         <span>
           <span class="badge-status badge-status--ok" *ngIf="itemDisponivel(item)">Disponível</span>
           <span class="badge-status badge-status--off" *ngIf="!itemDisponivel(item)">Vendido</span>
+        </span>
+        <span class="tabela-estoque__acoes tabela-estoque__acoes--btns">
+          <button type="button" class="btn-edit" (click)="iniciarEdicao(item)">Editar</button>
+          <button type="button" class="btn-del" (click)="confirmarExcluir(item)">Excluir</button>
         </span>
       </div>
     </div>

@@ -3,6 +3,10 @@
   <p>Tem um livro em bom estado e quer vendê-lo? Preencha o formulário abaixo e nossa equipe analisará sua oferta.</p>
   <p class="destaque-fotos">Envie fotos dos principais ângulos do exemplar para acelerar a análise da LIA.</p>
 
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso" role="status">
+    {{ mensagemSucesso }}
+  </div>
+
   <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
     
     <div class="form-group">
@@ -59,8 +63,4 @@
 
     <button type="submit" [disabled]="ofertaForm.invalid">Enviar Oferta</button>
   </form>
-
-  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
-    {{ mensagemSucesso }}
-  </div>
 </div>

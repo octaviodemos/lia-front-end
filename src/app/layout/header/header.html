@@ -29,6 +29,13 @@
         <a routerLink="/loja" routerLinkActive="active">Loja</a>
       </li>
 
+      <li class="nav-item admin-item" *ngIf="isAdmin()">
+        <a routerLink="/admin" routerLinkActive="active" class="admin-panel-link" title="Painel Administrativo" aria-label="Painel Administrativo">
+          <i class="fa-solid fa-gear" aria-hidden="true"></i>
+          <span class="admin-label">Painel Administrativo</span>
+        </a>
+      </li>
+
       <li class="nav-item cart-item">
         <a routerLink="/carrinho" routerLinkActive="active" class="cart-link" title="Meu Carrinho">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -42,7 +49,7 @@
         <a routerLink="/login" routerLinkActive="active" class="login-btn">Login</a>
       </li>
 
-      <li class="nav-item dropdown" *ngIf="isLoggedIn">
+      <li class="nav-item nav-item--conta dropdown" *ngIf="isLoggedIn">
         <a (click)="toggleUserMenu()" class="user-btn">{{ getUserName() }}</a>
         <div class="dropdown-menu user-menu" *ngIf="isUserMenuOpen">
           <a routerLink="/minha-conta">Minha Conta</a>
@@ -52,13 +59,6 @@
           <a routerLink="/vender-livro">Vender meu Livro</a>
           <a (click)="logout()" class="logout-link">Sair</a>
         </div>
-      </li>
-
-      <li class="nav-item admin-item" *ngIf="isAdmin()">
-        <a routerLink="/admin" routerLinkActive="active" class="admin-panel-link" title="Painel Administrativo" aria-label="Painel Administrativo">
-          <i class="fa-solid fa-gear" aria-hidden="true"></i>
-          <span class="admin-label">Painel Administrativo</span>
-        </a>
       </li>
     </ul>
 

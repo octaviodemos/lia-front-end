@@ -17,20 +17,30 @@
         <div class="card-body">{{ a.comentario }}</div>
         <div class="card-actions">
           <ng-container *ngIf="confirmApproveId !== (a.id_avaliacao || a.id) && confirmRejectId !== (a.id_avaliacao || a.id)">
-            <button class="btn-approve" (click)="requestApproveAvaliacao(a)" [disabled]="processingId">Aprovar</button>
-            <button class="btn-reject" (click)="requestRejectAvaliacao(a)" [disabled]="processingId">Rejeitar</button>
+            <div class="card-actions__linha">
+              <button type="button" class="btn-approve" (click)="requestApproveAvaliacao(a)" [disabled]="processingId">Aprovar</button>
+              <button type="button" class="btn-reject" (click)="requestRejectAvaliacao(a)" [disabled]="processingId">Rejeitar</button>
+            </div>
           </ng-container>
 
           <ng-container *ngIf="confirmApproveId === (a.id_avaliacao || a.id)">
-            <span>Confirma aprovação?</span>
-            <button (click)="confirmApproveAvaliacao()" [disabled]="processingId">Confirmar</button>
-            <button (click)="cancelApprove()">Cancelar</button>
+            <div class="confirm-bloco">
+              <span class="confirm-bloco__pergunta">Confirma aprovação?</span>
+              <div class="confirm-bloco__botoes">
+                <button type="button" class="btn-confirm" (click)="confirmApproveAvaliacao()" [disabled]="processingId">Confirmar</button>
+                <button type="button" class="btn-outline" (click)="cancelApprove()">Cancelar</button>
+              </div>
+            </div>
           </ng-container>
 
           <ng-container *ngIf="confirmRejectId === (a.id_avaliacao || a.id)">
-            <span>Confirma rejeição?</span>
-            <button class="btn-danger" (click)="confirmRejectAvaliacao()" [disabled]="processingId">Confirmar</button>
-            <button (click)="cancelReject()">Cancelar</button>
+            <div class="confirm-bloco">
+              <span class="confirm-bloco__pergunta">Confirma rejeição?</span>
+              <div class="confirm-bloco__botoes">
+                <button type="button" class="btn-danger" (click)="confirmRejectAvaliacao()" [disabled]="processingId">Confirmar</button>
+                <button type="button" class="btn-outline" (click)="cancelReject()">Cancelar</button>
+              </div>
+            </div>
           </ng-container>
         </div>
       </div>

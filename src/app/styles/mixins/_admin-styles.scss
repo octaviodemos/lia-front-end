@@ -1,20 +1,22 @@
+@use 'sass:color';
 
-$admin-bg: #f4f7fa;
+$admin-bg: #fdfaf5;
 $content-bg: #ffffff;
-$border-color: #e0e6ed;
+$border-color: #e8e0d8;
 $text-color: #333;
-$primary-color: #3498db; 
+$primary-color: #6a0000;
 
 @mixin admin-page-container {
   background-color: $content-bg;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(60, 20, 20, 0.06);
+  border: 1px solid color.adjust($primary-color, $lightness: 40%);
 
   h2 {
     font-size: 1.8rem;
     color: $text-color;
-    border-bottom: 2px solid $border-color;
+    border-bottom: 2px solid color.mix($border-color, $primary-color, 92%);
     padding-bottom: 1rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -39,13 +41,13 @@ $primary-color: #3498db;
       padding: 0.85rem 1rem;
       font-size: 1rem;
       border: 1px solid $border-color;
-      border-radius: 5px;
+      border-radius: 8px;
       box-sizing: border-box;
 
       &:focus {
         outline: none;
         border-color: $primary-color;
-        box-shadow: 0 0 5px rgba($primary-color, 0.3);
+        box-shadow: 0 0 0 3px color.change($primary-color, $alpha: 0.2);
       }
     }
 
@@ -59,7 +61,7 @@ $primary-color: #3498db;
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     font-size: 1rem;
@@ -73,7 +75,7 @@ $primary-color: #3498db;
 @mixin admin-data-card {
   background-color: #fdfdfd;
   border: 1px solid $border-color;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);

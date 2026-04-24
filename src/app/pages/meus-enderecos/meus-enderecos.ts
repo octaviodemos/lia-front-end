@@ -85,44 +85,101 @@ export class MeusEnderecos implements OnInit {
     this.buscandoCep = true;
     this.enderecoUtilsService.buscarCep(cep).subscribe({
       next: (endereco) => {
-        
-        // Verifica se tem dados básicos (cidade/estado)
-        const temDadosBasicos = endereco.localidade && endereco.uf;
-        
-        if (temDadosBasicos) {
-          this.enderecoForm.patchValue({
-            rua: endereco.logradouro || '',
-            bairro: endereco.bairro || '',
-            cidade: endereco.localidade || '',
-            estado: endereco.uf || ''
-          });
-          
-          // Alerta se alguns campos estão vazios
-          const camposVazios = [];
-          if (!endereco.logradouro) camposVazios.push('logradouro');
-          if (!endereco.bairro) camposVazios.push('bairro');
-          
-          if (camposVazios.length > 0) {
-            console.warn(`CEP encontrado, mas ${camposVazios.join(' e ')} não disponível(is). Preencha manualmente.`);
-            // Você pode mostrar uma mensagem na tela também
-            this.mostrarAvisoCepIncompleto(camposVazios);
-          }
-        } else {
-          console.error('CEP encontrado mas sem dados de localização');
+        const localidade = (endereco?.localidade || '').toString().trim();
+        const ufBruto = (endereco?.uf || '').toString().trim();
+        if (!localidade || !ufBruto) {
+          this.buscandoCep = false;
+          return;
         }
-        
-        this.buscandoCep = false;
+
+        const uf = ufBruto.toUpperCase().slice(0, 2);
+
+        this.enderecoForm.patchValue(
+          {
+            rua: (endereco.logradouro || '').toString(),
+            bairro: (endereco.bairro || '').toString()
+          },
+          { emitEvent: false }
+        );
+
+        const avisarCamposLinha = () => {
+          const faltas: string[] = [];
+          if (!endereco.logradouro) faltas.push('logradouro');
+          if (!endereco.bairro) faltas.push('bairro');
+          if (faltas.length > 0) {
+            this.mostrarAvisoCepIncompleto(faltas);
+          }
+        };
+
+        const aplicarUfMunicipioECidade = () => {
+          if (!this.estados.some((e) => e.sigla === uf)) {
+            this.buscandoCep = false;
+            return;
+          }
+          this.enderecoForm.get('estado')?.setValue(uf, { emitEvent: false });
+          this.carregandoMunicipios = true;
+          this.municipios = [];
+          this.enderecoUtilsService.listarMunicipios(uf).subscribe({
+            next: (lista) => {
+              this.municipios = lista;
+              this.carregandoMunicipios = false;
+              const localNorm = (s: string) => s.trim().toLowerCase();
+              const municipioExato = lista.find(
+                (m) => localNorm(m.nome) === localNorm(localidade)
+              );
+              const municipioAfin =
+                municipioExato ||
+                lista.find(
+                  (m) =>
+                    m.nome.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase() ===
+                    localidade
+                      .normalize('NFD')
+                      .replace(/\p{M}/gu, '')
+                      .toLowerCase()
+                ) ||
+                null;
+              const nomeCidade = municipioAfin ? municipioAfin.nome : localidade;
+              this.enderecoForm.patchValue(
+                { estado: uf, cidade: nomeCidade },
+                { emitEvent: false }
+              );
+              avisarCamposLinha();
+              this.buscandoCep = false;
+            },
+            error: (err) => {
+              console.error('Erro ao listar municípios após CEP', err);
+              this.carregandoMunicipios = false;
+              this.municipios = [];
+              this.enderecoForm.patchValue(
+                { estado: uf, cidade: localidade },
+                { emitEvent: false }
+              );
+              this.buscandoCep = false;
+            }
+          });
+        };
+
+        if (this.estados.length) {
+          aplicarUfMunicipioECidade();
+        } else {
+          this.enderecoUtilsService.listarEstados().subscribe({
+            next: (es) => {
+              this.estados = es;
+              aplicarUfMunicipioECidade();
+            },
+            error: () => {
+              this.buscandoCep = false;
+            }
+          });
+        }
       },
-      error: (err) => {
-        console.error('CEP não encontrado', err);
+      error: () => {
         this.buscandoCep = false;
-        // Limpa os campos se houve erro
-        this.enderecoForm.patchValue({
-          rua: '',
-          bairro: '',
-          cidade: '',
-          estado: ''
-        });
+        this.municipios = [];
+        this.enderecoForm.patchValue(
+          { rua: '', bairro: '', cidade: '', estado: '' },
+          { emitEvent: false }
+        );
       }
     });
   }

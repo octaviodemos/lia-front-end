@@ -94,7 +94,8 @@ export class SolicitarReforma implements OnInit {
 
     this.reformaService.criarSolicitacao(formData).subscribe({
       next: () => {
-        this.mensagemSucesso = 'Solicitação de reforma enviada com sucesso!';
+        this.mensagemSucesso =
+          'Entraremos em contato via WhatsApp ou e-mail cadastrado na sua conta.';
         this.reformaForm.reset();
         this.arquivosPorTipo = {};
         this.nomesArquivos = {};

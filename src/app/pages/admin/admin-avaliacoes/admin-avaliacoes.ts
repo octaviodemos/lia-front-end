@@ -23,18 +23,12 @@ export class AdminAvaliacoes implements OnInit {
   }
 
   carregarAvaliacoesPendentes() {
-    console.log('Carregando avaliações pendentes...');
     this.adminModeration.getPendingAvaliacoes().subscribe({
-      next: (res: any) => { 
-        console.log('Resposta do servidor:', res);
-        let avaliacoes = Array.isArray(res) ? res : (res?.data || res || []);
-        
-        // Filtrar apenas avaliações com status 'pendente'
-        this.pendingAvaliacoes = avaliacoes.filter((a: any) => 
-          a.status === 'pendente' || a.status === 'pending' || !a.status
+      next: (res: any) => {
+        const avaliacoes = Array.isArray(res) ? res : res?.data || res || [];
+        this.pendingAvaliacoes = avaliacoes.filter(
+          (a: any) => a.status === 'pendente' || a.status === 'pending' || !a.status
         );
-        
-        console.log('Avaliações pendentes atualizadas:', this.pendingAvaliacoes);
       },
       error: (err: any) => { 
         console.error('Erro ao carregar avaliações pendentes', err); 
@@ -50,12 +44,9 @@ export class AdminAvaliacoes implements OnInit {
   confirmApproveAvaliacao() {
     const id = this.confirmApproveId;
     if (!id) return;
-    console.log('Aprovando avaliação ID:', id);
     this.processingId = id;
     this.adminModeration.approveAvaliacao(id).subscribe({
-      next: (response) => {
-        console.log('Avaliação aprovada com sucesso:', response);
-        // Recarregar lista do servidor para garantir sincronização
+      next: () => {
         this.carregarAvaliacoesPendentes();
         this.processingId = null;
         this.confirmApproveId = null;
@@ -73,12 +64,9 @@ export class AdminAvaliacoes implements OnInit {
   confirmRejectAvaliacao() {
     const id = this.confirmRejectId;
     if (!id) return;
-    console.log('Rejeitando avaliação ID:', id);
     this.processingId = id;
     this.adminModeration.deleteAvaliacao(id).subscribe({
-      next: (response) => {
-        console.log('Avaliação rejeitada com sucesso:', response);
-        // Recarregar lista do servidor para garantir sincronização
+      next: () => {
         this.carregarAvaliacoesPendentes();
         this.processingId = null;
         this.confirmRejectId = null;

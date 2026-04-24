@@ -31,4 +31,10 @@ export class LivroService {
   criarLivro(livroData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/books`, livroData);
   }
+
+  atualizarLivro(id: string | number, formData: FormData): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/books/${id}`, formData).pipe(
+      map((raw) => normalizeLivro(raw))
+    );
+  }
 }

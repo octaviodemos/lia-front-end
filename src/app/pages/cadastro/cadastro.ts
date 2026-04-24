@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
@@ -26,7 +27,8 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
 @Component({
   selector: 'app-cadastro',
   standalone: true,
-  imports: [ CommonModule, ReactiveFormsModule, RouterLink ],
+  imports: [ CommonModule, ReactiveFormsModule, RouterLink, NgxMaskDirective ],
+  providers: [provideNgxMask()],
   templateUrl: './cadastro.html',
   styleUrls: ['./cadastro.scss']
 })
@@ -45,6 +47,7 @@ export class Cadastro implements OnInit {
     this.registerForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      telefone: [''],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmarSenha: ['', [Validators.required]]
     }, { validators: passwordMatchValidator });
@@ -54,12 +57,16 @@ export class Cadastro implements OnInit {
     this.mensagemErro = '';
     
     if (this.registerForm.valid) {
-      const userData = {
+      const userData: Record<string, unknown> = {
         nome: this.registerForm.value.nome,
         email: this.registerForm.value.email,
         password: this.registerForm.value.password,
-        tipo_usuario: 'cliente'
+        tipo_usuario: 'cliente',
       };
+      const tel = (this.registerForm.value.telefone || '').toString().replace(/\D/g, '');
+      if (tel.length) {
+        userData['telefone'] = this.registerForm.value.telefone;
+      }
 
       this.authService.register(userData).subscribe({
         next: (response: any) => {

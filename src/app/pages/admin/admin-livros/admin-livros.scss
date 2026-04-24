@@ -1,6 +1,7 @@
 @use 'mixins/admin-styles' as *;
 
 $admin-muted-text: #6c757d;
+$cor-principal: #6a0000;
 
 .admin-container {
   @include admin-page-container;
@@ -32,6 +33,14 @@ $admin-muted-text: #6c757d;
       background: #fafbfd;
     }
 
+    .form-group label.destaque-vitrine__switch {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      margin-bottom: 0;
+    }
+
     .destaque-vitrine__switch {
       display: flex;
       align-items: center;
@@ -48,12 +57,12 @@ $admin-muted-text: #6c757d;
         height: 0;
 
         &:focus-visible + .destaque-vitrine__track {
-          outline: 2px solid #3498db;
+          outline: 2px solid $cor-principal;
           outline-offset: 3px;
         }
 
         &:checked + .destaque-vitrine__track {
-          background: #3498db;
+          background: $cor-principal;
         }
 
         &:checked + .destaque-vitrine__track::after {
@@ -68,7 +77,8 @@ $admin-muted-text: #6c757d;
       border-radius: 999px;
       background: #ced4da;
       position: relative;
-      flex-shrink: 0;
+      flex: 0 0 auto;
+      margin-right: 0.15rem;
       transition: background 0.2s ease;
 
       &::after {
@@ -87,6 +97,9 @@ $admin-muted-text: #6c757d;
 
     .destaque-vitrine__label-text {
       user-select: none;
+      flex: 1 1 auto;
+      min-width: 0;
+      line-height: 1.35;
     }
 
     .destaque-vitrine__hint {

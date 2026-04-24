@@ -37,6 +37,74 @@ $cor-borda: #eee;
   }
 }
 
+.secao-perfil {
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid $cor-borda;
+
+  h2 {
+    font-size: 1.35rem;
+    color: $cor-principal;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .secao-perfil__intro {
+    font-size: 0.95rem;
+    color: $cor-texto-secundario;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: $cor-texto;
+    }
+
+    input {
+      padding: 0.7rem 0.85rem;
+      border: 1px solid $cor-borda;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input:disabled {
+      background: #f3f3f3;
+      color: #666;
+    }
+  }
+
+  .btn-salvar-perfil {
+    background: $cor-principal;
+    color: #fff;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+
+  .btn-salvar-perfil:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .msg-perfil {
+    margin: 0.75rem 0 0 0;
+    color: #0d5327;
+    font-size: 0.95rem;
+  }
+}
+
 // Navegação da Conta
 .conta-navegacao {
   display: flex;

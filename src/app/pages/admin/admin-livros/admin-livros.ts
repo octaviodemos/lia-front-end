@@ -37,7 +37,8 @@ export class AdminLivros implements OnInit {
       isbn: [''],
       nota_conservacao: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
       descricao_conservacao: [''],
-      destaque_vitrine: [false]
+      destaque_vitrine: [false],
+      preco: [null as number | null, [Validators.min(0)]]
     });
   }
 
@@ -101,6 +102,18 @@ export class AdminLivros implements OnInit {
           formData.append(key, cortado);
           return;
         }
+        if (key === 'preco') {
+          if (value == null || value === '') {
+            return;
+          }
+          const s = String(value).replace(',', '.');
+          const n = parseFloat(s);
+          if (!Number.isFinite(n) || n < 0) {
+            return;
+          }
+          formData.append('preco', n.toFixed(2));
+          return;
+        }
         const payload =
           typeof value === 'number' || typeof value === 'boolean' ? String(value) : value;
         formData.append(key, payload as string | Blob);
@@ -109,7 +122,17 @@ export class AdminLivros implements OnInit {
       this.livroService.criarLivro(formData).subscribe({
         next: (response: any) => {
           this.mensagemSucesso = `Livro "${response.titulo}" criado com sucesso!`;
-          this.livroForm.reset();
+          this.livroForm.reset({
+            titulo: '',
+            sinopse: '',
+            editora: '',
+            ano_publicacao: null,
+            isbn: '',
+            nota_conservacao: 5,
+            descricao_conservacao: '',
+            destaque_vitrine: false,
+            preco: null,
+          });
           this.arquivosPorTipo = {};
           this.nomesArquivos = {};
           this.previewsPorTipo = {};

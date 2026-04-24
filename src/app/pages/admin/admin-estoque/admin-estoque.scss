@@ -1,11 +1,235 @@
 @use 'mixins/admin-styles' as *;
 
+$admin-muted-text: #6c757d;
+$text-color: #333;
+$primary-color: #6a0000;
+
 .admin-container {
   @include admin-page-container;
   
   form {
     @include admin-form;
+
+    .form-section-title {
+      font-size: 1.1rem;
+      color: $text-color;
+      margin: 1.75rem 0 1rem 0;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #e0e6ed;
+    }
+
+    .form-group label.destaque-vitrine__switch {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      margin-bottom: 0;
+    }
+
+    .destaque-vitrine {
+      padding: 1rem;
+      border: 1px solid #e0e6ed;
+      border-radius: 8px;
+      background: #fafbfd;
+    }
+
+    .destaque-vitrine__switch {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: $text-color;
+      position: relative;
+
+      input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:focus-visible + .destaque-vitrine__track {
+          outline: 2px solid $primary-color;
+          outline-offset: 3px;
+        }
+
+        &:checked + .destaque-vitrine__track {
+          background: $primary-color;
+        }
+
+        &:checked + .destaque-vitrine__track::after {
+          transform: translateX(1.35rem);
+        }
+      }
+    }
+
+    .destaque-vitrine__track {
+      width: 3rem;
+      height: 1.55rem;
+      border-radius: 999px;
+      background: #ced4da;
+      position: relative;
+      flex: 0 0 auto;
+      margin-right: 0.15rem;
+      transition: background 0.2s ease;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0.2rem;
+        left: 0.22rem;
+        width: 1.15rem;
+        height: 1.15rem;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease;
+      }
+    }
+
+    .destaque-vitrine__label-text {
+      user-select: none;
+      flex: 1 1 auto;
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .destaque-vitrine__hint {
+      margin: 0.6rem 0 0 0;
+      padding-left: 3.75rem;
+      font-size: 0.875rem;
+      color: $admin-muted-text;
+      line-height: 1.45;
+    }
   }
+}
+
+.file-upload-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  input[type='file'] {
+    display: none;
+  }
+
+  .file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #495057;
+
+    &:hover {
+      background-color: #e9ecef;
+      border-color: #6a0000;
+      color: #6a0000;
+    }
+  }
+
+  .btn-clear-file {
+    background-color: #dc3545;
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.image-preview {
+  margin-top: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+
+  img {
+    max-width: 300px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+}
+
+.hint {
+  display: block;
+  margin-top: 0.5rem;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.imagens-grid__titulo { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+.imagens-grid__intro { margin: 0 0 1rem; color: #555; font-size: 0.95rem; }
+.imagens-grid__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.slot-imagem { border: 1px solid #e9ecef; border-radius: 8px; padding: 0.75rem 1rem; background: #fafafa; }
+.slot-imagem__titulo { display: block; font-weight: 600; }
+.slot-imagem__desc { display: block; color: #6c757d; line-height: 1.35; margin: 0.25rem 0 0.5rem; }
+.image-preview--slot img { max-width: 100%; max-height: 220px; }
+
+.subtitulo-estoque {
+  color: #5a6169;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: -0.5rem 0 1.25rem 0;
+  max-width: 52rem;
+}
+
+.aviso-modo {
+  font-weight: 600;
+  color: $primary-color;
+  margin: 0 0 1rem 0;
+}
+
+.checkbox-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form-botoes-estoque {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: stretch;
+  margin-top: 0.5rem;
+
+  button[type='submit'],
+  .btn-sec {
+    flex: 1 1 10rem;
+    min-height: 2.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+  }
+}
+
+form .form-botoes-estoque .btn-sec {
+  background: #6c757d;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+form .form-botoes-estoque .btn-sec:hover {
+  background: #5c636a;
 }
 
 .mensagem-sucesso {
@@ -14,13 +238,15 @@
   background-color: #e6f7ec;
   border: 1px solid #b7ebc9;
   color: #0f5132;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .lista-estoque {
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 2px solid #e0e6ed;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
   h3 {
     margin: 0 0 1rem 0;
@@ -31,7 +257,7 @@
 
 .tabela-estoque {
   border: 1px solid #e0e6ed;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   background: #fff;
 }
@@ -39,10 +265,46 @@
 .tabela-estoque__header,
 .tabela-estoque__row {
   display: grid;
-  grid-template-columns: 72px 1fr 100px 120px;
-  gap: 0.75rem;
+  grid-template-columns: 56px minmax(120px, 1fr) 40px 80px 90px minmax(140px, 1.1fr);
+  gap: 0.65rem;
   align-items: center;
-  padding: 0.65rem 1rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.tabela-estoque__acoes--btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.btn-edit {
+  background: $primary-color;
+  color: #fff;
+  border: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-edit:hover {
+  background: #5a0a0a;
+}
+
+.btn-del {
+  background: #dc3545;
+  color: #fff;
+  border: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-del:hover {
+  background: #bb2d3b;
 }
 
 .tabela-estoque__header {

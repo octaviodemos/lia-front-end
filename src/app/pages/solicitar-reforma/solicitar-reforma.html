@@ -3,6 +3,10 @@
   <p>Tem um livro com valor sentimental que precisa de reparo? A LIA pode te ajudar. Descreva o problema e anexe fotos para uma avaliação.</p>
   <p class="destaque-avarias">Em especial, envie fotos nítidas em «Detalhes e avarias» para mostrar rasgos, umidade, folhas soltas ou desgaste da encadernação.</p>
 
+  <div *ngIf="mensagemSucesso" class="mensagem-sucesso" role="status">
+    {{ mensagemSucesso }}
+  </div>
+
   <form [formGroup]="reformaForm" (ngSubmit)="onSubmit()">
     
     <div class="form-group">
@@ -36,8 +40,4 @@
     
     <button type="submit" [disabled]="reformaForm.invalid">Enviar Solicitação</button>
   </form>
-
-  <div *ngIf="mensagemSucesso" class="mensagem-sucesso">
-    {{ mensagemSucesso }}
-  </div>
 </div>
