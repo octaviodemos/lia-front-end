@@ -39,7 +39,7 @@
     </ng-template>
 
     <div class="livro-info">
-      <h1>{{ livro.titulo }}</h1>
+      <h1>{{ getTituloBaseLivro() }}</h1>
       <div class="faixa-multi-exemplares" *ngIf="temOutrasOpcoes()" role="status">
         <span class="faixa-multi-exemplares__icone" aria-hidden="true">📚</span>
         <p class="faixa-multi-exemplares__texto">

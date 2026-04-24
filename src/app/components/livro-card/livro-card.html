@@ -10,16 +10,16 @@
       <span class="card-badge-conservacao" *ngIf="exibeBadgeConservacao()">
         ⭐ {{ getNotaConservacao() }}/5
       </span>
-      <span
-        class="card-badge-isbn-multiplo"
-        *ngIf="exibeSeloVariosExemplaresIsbn()"
-        [attr.title]="getTituloSeloVariosExemplares()"
-      >
-        {{ getTotalExemplaresMesmoIsbn() }}× mesmo ISBN
-      </span>
     </div>
+    <p
+      class="card-exemplares-linha"
+      *ngIf="exibeSeloVariosExemplaresIsbn()"
+      [attr.title]="getTituloSeloVariosExemplares()"
+    >
+      {{ getTotalExemplaresMesmoIsbn() }} exemplares com este ISBN
+    </p>
     <div class="card-info">
-      <h3 class="card-title">{{ livro.titulo }}</h3>
+      <h3 class="card-title">{{ getTituloCurto() }}</h3>
       <div class="card-media-comunidade" *ngIf="exibeNotaComunidade()">
         <span class="card-media-comunidade__icone" aria-hidden="true">⭐</span>
         <span class="card-media-comunidade__valor">{{ getNotaMediaComunidadeTexto() }}</span>

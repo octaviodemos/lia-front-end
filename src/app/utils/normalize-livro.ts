@@ -179,7 +179,10 @@ export function normalizeLivro(raw: LivroRaw): Livro {
   }
 
   const outrosCount = outrasOpcoes?.length ?? 0;
-  const exCatalogo = parseExemplaresMesmoIsbn(raw.exemplares_mesmo_isbn);
+  const exBruto =
+    raw.exemplares_mesmo_isbn ??
+    (raw as { exemplaresMesmoIsbn?: unknown }).exemplaresMesmoIsbn;
+  const exCatalogo = parseExemplaresMesmoIsbn(exBruto);
   const exemplares_mesmo_isbn =
     exCatalogo != null ? exCatalogo : outrosCount > 0 ? outrosCount + 1 : undefined;
 

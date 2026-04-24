@@ -41,6 +41,12 @@ export class LivroCard {
     return precoNum.toFixed(2).replace('.', ',');
   }
 
+  getTituloCurto(): string {
+    const t = this.livro?.titulo || '';
+    const limpo = t.replace(/\s*\(Acervo [ABCD]\)\s*$/i, '').trim();
+    return limpo || t;
+  }
+
   getAutorNome(): string {
     if (!this.livro) return 'Autor desconhecido';
     
@@ -82,8 +88,11 @@ export class LivroCard {
 
   getTotalExemplaresMesmoIsbn(): number {
     if (!this.livro) return 1;
-    const n = this.livro.exemplares_mesmo_isbn;
-    if (typeof n === 'number' && Number.isFinite(n) && n >= 1) return Math.floor(n);
+    const bruto =
+      this.livro.exemplares_mesmo_isbn ??
+      (this.livro as { exemplaresMesmoIsbn?: unknown }).exemplaresMesmoIsbn;
+    const n = typeof bruto === 'number' ? bruto : bruto != null && bruto !== '' ? Number(String(bruto).trim()) : NaN;
+    if (Number.isFinite(n) && n >= 1) return Math.floor(n);
     const arr = this.livro.outras_opcoes;
     if (Array.isArray(arr) && arr.length) return arr.length + 1;
     return 1;
@@ -95,7 +104,7 @@ export class LivroCard {
 
   getTituloSeloVariosExemplares(): string {
     const t = this.getTotalExemplaresMesmoIsbn();
-    return `Mesmo ISBN: ${t} exemplares na loja. Abra a página para ver preços e estados.`;
+    return `${t} exemplares com o mesmo ISBN na loja. Abra para comparar preços e estados.`;
   }
 
   private getNotaMediaAvaliacoesNumero(): number | null {

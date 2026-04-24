@@ -454,10 +454,17 @@ export class LivroDetalhes implements OnInit {
   podeAdicionarAoCarrinho(): boolean {
     const e = this.getEstoqueSelecionado();
     if (!e) return false;
-    if (e.disponivel === false || e.disponivel === 0 || e.disponivel === 'false') {
+    const d = e.disponivel as unknown;
+    if (d === false || d === 0 || d === 'false') {
       return false;
     }
     return this.getPrecoSelecionadoNumero() !== null;
+  }
+
+  getTituloBaseLivro(): string {
+    const t = this.livro?.titulo || '';
+    const limpo = t.replace(/\s*\(Acervo [ABCD]\)\s*$/i, '').trim();
+    return limpo || t;
   }
 
   getAutorNome(): string {
