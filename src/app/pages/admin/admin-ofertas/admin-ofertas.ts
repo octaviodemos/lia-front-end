@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OfertaVendaService } from '../../../services/oferta-venda.service';
+import { AiService } from '../../../services/ai.service';
 import type { LivroImagem } from '../../../models/livro-imagem';
+import type { AvaliacaoIaOferta } from '../../../models/avaliacao-ia-oferta';
 import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
@@ -17,8 +19,13 @@ export class AdminOfertas implements OnInit {
   ofertas: any[] = [];
   respostaMap: { [key: string]: string } = {};
   expandidoPorId: Record<string, boolean> = {};
+  iaCarregandoPorId: Record<string, boolean> = {};
+  iaResultadoPorId: Record<string, AvaliacaoIaOferta | null> = {};
 
-  constructor(private ofertaVendaService: OfertaVendaService) {}
+  constructor(
+    private ofertaVendaService: OfertaVendaService,
+    private aiService: AiService,
+  ) {}
 
   ngOnInit(): void {
     this.carregarOfertas();
@@ -69,6 +76,50 @@ export class AdminOfertas implements OnInit {
 
   urlMidia(url: string | null | undefined): string {
     return resolverUrlMidiaApi(url);
+  }
+
+  iaCarregando(oferta: any): boolean {
+    return !!this.iaCarregandoPorId[this.chaveOferta(oferta)];
+  }
+
+  iaResultado(oferta: any): AvaliacaoIaOferta | null {
+    return this.iaResultadoPorId[this.chaveOferta(oferta)] ?? null;
+  }
+
+  estrelaPreenchida(oferta: any, indice: number): boolean {
+    const r = this.iaResultado(oferta);
+    if (!r) return false;
+    const raw = Math.round(Number(r.nota_conservacao));
+    const n = Number.isFinite(raw) ? Math.min(5, Math.max(1, raw)) : 3;
+    return indice <= n;
+  }
+
+  avaliarComIa(oferta: any): void {
+    const key = this.chaveOferta(oferta);
+    const id = oferta?.id_oferta_venda ?? oferta?.id;
+    if (id === undefined || id === null || id === '') {
+      return;
+    }
+    if (!this.imagensDaOferta(oferta).length) {
+      alert('Não há fotos para analisar nesta oferta.');
+      return;
+    }
+    this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: true };
+    this.aiService.avaliarOfertaComIA(Number(id)).subscribe({
+      next: (r) => {
+        this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
+        this.iaResultadoPorId = { ...this.iaResultadoPorId, [key]: r };
+        const prev = (this.respostaMap[key] || '').trim();
+        const draft = `Sugestão da IA — nota ${r.nota_conservacao}/5 sobre o exemplar:\n${r.descricao_conservacao}`;
+        if (!prev) {
+          this.respostaMap = { ...this.respostaMap, [key]: draft };
+        }
+      },
+      error: () => {
+        this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
+        alert('A IA não conseguiu analisar as fotos. Por favor, avalie o livro manualmente.');
+      },
+    });
   }
 
   handleResposta(ofertaId: any, novoStatus: 'aceita' | 'recusada'): void {

@@ -201,3 +201,130 @@
     border: 1px solid #e5e5e5;
   }
 }
+
+.ia-toolbar {
+  margin-top: 1rem;
+}
+
+.btn-ia-evaluar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid #c9b8bc;
+  background: linear-gradient(135deg, #fff8fc, #f3e8ff 55%, #fff);
+  color: #4a0d4a;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(106, 0, 0, 0.08);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(80, 20, 90, 0.12);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.88;
+  }
+
+  &__icon {
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  &__label {
+    letter-spacing: 0.01em;
+  }
+
+  &__loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.ia-spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(106, 0, 0, 0.2);
+  border-top-color: #6a0000;
+  border-radius: 50%;
+  animation: ia-spin 0.75s linear infinite;
+}
+
+@keyframes ia-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ia-sugestao {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid #e8e0d8;
+  background: linear-gradient(180deg, #fdfaf5 0%, #ffffff 65%);
+  box-shadow: 0 2px 6px rgba(60, 20, 20, 0.04);
+}
+
+.ia-sugestao__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.ia-sugestao__badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #6a0000;
+}
+
+.ia-sugestao__nota-num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #333;
+}
+
+.ia-sugestao__estrelas {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.65rem;
+}
+
+.ia-sugestao__estrela {
+  color: #d6c9d6;
+  text-shadow: none;
+
+  &--cheia {
+    color: #c9a227;
+  }
+}
+
+.ia-sugestao__descricao {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #2f4858;
+}
+
+.ia-sugestao__hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  color: #5c5c5c;
+  line-height: 1.35;
+}

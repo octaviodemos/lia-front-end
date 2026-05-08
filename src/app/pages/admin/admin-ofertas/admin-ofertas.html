@@ -51,12 +51,56 @@
         </button>
       </div>
 
-      <div *ngIf="detalhesAbertos(oferta) && imagensDaOferta(oferta).length" class="admin-imagens-grid">
-        <figure *ngFor="let img of imagensDaOferta(oferta)" class="admin-imagens-grid__item">
-          <figcaption class="admin-imagens-grid__titulo">{{ rotuloTipo(img.tipo_imagem) }}</figcaption>
-          <img [src]="urlMidia(img.url_imagem)" [alt]="rotuloTipo(img.tipo_imagem)" loading="lazy" />
-        </figure>
-      </div>
+      <ng-container *ngIf="detalhesAbertos(oferta) && imagensDaOferta(oferta).length">
+        <div class="admin-imagens-grid">
+          <figure *ngFor="let img of imagensDaOferta(oferta)" class="admin-imagens-grid__item">
+            <figcaption class="admin-imagens-grid__titulo">{{ rotuloTipo(img.tipo_imagem) }}</figcaption>
+            <img [src]="urlMidia(img.url_imagem)" [alt]="rotuloTipo(img.tipo_imagem)" loading="lazy" />
+          </figure>
+        </div>
+
+        <div class="ia-toolbar">
+          <button
+            type="button"
+            class="btn-ia-evaluar"
+            (click)="avaliarComIa(oferta)"
+            [disabled]="iaCarregando(oferta)"
+            [attr.aria-busy]="iaCarregando(oferta)"
+          >
+            <span class="btn-ia-evaluar__icon" aria-hidden="true">🪄</span>
+            <ng-container *ngIf="!iaCarregando(oferta)">
+              <span class="btn-ia-evaluar__label">Avaliar com Inteligência Artificial</span>
+            </ng-container>
+            <span *ngIf="iaCarregando(oferta)" class="btn-ia-evaluar__loading">
+              <span class="ia-spinner" aria-hidden="true"></span>
+              <span>Analisando fotos com IA…</span>
+            </span>
+          </button>
+        </div>
+
+        <div
+          *ngIf="iaResultado(oferta) as ia"
+          class="ia-sugestao"
+          role="region"
+          [attr.aria-label]="'Sugestão da IA, nota ' + ia.nota_conservacao + ' de 5'"
+        >
+          <div class="ia-sugestao__header">
+            <span class="ia-sugestao__badge">Sugestão da IA</span>
+            <span class="ia-sugestao__nota-num">{{ ia.nota_conservacao }} / 5</span>
+          </div>
+          <div class="ia-sugestao__estrelas" aria-hidden="true">
+            <span
+              *ngFor="let s of [1, 2, 3, 4, 5]"
+              class="ia-sugestao__estrela"
+              [class.ia-sugestao__estrela--cheia]="estrelaPreenchida(oferta, s)"
+            >★</span>
+          </div>
+          <p class="ia-sugestao__descricao">{{ ia.descricao_conservacao }}</p>
+          <p *ngIf="oferta.status_oferta === 'pendente'" class="ia-sugestao__hint">
+            O rascunho da mensagem ao cliente foi preenchido automaticamente quando o campo estava vazio — revise antes de aceitar ou recusar.
+          </p>
+        </div>
+      </ng-container>
 
       <div *ngIf="oferta.status_oferta === 'pendente'" class="admin-actions">
         <div class="form-group">
