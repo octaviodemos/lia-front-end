@@ -4,7 +4,7 @@
 
   <section class="vitrine-recomendados" *ngIf="recomendadosSkoob.length > 0">
     <h2 class="vitrine-recomendados__titulo">Recomendados para Você 🪄</h2>
-    <p class="vitrine-recomendados__sub">Com base na sua estante Skoob (sugestões simuladas por enquanto).</p>
+    <p class="vitrine-recomendados__sub">Sugestões personalizadas com base na sua estante Skoob.</p>
     <div class="vitrine-recomendados__track" role="list">
       <app-livro-card *ngFor="let livro of recomendadosSkoob" [livro]="livro" role="listitem"></app-livro-card>
     </div>

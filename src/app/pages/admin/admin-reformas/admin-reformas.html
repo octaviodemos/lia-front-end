@@ -48,7 +48,7 @@
 
         <div *ngIf="iaResultado(s) as ev" class="reforma-ia-card" role="region" [attr.aria-label]="'Sugestão de IA para reforma'">
           <div class="reforma-ia-card__header">
-            <span class="reforma-ia-card__badge">Sugestão IA (mock)</span>
+            <span class="reforma-ia-card__badge">Sugestão IA</span>
             <span class="reforma-ia-card__gravidade">{{ ev.gravidade }}</span>
           </div>
           <p class="reforma-ia-card__orcamento">Orçamento estimado: <strong>R$ {{ ev.orcamento_estimado | number:'1.2-2' }}</strong></p>
