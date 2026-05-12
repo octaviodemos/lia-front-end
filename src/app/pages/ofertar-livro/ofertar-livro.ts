@@ -17,6 +17,13 @@ export class OfertarLivro implements OnInit {
   ofertaForm!: FormGroup;
   mensagemSucesso: string = '';
   readonly slotsImagens = LIVRO_IMAGEM_FORM_SLOTS;
+  readonly camposFotoObrigatorios: LivroImagemFormFieldName[] = [
+    'imagem_Capa',
+    'imagem_Contracapa',
+    'imagem_Lombada',
+    'imagem_MioloPaginas',
+  ];
+  submitAttempt = false;
   private readonly tamanhoMaxArquivo = 5 * 1024 * 1024;
 
   arquivosPorTipo: Partial<Record<LivroImagemFormFieldName, File | null>> = {};
@@ -31,8 +38,7 @@ export class OfertarLivro implements OnInit {
   ngOnInit(): void {
     this.ofertaForm = this.fb.group({
       titulo_livro: ['', Validators.required],
-      autor_livro: [''],
-      isbn: [''],
+      autor_livro: ['', Validators.required],
       descricao_condicao: [''],
       preco_sugerido: ['', [Validators.required, Validators.pattern(/^\d+(?:[.,]\d{1,2})?$/)]]
     });
@@ -40,6 +46,29 @@ export class OfertarLivro implements OnInit {
 
   idInputArquivo(campo: LivroImagemFormFieldName): string {
     return `oferta-arquivo-${campo}`;
+  }
+
+  fotoObrigatoriaPendente(campo: LivroImagemFormFieldName): boolean {
+    return this.camposFotoObrigatorios.includes(campo) && !this.arquivosPorTipo[campo];
+  }
+
+  mensagemFotoObrigatoria(campo: LivroImagemFormFieldName): string {
+    const mapa: Record<LivroImagemFormFieldName, string> = {
+      imagem_Capa: 'A foto da capa é obrigatória.',
+      imagem_Contracapa: 'A foto da contracapa é obrigatória.',
+      imagem_Lombada: 'A foto da lombada é obrigatória.',
+      imagem_MioloPaginas: 'A foto do miolo ou das páginas é obrigatória.',
+      imagem_DetalhesAvarias: '',
+    };
+    return mapa[campo] || '';
+  }
+
+  fotosObrigatoriasOk(): boolean {
+    return this.camposFotoObrigatorios.every((c) => !!this.arquivosPorTipo[c]);
+  }
+
+  podeEnviar(): boolean {
+    return this.ofertaForm.valid && this.fotosObrigatoriasOk();
   }
 
   aoSelecionarArquivo(campo: LivroImagemFormFieldName, event: Event): void {
@@ -80,44 +109,40 @@ export class OfertarLivro implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.ofertaForm.valid) {
-      const formData = new FormData();
-      const v = this.ofertaForm.value;
-      if (v.titulo_livro != null && v.titulo_livro !== '') {
-        formData.append('titulo_livro', String(v.titulo_livro));
-      }
-      if (v.autor_livro != null && v.autor_livro !== '') {
-        formData.append('autor_livro', String(v.autor_livro));
-      }
-      if (v.isbn != null && v.isbn !== '') {
-        formData.append('isbn', String(v.isbn));
-      }
-      if (v.descricao_condicao != null && v.descricao_condicao !== '') {
-        formData.append('descricao_condicao', String(v.descricao_condicao));
-      }
-      formData.append('preco_sugerido', this.normalizarPrecoSugerido(v.preco_sugerido));
-      anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
-      this.ofertaVendaService.enviarOferta(formData).subscribe({
-        next: () => {
-          this.mensagemSucesso =
-            'Entraremos em contato via WhatsApp ou e-mail cadastrado na sua conta.';
-          this.ofertaForm.reset();
-          this.arquivosPorTipo = {};
-          this.nomesArquivos = {};
-          this.previewsPorTipo = {};
-          this.slotsImagens.forEach((s) => {
-            const el = document.getElementById(this.idInputArquivo(s.formFieldName)) as HTMLInputElement | null;
-            if (el) {
-              el.value = '';
-            }
-          });
-        },
-        error: (err: any) => {
-          console.error('Erro ao enviar oferta:', err);
-          this.mensagemSucesso = 'Erro ao enviar oferta. Tente novamente.';
-        }
-      });
+    this.submitAttempt = true;
+    if (!this.podeEnviar()) {
+      this.ofertaForm.markAllAsTouched();
+      return;
     }
+    const formData = new FormData();
+    const v = this.ofertaForm.value;
+    formData.append('titulo_livro', String(v.titulo_livro).trim());
+    formData.append('autor_livro', String(v.autor_livro).trim());
+    const condicao = String(v.descricao_condicao ?? '').trim();
+    formData.append('condicao_livro', condicao.length > 0 ? condicao : 'Não informado.');
+    formData.append('preco_sugerido', this.normalizarPrecoSugerido(v.preco_sugerido));
+    anexarImagensLivroNoFormData(formData, this.arquivosPorTipo);
+    this.ofertaVendaService.enviarOferta(formData).subscribe({
+      next: () => {
+        this.mensagemSucesso =
+          'Entraremos em contato via WhatsApp ou e-mail cadastrado na sua conta.';
+        this.submitAttempt = false;
+        this.ofertaForm.reset();
+        this.arquivosPorTipo = {};
+        this.nomesArquivos = {};
+        this.previewsPorTipo = {};
+        this.slotsImagens.forEach((s) => {
+          const el = document.getElementById(this.idInputArquivo(s.formFieldName)) as HTMLInputElement | null;
+          if (el) {
+            el.value = '';
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error('Erro ao enviar oferta:', err);
+        this.mensagemSucesso = 'Erro ao enviar oferta. Tente novamente.';
+      }
+    });
   }
 
   private normalizarPrecoSugerido(valor: unknown): string {

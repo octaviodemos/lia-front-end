@@ -1,8 +1,14 @@
 <div class="loja-container">
   <h1>Loja</h1>
   <p>Encontre seus próximos livros favoritos.</p>
-  
-  <!-- debug tester button removed -->
+
+  <section class="vitrine-recomendados" *ngIf="recomendadosSkoob.length > 0">
+    <h2 class="vitrine-recomendados__titulo">Recomendados para Você 🪄</h2>
+    <p class="vitrine-recomendados__sub">Com base na sua estante Skoob (sugestões simuladas por enquanto).</p>
+    <div class="vitrine-recomendados__track" role="list">
+      <app-livro-card *ngFor="let livro of recomendadosSkoob" [livro]="livro" role="listitem"></app-livro-card>
+    </div>
+  </section>
 
   <div class="livros-grid" *ngIf="livrosFiltrados.length > 0; else noLivros">
     <app-livro-card *ngFor="let livro of livrosFiltrados" [livro]="livro"></app-livro-card>

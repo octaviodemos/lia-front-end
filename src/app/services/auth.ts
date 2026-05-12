@@ -38,7 +38,7 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/api/auth/profile`);
   }
 
-  updateProfile(body: { telefone?: string }): Observable<any> {
+  updateProfile(body: { telefone?: string; skoob_user_id?: string | null }): Observable<any> {
     return this.http.patch(`${this.apiUrl}/api/auth/profile`, body);
   }
 

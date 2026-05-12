@@ -112,23 +112,6 @@
   align-items: flex-start;
   flex-wrap: wrap;
 
-  .form-group {
-    flex: 1 1 320px;
-    min-width: 220px;
-  }
-
-  textarea {
-    width: 100%;
-    min-height: 56px;
-    max-height: 160px;
-    padding: 0.5rem;
-    border: 1px solid #d6e2ea;
-    border-radius: 6px;
-    resize: vertical;
-    font-size: 0.95rem;
-    color: #21313b;
-  }
-
   button {
     margin: 0;
     padding: 0.5rem 0.9rem;
@@ -148,12 +131,34 @@
   }
 }
 
+.admin-actions--decisao {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid #e8eef2;
+}
+
+.admin-actions__titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.admin-actions__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 680px) {
   .meta-list { grid-template-columns: 1fr; }
   .card-header h4 { max-width: 55%; }
-  .admin-actions { flex-direction: column; align-items: stretch; }
-  .admin-actions button { width: 100%; }
+  .admin-actions__botoes { flex-direction: column; align-items: stretch; }
+  .admin-actions__botoes button { width: 100%; }
 }
 
 @media (min-width: 1200px) {
@@ -320,11 +325,4 @@
   font-size: 0.95rem;
   line-height: 1.45;
   color: #2f4858;
-}
-
-.ia-sugestao__hint {
-  margin: 0.75rem 0 0;
-  font-size: 0.82rem;
-  color: #5c5c5c;
-  line-height: 1.35;
 }

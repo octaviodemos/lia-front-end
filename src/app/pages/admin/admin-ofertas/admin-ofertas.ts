@@ -17,7 +17,6 @@ import { resolverUrlMidiaApi } from '../../../utils/media-url';
 export class AdminOfertas implements OnInit {
 
   ofertas: any[] = [];
-  respostaMap: { [key: string]: string } = {};
   expandidoPorId: Record<string, boolean> = {};
   iaCarregandoPorId: Record<string, boolean> = {};
   iaResultadoPorId: Record<string, AvaliacaoIaOferta | null> = {};
@@ -36,17 +35,6 @@ export class AdminOfertas implements OnInit {
       next: (data: any) => this.ofertas = data,
       error: (err: any) => console.error('Erro ao carregar ofertas', err)
     });
-  }
-
-  onRespostaInput(ofertaId: any, event: Event): void {
-    const target = event.target as HTMLTextAreaElement | null;
-    const key = String(ofertaId);
-    if (target) {
-      this.respostaMap[key] = target.value || '';
-      return;
-    }
-    const val = (event as { target?: { value?: string } })?.target?.value;
-    this.respostaMap[key] = val || '';
   }
 
   chaveOferta(oferta: any): string {
@@ -109,11 +97,6 @@ export class AdminOfertas implements OnInit {
       next: (r) => {
         this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
         this.iaResultadoPorId = { ...this.iaResultadoPorId, [key]: r };
-        const prev = (this.respostaMap[key] || '').trim();
-        const draft = `Sugestão da IA — nota ${r.nota_conservacao}/5 sobre o exemplar:\n${r.descricao_conservacao}`;
-        if (!prev) {
-          this.respostaMap = { ...this.respostaMap, [key]: draft };
-        }
       },
       error: () => {
         this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
@@ -124,15 +107,11 @@ export class AdminOfertas implements OnInit {
 
   handleResposta(ofertaId: any, novoStatus: 'aceita' | 'recusada'): void {
     const key = String(ofertaId);
-    const resposta = this.respostaMap[key] || '';
-
     this.ofertaVendaService.responderOferta(key, {
       status_oferta: novoStatus,
-      resposta_admin: resposta
     }).subscribe({
       next: () => {
         this.carregarOfertas();
-        this.respostaMap[key] = '';
       },
       error: (err: any) => console.error('Erro ao responder oferta', err)
     });

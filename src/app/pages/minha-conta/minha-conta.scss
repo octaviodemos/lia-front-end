@@ -103,6 +103,21 @@ $cor-borda: #eee;
     color: #0d5327;
     font-size: 0.95rem;
   }
+
+  .msg-perfil--skoob {
+    color: #084298;
+  }
+
+  .skoob-ajuda {
+    margin: 0.35rem 0 0.75rem;
+    font-size: 0.88rem;
+    color: $cor-texto-secundario;
+    line-height: 1.45;
+  }
+
+  .btn-salvar-skoob {
+    margin-top: 0.25rem;
+  }
 }
 
 // Navegação da Conta

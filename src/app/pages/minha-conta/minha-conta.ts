@@ -21,7 +21,9 @@ export class MinhaConta implements OnInit {
   perfilForm!: FormGroup;
   carregandoPerfil = true;
   salvandoPerfil = false;
+  salvandoSkoob = false;
   mensagemPerfil: string = '';
+  mensagemSkoob: string = '';
 
   constructor(
     private ofertaVendaService: OfertaVendaService,
@@ -35,6 +37,7 @@ export class MinhaConta implements OnInit {
       nome: [{ value: '', disabled: true }],
       email: [{ value: '', disabled: true }],
       telefone: [''],
+      skoob_user_id: [''],
     });
     this.carregarPerfil();
     this.ofertaVendaService.getMinhasOfertas().subscribe({
@@ -54,6 +57,7 @@ export class MinhaConta implements OnInit {
           nome: p.nome || '',
           email: p.email || '',
           telefone: p.telefone || '',
+          skoob_user_id: p.skoob_user_id || '',
         });
         this.carregandoPerfil = false;
       },
@@ -64,6 +68,7 @@ export class MinhaConta implements OnInit {
             nome: u.nome || '',
             email: u.email || '',
             telefone: u.telefone || '',
+            skoob_user_id: u.skoob_user_id || '',
           });
         }
         this.carregandoPerfil = false;
@@ -83,7 +88,13 @@ export class MinhaConta implements OnInit {
         if (at) {
           localStorage.setItem(
             'lia_user',
-            JSON.stringify({ ...at, telefone: u.telefone, nome: u.nome, email: u.email })
+            JSON.stringify({
+              ...at,
+              telefone: u.telefone,
+              nome: u.nome,
+              email: u.email,
+              skoob_user_id: u.skoob_user_id ?? at.skoob_user_id,
+            })
           );
         }
         this.perfilForm.patchValue({ telefone: u.telefone || '' });
@@ -91,6 +102,36 @@ export class MinhaConta implements OnInit {
       error: (err) => {
         this.salvandoPerfil = false;
         this.mensagemPerfil = err?.error?.message || 'Não foi possível salvar o telefone.';
+      },
+    });
+  }
+
+  salvarSkoob(): void {
+    this.mensagemSkoob = '';
+    this.salvandoSkoob = true;
+    const skoob_user_id = String(this.perfilForm.get('skoob_user_id')?.value ?? '').trim();
+    this.authService.updateProfile({ skoob_user_id: skoob_user_id || null }).subscribe({
+      next: (u: any) => {
+        this.salvandoSkoob = false;
+        this.mensagemSkoob = 'Identificador Skoob salvo. As recomendações na loja usarão sua estante.';
+        const at = this.authService.getUser();
+        if (at) {
+          localStorage.setItem(
+            'lia_user',
+            JSON.stringify({
+              ...at,
+              telefone: u.telefone ?? at.telefone,
+              nome: u.nome ?? at.nome,
+              email: u.email ?? at.email,
+              skoob_user_id: u.skoob_user_id ?? null,
+            })
+          );
+        }
+        this.perfilForm.patchValue({ skoob_user_id: u.skoob_user_id || '' });
+      },
+      error: (err) => {
+        this.salvandoSkoob = false;
+        this.mensagemSkoob = err?.error?.message || 'Não foi possível salvar o Skoob User ID.';
       },
     });
   }

@@ -25,6 +25,28 @@
           autocomplete="tel"
         />
       </div>
+      <div class="form-group">
+        <label for="perfil-skoob">Skoob User ID</label>
+        <input
+          id="perfil-skoob"
+          type="text"
+          formControlName="skoob_user_id"
+          autocomplete="off"
+          placeholder="Ex.: identificador público do seu perfil no Skoob"
+        />
+        <p class="skoob-ajuda">
+          Opcional. Se você informar o ID do seu usuário no Skoob, a LIA poderá sugerir livros da nossa loja com base na sua estante de leituras (integração em evolução).
+        </p>
+        <button
+          type="button"
+          class="btn-salvar-perfil btn-salvar-skoob"
+          (click)="salvarSkoob()"
+          [disabled]="salvandoSkoob"
+        >
+          {{ salvandoSkoob ? 'Salvando...' : 'Salvar Skoob User ID' }}
+        </button>
+        <p *ngIf="mensagemSkoob" class="msg-perfil msg-perfil--skoob" role="status">{{ mensagemSkoob }}</p>
+      </div>
       <button
         type="button"
         class="btn-salvar-perfil"

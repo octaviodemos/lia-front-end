@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import { finalize } from 'rxjs/operators';
 import { AvaliacaoService } from '../../services/avaliacao.service';
 
 const MIN_RATING = 1;
@@ -26,6 +27,7 @@ export class AvaliacaoForm implements OnInit {
   mensagemErro: string = '';
   mensagemSucesso: string = '';
   enviando: boolean = false;
+  toastAnaliseIa = false;
 
   constructor(
     private fb: FormBuilder,
@@ -107,12 +109,21 @@ export class AvaliacaoForm implements OnInit {
 
   private submitAvaliacao(): void {
     this.enviando = true;
+    this.toastAnaliseIa = true;
     const payload = this.createPayload();
 
-    this.avaliacaoService.criarAvaliacao(this.idLivro, payload).subscribe({
-      next: (response: any) => this.handleSubmitSuccess(response),
-      error: (error: any) => this.handleSubmitError(error, payload)
-    });
+    this.avaliacaoService
+      .criarAvaliacao(this.idLivro, payload)
+      .pipe(
+        finalize(() => {
+          this.toastAnaliseIa = false;
+          this.enviando = false;
+        }),
+      )
+      .subscribe({
+        next: (response: any) => this.handleSubmitSuccess(response),
+        error: (error: any) => this.handleSubmitError(error, payload),
+      });
   }
 
   private createPayload(): any {
@@ -126,16 +137,13 @@ export class AvaliacaoForm implements OnInit {
     this.mensagemSucesso = 'Sua avaliação foi enviada e ficará pendente de aprovação.';
     this.avaliacaoForm.reset();
     this.avaliacaoSalva.emit(response);
-    this.enviando = false;
-
     this.clearSuccessMessageAfterDelay();
   }
 
   private handleSubmitError(error: any, payload: any): void {
     const localResponse = this.createLocalResponse(payload);
     this.avaliacaoSalva.emit(localResponse);
-    
-    this.enviando = false;
+
     this.mensagemErro = this.getErrorMessage(error);
   }
 

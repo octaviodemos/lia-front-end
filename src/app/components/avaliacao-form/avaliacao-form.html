@@ -1,4 +1,7 @@
 <div class="avaliacao-form-container">
+  <div class="toast-ia-analise" *ngIf="toastAnaliseIa" role="status" aria-live="polite">
+    Sua resenha está sendo analisada pela nossa IA…
+  </div>
   <h3>Deixe sua avaliação</h3>
   
   <div class="mensagem-sucesso" *ngIf="mensagemSucesso">

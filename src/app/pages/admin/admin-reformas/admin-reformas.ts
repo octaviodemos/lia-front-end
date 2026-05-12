@@ -6,6 +6,12 @@ import { getFriendlyLabel, badgeClass } from '../../../utils/status-utils';
 import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
+export type ReformaIaAvaliacao = {
+  gravidade: string;
+  orcamento_estimado: number;
+  descricao: string;
+};
+
 @Component({
   selector: 'app-admin-reformas',
   standalone: true,
@@ -22,6 +28,9 @@ export class AdminReformas implements OnInit {
   q: string = '';
   filterStatus: string = '';
 
+  iaCarregandoPorId: Record<string, boolean> = {};
+  iaResultadoPorId: Record<string, ReformaIaAvaliacao | null> = {};
+
   statusOptions: Array<{ value: string; label: string }> = [
     { value: '', label: 'Todos os status' },
     { value: 'PENDING', label: 'Pendente' },
@@ -32,11 +41,9 @@ export class AdminReformas implements OnInit {
 
   constructor(private reformaService: ReformaService) { }
 
-  // expose helpers to template
   getFriendlyLabel = (p: any) => getFriendlyLabel(p);
   badgeClassFor = (p: any) => badgeClass(p);
 
-  // compute which option value should be selected for a given solicitacao
   getSelectedStatusValue(solicitacao: any): string {
     const current = (solicitacao?.status_solicitacao || solicitacao?.status || '').toString();
     if (!current) return '';
@@ -55,6 +62,40 @@ export class AdminReformas implements OnInit {
 
   ngOnInit(): void {
     this.loadSolicitacoes();
+  }
+
+  chaveSolicitacao(s: any): string {
+    return String(s?.id_solicitacao ?? s?.id ?? '');
+  }
+
+  iaCarregando(s: any): boolean {
+    return !!this.iaCarregandoPorId[this.chaveSolicitacao(s)];
+  }
+
+  iaResultado(s: any): ReformaIaAvaliacao | null {
+    return this.iaResultadoPorId[this.chaveSolicitacao(s)] ?? null;
+  }
+
+  avaliarComIa(s: any): void {
+    const key = this.chaveSolicitacao(s);
+    const id = s?.id_solicitacao ?? s?.id;
+    if (id === undefined || id === null || id === '') {
+      return;
+    }
+    if (!this.midiasSolicitacao(s).length) {
+      return;
+    }
+    this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: true };
+    this.reformaService.avaliarReformaComIA(id).subscribe({
+      next: (r) => {
+        this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
+        this.iaResultadoPorId = { ...this.iaResultadoPorId, [key]: r };
+      },
+      error: () => {
+        this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
+        alert('Não foi possível obter a avaliação da IA para esta solicitação.');
+      },
+    });
   }
 
   loadSolicitacoes(): void {

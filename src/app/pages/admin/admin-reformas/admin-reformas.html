@@ -27,6 +27,34 @@
           </div>
         </div>
 
+        <div class="reforma-ia-toolbar" *ngIf="midiasSolicitacao(s).length">
+          <button
+            type="button"
+            class="btn-ia-reforma"
+            (click)="avaliarComIa(s)"
+            [disabled]="iaCarregando(s)"
+            [attr.aria-busy]="iaCarregando(s)"
+          >
+            <span class="btn-ia-reforma__icon" aria-hidden="true">🪄</span>
+            <ng-container *ngIf="!iaCarregando(s)">
+              <span>Avaliar com IA</span>
+            </ng-container>
+            <span *ngIf="iaCarregando(s)" class="btn-ia-reforma__loading">
+              <span class="ia-spinner" aria-hidden="true"></span>
+              <span>Analisando…</span>
+            </span>
+          </button>
+        </div>
+
+        <div *ngIf="iaResultado(s) as ev" class="reforma-ia-card" role="region" [attr.aria-label]="'Sugestão de IA para reforma'">
+          <div class="reforma-ia-card__header">
+            <span class="reforma-ia-card__badge">Sugestão IA (mock)</span>
+            <span class="reforma-ia-card__gravidade">{{ ev.gravidade }}</span>
+          </div>
+          <p class="reforma-ia-card__orcamento">Orçamento estimado: <strong>R$ {{ ev.orcamento_estimado | number:'1.2-2' }}</strong></p>
+          <p class="reforma-ia-card__descricao">{{ ev.descricao }}</p>
+        </div>
+
         <div class="reforma-actions">
           <label>Status</label>
           <select [ngModel]="getSelectedStatusValue(s)" (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)" [ngClass]="badgeClassFor(s) + ' status-select'">

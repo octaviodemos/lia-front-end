@@ -40,4 +40,16 @@ export class ReformaService {
   responderSolicitacao(id: string, status: string, resposta_admin?: string): Observable<any> {
     return this.http.patch(`http://localhost:3333/api/repairs/${id}/respond`, { status, resposta_admin });
   }
+
+  avaliarReformaComIA(id: number | string): Observable<{
+    gravidade: string;
+    orcamento_estimado: number;
+    descricao: string;
+  }> {
+    return this.http.post<{
+      gravidade: string;
+      orcamento_estimado: number;
+      descricao: string;
+    }>(`http://localhost:3333/api/ai/evaluate-reform/${id}`, {});
+  }
 }

@@ -8,20 +8,21 @@
   </div>
 
   <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
-    
+
     <div class="form-group">
-      <label for="titulo_livro">Título do Livro</label>
-      <input id="titulo_livro" type="text" formControlName="titulo_livro">
+      <label for="titulo_livro">Título do Livro <span class="req" aria-hidden="true">*</span></label>
+      <input id="titulo_livro" type="text" formControlName="titulo_livro" autocomplete="off">
+      <small class="erro-campo" *ngIf="ofertaForm.get('titulo_livro')?.invalid && (ofertaForm.get('titulo_livro')?.touched || submitAttempt)">
+        O título do livro é obrigatório.
+      </small>
     </div>
 
     <div class="form-group">
-      <label for="autor_livro">Autor</label>
-      <input id="autor_livro" type="text" formControlName="autor_livro">
-    </div>
-
-    <div class="form-group">
-      <label for="isbn">ISBN (Opcional)</label>
-      <input id="isbn" type="text" formControlName="isbn">
+      <label for="autor_livro">Autor <span class="req" aria-hidden="true">*</span></label>
+      <input id="autor_livro" type="text" formControlName="autor_livro" autocomplete="off">
+      <small class="erro-campo" *ngIf="ofertaForm.get('autor_livro')?.invalid && (ofertaForm.get('autor_livro')?.touched || submitAttempt)">
+        O autor é obrigatório.
+      </small>
     </div>
 
     <div class="form-group">
@@ -30,18 +31,25 @@
     </div>
 
     <div class="form-group">
-      <label for="preco_sugerido">Preço sugerido (R$)</label>
+      <label for="preco_sugerido">Preço sugerido (R$) <span class="req" aria-hidden="true">*</span></label>
       <input id="preco_sugerido" type="text" inputmode="decimal" placeholder="Ex: 49,90" formControlName="preco_sugerido">
-      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.touched && ofertaForm.get('preco_sugerido')?.invalid">
+      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.hasError('required') && (ofertaForm.get('preco_sugerido')?.touched || submitAttempt)">
+        O preço sugerido é obrigatório.
+      </small>
+      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.hasError('pattern') && (ofertaForm.get('preco_sugerido')?.touched || submitAttempt) && !ofertaForm.get('preco_sugerido')?.hasError('required')">
         Informe um valor válido no formato monetário.
       </small>
     </div>
 
     <div class="form-group imagens-cliente">
-      <span class="imagens-cliente__titulo">Fotos do exemplar</span>
+      <span class="imagens-cliente__titulo">Fotos do exemplar <span class="req" aria-hidden="true">*</span></span>
+      <p class="imagens-cliente__regra">São obrigatórias as fotos da capa, contracapa, lombada e do miolo ou páginas. A foto de detalhes e avarias é opcional. Máximo 5MB por imagem.</p>
       <div class="imagens-cliente__grid">
         <div class="slot-imagem-cliente" *ngFor="let slot of slotsImagens">
-          <span class="slot-imagem-cliente__titulo">{{ slot.titulo }}</span>
+          <span class="slot-imagem-cliente__titulo">
+            {{ slot.titulo }}
+            <span *ngIf="camposFotoObrigatorios.includes(slot.formFieldName)" class="req-slot" aria-hidden="true">*</span>
+          </span>
           <small class="slot-imagem-cliente__desc">{{ slot.descricao }}</small>
           <div class="upload-linha">
             <input
@@ -56,11 +64,13 @@
           <div class="preview-mini" *ngIf="previewsPorTipo[slot.formFieldName]">
             <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="slot.titulo">
           </div>
+          <small class="erro-campo erro-campo--slot" *ngIf="submitAttempt && fotoObrigatoriaPendente(slot.formFieldName)">
+            {{ mensagemFotoObrigatoria(slot.formFieldName) }}
+          </small>
         </div>
       </div>
-      <small class="hint-fotos">Imagens opcionais; máximo 5MB cada.</small>
     </div>
 
-    <button type="submit" [disabled]="ofertaForm.invalid">Enviar Oferta</button>
+    <button type="submit" [disabled]="!podeEnviar()">Enviar Oferta</button>
   </form>
 </div>

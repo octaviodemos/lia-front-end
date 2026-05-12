@@ -48,6 +48,24 @@
   margin-bottom: 0.75rem;
 }
 
+.imagens-cliente__regra {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.req {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.req-slot {
+  color: #b42318;
+  font-weight: 700;
+  margin-left: 0.15rem;
+}
+
 .imagens-cliente__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -121,16 +139,13 @@
   object-fit: contain;
 }
 
-.hint-fotos {
-  display: block;
-  margin-top: 0.75rem;
-  color: #777;
-  font-size: 0.875rem;
-}
-
 .erro-campo {
   display: block;
   margin-top: 0.4rem;
   color: #b42318;
   font-size: 0.85rem;
+}
+
+.erro-campo--slot {
+  margin-top: 0.45rem;
 }

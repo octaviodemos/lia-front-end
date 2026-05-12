@@ -21,6 +21,38 @@
   }
 }
 
+.vitrine-recomendados {
+  margin-bottom: 2.5rem;
+  padding: 1.25rem 0 1.5rem;
+  border-bottom: 1px solid #e8e4df;
+}
+
+.vitrine-recomendados__titulo {
+  font-size: 1.35rem;
+  margin: 0 0 0.35rem;
+  color: #2c1810;
+}
+
+.vitrine-recomendados__sub {
+  font-size: 0.92rem;
+  color: #666;
+  margin: 0 0 1rem;
+}
+
+.vitrine-recomendados__track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  app-livro-card {
+    flex: 0 0 min(260px, 78vw);
+    scroll-snap-align: start;
+  }
+}
+
 .btn-testar {
   margin: 20px 0;
   padding: 10px 20px;
