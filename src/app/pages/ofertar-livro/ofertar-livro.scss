@@ -33,6 +33,47 @@
   border-radius: 5px;
 }
 
+.mensagem-capa-ia {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  background: #f0f4ff;
+  border: 1px solid #c5d4f5;
+  color: #1a3a6b;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.hint-ia-capa {
+  display: block;
+  margin-top: 0.35rem;
+  color: #5a4a7a;
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+.capa-ia-toolbar {
+  margin-top: 0.5rem;
+}
+
+.btn-capa-ia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #c9b8d6;
+  background: linear-gradient(180deg, #faf7ff 0%, #f0e8f8 100%);
+  color: #3d1f55;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-capa-ia:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
 .destaque-fotos {
   font-size: 1rem;
   color: #444;

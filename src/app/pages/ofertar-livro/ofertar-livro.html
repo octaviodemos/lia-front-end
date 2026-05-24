@@ -1,10 +1,14 @@
 <div class="oferta-container">
   <h2>Venda seu Livro para a LIA</h2>
   <p>Tem um livro em bom estado e quer vendê-lo? Preencha o formulário abaixo e nossa equipe analisará sua oferta.</p>
-  <p class="destaque-fotos">Envie fotos dos principais ângulos do exemplar para acelerar a análise da LIA.</p>
+  <p class="destaque-fotos">Envie fotos dos principais ângulos do exemplar para acelerar a análise da LIA. Ao anexar a <strong>capa</strong>, a IA pode sugerir título e autor automaticamente.</p>
 
   <div *ngIf="mensagemSucesso" class="mensagem-sucesso" role="status">
     {{ mensagemSucesso }}
+  </div>
+
+  <div *ngIf="mensagemCapaIa" class="mensagem-capa-ia" role="status">
+    {{ mensagemCapaIa }}
   </div>
 
   <form [formGroup]="ofertaForm" (ngSubmit)="onSubmit()">
@@ -12,6 +16,7 @@
     <div class="form-group">
       <label for="titulo_livro">Título do Livro <span class="req" aria-hidden="true">*</span></label>
       <input id="titulo_livro" type="text" formControlName="titulo_livro" autocomplete="off">
+      <small class="hint-ia-capa" *ngIf="identificandoCapa">Lendo capa com IA…</small>
       <small class="erro-campo" *ngIf="ofertaForm.get('titulo_livro')?.invalid && (ofertaForm.get('titulo_livro')?.touched || submitAttempt)">
         O título do livro é obrigatório.
       </small>
@@ -63,6 +68,17 @@
           </div>
           <div class="preview-mini" *ngIf="previewsPorTipo[slot.formFieldName]">
             <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="slot.titulo">
+          </div>
+          <div class="capa-ia-toolbar" *ngIf="slot.formFieldName === 'imagem_Capa' && arquivosPorTipo.imagem_Capa">
+            <button
+              type="button"
+              class="btn-capa-ia"
+              (click)="identificarCapaComIa()"
+              [disabled]="identificandoCapa"
+            >
+              <span aria-hidden="true">🪄</span>
+              {{ identificandoCapa ? 'Lendo capa…' : 'Ler capa com IA' }}
+            </button>
           </div>
           <small class="erro-campo erro-campo--slot" *ngIf="submitAttempt && fotoObrigatoriaPendente(slot.formFieldName)">
             {{ mensagemFotoObrigatoria(slot.formFieldName) }}

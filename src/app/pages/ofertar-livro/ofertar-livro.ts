@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OfertaVendaService } from '../../services/oferta-venda.service';
+import { AiService } from '../../services/ai.service';
 import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../models/livro-imagem';
+import type { IdentificacaoCapa } from '../../models/identificacao-capa';
 import { anexarImagensLivroNoFormData, mensagemErroArquivoImagem } from '../../utils/livro-imagem-helpers';
 
 @Component({
@@ -16,6 +18,8 @@ export class OfertarLivro implements OnInit {
 
   ofertaForm!: FormGroup;
   mensagemSucesso: string = '';
+  mensagemCapaIa: string = '';
+  identificandoCapa = false;
   readonly slotsImagens = LIVRO_IMAGEM_FORM_SLOTS;
   readonly camposFotoObrigatorios: LivroImagemFormFieldName[] = [
     'imagem_Capa',
@@ -32,7 +36,8 @@ export class OfertarLivro implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private ofertaVendaService: OfertaVendaService
+    private ofertaVendaService: OfertaVendaService,
+    private aiService: AiService,
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +51,10 @@ export class OfertarLivro implements OnInit {
 
   idInputArquivo(campo: LivroImagemFormFieldName): string {
     return `oferta-arquivo-${campo}`;
+  }
+
+  temCapaAnexada(): boolean {
+    return !!this.arquivosPorTipo.imagem_Capa;
   }
 
   fotoObrigatoriaPendente(campo: LivroImagemFormFieldName): boolean {
@@ -90,6 +99,28 @@ export class OfertarLivro implements OnInit {
       this.previewsPorTipo = { ...this.previewsPorTipo, [campo]: String(e.target?.result ?? '') };
     };
     leitor.readAsDataURL(arquivo);
+    if (campo === 'imagem_Capa') {
+      this.identificarCapaComIa(arquivo);
+    }
+  }
+
+  identificarCapaComIa(arquivo?: File | null): void {
+    const capa = arquivo ?? this.arquivosPorTipo.imagem_Capa;
+    if (!capa || this.identificandoCapa) {
+      return;
+    }
+    this.mensagemCapaIa = '';
+    this.identificandoCapa = true;
+    this.aiService.identificarCapa(capa).subscribe({
+      next: (r) => {
+        this.identificandoCapa = false;
+        this.aplicarIdentificacaoCapa(r);
+      },
+      error: () => {
+        this.identificandoCapa = false;
+        this.mensagemCapaIa = 'Não foi possível ler a capa agora. Preencha título e autor manualmente.';
+      },
+    });
   }
 
   limparArquivo(campo: LivroImagemFormFieldName): void {
@@ -102,6 +133,9 @@ export class OfertarLivro implements OnInit {
     const proximoPreviews = { ...this.previewsPorTipo };
     delete proximoPreviews[campo];
     this.previewsPorTipo = proximoPreviews;
+    if (campo === 'imagem_Capa') {
+      this.mensagemCapaIa = '';
+    }
     const el = document.getElementById(this.idInputArquivo(campo)) as HTMLInputElement | null;
     if (el) {
       el.value = '';
@@ -126,6 +160,7 @@ export class OfertarLivro implements OnInit {
       next: () => {
         this.mensagemSucesso =
           'Entraremos em contato via WhatsApp ou e-mail cadastrado na sua conta.';
+        this.mensagemCapaIa = '';
         this.submitAttempt = false;
         this.ofertaForm.reset();
         this.arquivosPorTipo = {};
@@ -143,6 +178,27 @@ export class OfertarLivro implements OnInit {
         this.mensagemSucesso = 'Erro ao enviar oferta. Tente novamente.';
       }
     });
+  }
+
+  private aplicarIdentificacaoCapa(r: IdentificacaoCapa): void {
+    const patch: { titulo_livro?: string; autor_livro?: string } = {};
+    if (r.titulo?.trim()) {
+      patch.titulo_livro = r.titulo.trim();
+    }
+    if (r.autor?.trim()) {
+      patch.autor_livro = r.autor.trim();
+    }
+    if (Object.keys(patch).length) {
+      this.ofertaForm.patchValue(patch);
+      this.ofertaForm.get('titulo_livro')?.markAsTouched();
+      this.ofertaForm.get('autor_livro')?.markAsTouched();
+    }
+    const conf = r.confianca === 'alta' ? 'alta' : r.confianca === 'media' ? 'média' : 'baixa';
+    if (patch.titulo_livro || patch.autor_livro) {
+      this.mensagemCapaIa = `Capa lida pela IA (confiança ${conf}). Revise título e autor antes de enviar.`;
+    } else {
+      this.mensagemCapaIa = 'A IA não conseguiu ler título ou autor na capa. Preencha manualmente ou tente outra foto.';
+    }
   }
 
   private normalizarPrecoSugerido(valor: unknown): string {
