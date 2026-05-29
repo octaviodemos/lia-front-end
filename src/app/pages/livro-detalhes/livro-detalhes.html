@@ -140,26 +140,10 @@
   <div class="resenhas-section">
     <h2>Resenhas</h2>
     <p class="resenhas-edicao-aviso">As resenhas e notas desta página são baseadas na edição da obra e valem para todos os exemplares disponíveis.</p>
-    <div *ngIf="pendingAvaliacoes && pendingAvaliacoes.length > 0" class="sua-avaliacao-card">
-      <div class="card-header">
-        <div class="title">Sua Avaliação</div>
-        <div class="status-wrapper">
-          <span class="status-badge status-pendente"><i class="fa-regular fa-clock"></i> Pendente de Aprovação</span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="sua-avaliacao-item">
-          <ng-container *ngIf="pendingAvaliacoes && pendingAvaliacoes.length > 0">
-            <ng-container *ngTemplateOutlet="firstPendingAvaliacao; context: { $implicit: pendingAvaliacoes[0] }"></ng-container>
-          </ng-container>
-        </div>
-      </div>
-    </div>
-
     <div *ngIf="avaliacoes.length > 0; else noAvaliacoes" class="lista-avaliacoes">
       <div *ngFor="let avaliacao of avaliacoes" class="resenha-item">
-        <button *ngIf="authService.isAdmin()" class="delete-btn top-right" (click)="confirmDeleteAvaliacao(avaliacao)" [disabled]="avaliacao._deleting" aria-label="Excluir avaliação">
-          <i class="fa-solid fa-trash"></i>
+        <button *ngIf="authService.isAdmin()" class="delete-btn top-right" (click)="confirmDeleteAvaliacao(avaliacao)" [disabled]="avaliacao._deleting" title="Excluir resenha" aria-label="Excluir resenha">
+          Excluir
         </button>
         <p>
           <strong>{{ avaliacao.autor?.nome || 'Usuário' }}</strong>
@@ -171,16 +155,22 @@
           </div>
           <div class="nota-num">Nota: {{ avaliacao.nota }}</div>
         </div>
-        <p class="comentario-text">{{ avaliacao.comentario }}</p>
+        <div *ngIf="spoilerOculto(avaliacao)" class="spoiler-guard" role="note">
+          <p class="spoiler-guard__aviso">Esta resenha pode conter spoiler.</p>
+          <button type="button" class="spoiler-guard__btn" (click)="revelarSpoiler(avaliacao)">
+            Mostrar resenha
+          </button>
+        </div>
+        <p *ngIf="!spoilerOculto(avaliacao)" class="comentario-text">{{ avaliacao.comentario }}</p>
         <div class="comment-actions">
-          <button class="like-btn" [class.liked]="avaliacao.userReaction === 'LIKE'" (click)="toggleReaction(avaliacao, 'LIKE')" [disabled]="avaliacao._reactionLoading" aria-label="Curtir avaliação">
-            <i [ngClass]="avaliacao.userReaction === 'LIKE' ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up'"></i>
-            <small class="reaction-count">{{ avaliacao.likes ?? avaliacao.likesCount ?? 0 }}</small>
+          <button class="like-btn" [class.liked]="avaliacao.userReaction === 'LIKE'" (click)="toggleReaction(avaliacao, 'LIKE')" [disabled]="avaliacao._reactionLoading" title="Marcar como útil" aria-label="Marcar resenha como útil">
+            <span class="reaction-label">Útil</span>
+            <span class="reaction-count">{{ avaliacao.likes ?? avaliacao.likesCount ?? 0 }}</span>
           </button>
 
-          <button class="dislike-btn" [class.disliked]="avaliacao.userReaction === 'DISLIKE'" (click)="toggleReaction(avaliacao, 'DISLIKE')" [disabled]="avaliacao._reactionLoading" aria-label="Não curtir avaliação">
-            <i [ngClass]="avaliacao.userReaction === 'DISLIKE' ? 'fa-solid fa-thumbs-down' : 'fa-regular fa-thumbs-down'"></i>
-            <small class="reaction-count">{{ avaliacao.dislikes ?? 0 }}</small>
+          <button class="dislike-btn" [class.disliked]="avaliacao.userReaction === 'DISLIKE'" (click)="toggleReaction(avaliacao, 'DISLIKE')" [disabled]="avaliacao._reactionLoading" title="Marcar como não útil" aria-label="Marcar resenha como não útil">
+            <span class="reaction-label">Não útil</span>
+            <span class="reaction-count">{{ avaliacao.dislikes ?? 0 }}</span>
           </button>
         </div>
       </div>
@@ -197,18 +187,6 @@
     </app-avaliacao-form>
   </div>
 </div>
-
-<ng-template #firstPendingAvaliacao let-pa>
-  <p class="meta"><strong>[Você]</strong><span class="muted">: {{ pa.data_avaliacao | date:'short' }}</span></p>
-  <div class="rating">
-    <div class="stars" aria-hidden="true">
-      <i *ngFor="let n of [1,2,3,4,5]" [ngClass]="n <= (pa.nota || 0) ? 'fa-solid fa-star active' : 'fa-regular fa-star'"></i>
-    </div>
-    <div class="nota-num">Nota: {{ pa.nota }}</div>
-  </div>
-  <p class="conteudo">{{ pa.comentario }}</p>
-  <p class="small-muted">Sua resenha está aguardando moderação e ficará visível após aprovação.</p>
-</ng-template>
 
 <ng-template #carregando>
   <p class="loading">Carregando detalhes do livro...</p>

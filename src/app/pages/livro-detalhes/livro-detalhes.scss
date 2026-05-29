@@ -587,6 +587,35 @@ $space-lg: 24px;
   p { margin: 0.5rem 0; color: $text; }
 }
 
+.spoiler-guard {
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px dashed #c9a227;
+  background: #fffbea;
+
+  &__aviso {
+    margin: 0 0 0.65rem 0;
+    font-size: 0.92rem;
+    color: #6b5a1a;
+    font-weight: 600;
+  }
+
+  &__btn {
+    border: 1px solid #c9a227;
+    background: #fff;
+    color: #5c4d12;
+    border-radius: 6px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.88rem;
+    cursor: pointer;
+
+    &:hover {
+      background: #fff3c4;
+    }
+  }
+}
+
 /* Destaque para a avaliação do próprio usuário (pendente) */
   .sua-avaliacao-card {
   border: 1px solid $border;
@@ -631,43 +660,61 @@ $space-lg: 24px;
   }
 }
 
-.comment-actions { margin-top: 0.5rem; display:flex; gap:12px; align-items:center; }
+.comment-actions { margin-top: 0.65rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .like-btn, .dislike-btn {
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  height:36px;
-  padding:0 8px;
-  border-radius:8px;
-  border:1px solid $border;
-  background:#fff;
-  cursor:pointer;
-  font-weight:700;
-  color:$muted;
-}
-.like-btn i, .dislike-btn i { font-size:16px; }
-.like-btn:hover { color: $primary; transform: translateY(-1px); }
-.dislike-btn:hover { color: $danger; transform: translateY(-1px); }
-.like-btn[disabled], .dislike-btn[disabled] { opacity:0.6; cursor:not-allowed; }
-.like-btn.liked { color: $primary; background: color.adjust($primary, $alpha: -0.92); border-color: color.adjust($primary, $lightness: 30%); }
-.dislike-btn.disliked { color: $danger; background: color.adjust($danger, $alpha: -0.92); border-color: color.adjust($danger, $lightness: 30%); }
-
-.like-btn .reaction-count, .dislike-btn .reaction-count {
-  font-weight:700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid $border;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.8125rem;
   color: $muted;
-  font-size:0.95rem;
-  line-height:1;
+}
+.reaction-label { font-weight: 500; color: inherit; }
+.like-btn:hover { color: $primary; border-color: color.adjust($primary, $lightness: 25%); }
+.dislike-btn:hover { color: $danger; border-color: color.adjust($danger, $lightness: 25%); }
+.like-btn[disabled], .dislike-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+.like-btn.liked {
+  color: $primary;
+  background: color.adjust($primary, $alpha: -0.92);
+  border-color: color.adjust($primary, $lightness: 30%);
+}
+.dislike-btn.disliked {
+  color: $danger;
+  background: color.adjust($danger, $alpha: -0.92);
+  border-color: color.adjust($danger, $lightness: 30%);
+}
+.like-btn .reaction-count, .dislike-btn .reaction-count {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1;
+  min-width: 1ch;
+  text-align: center;
 }
 
 .delete-btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:36px; height:36px; border-radius:8px; border:1px solid $border; cursor:pointer;
-  background: #fff; color: $muted; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: all 0.12s ease; position: absolute; z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color.adjust($danger, $lightness: 28%);
+  cursor: pointer;
+  background: #fff;
+  color: $danger;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background 0.12s ease;
+  position: absolute;
+  z-index: 5;
 }
-.delete-btn i { font-size:14px; }
-.delete-btn:hover { transform: translateY(-2px); color: $danger; background: color.adjust($danger, $lightness: 90%); }
-.delete-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.delete-btn:hover { background: color.adjust($danger, $lightness: 90%); }
+.delete-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .delete-btn.top-right { top: 10px; right: 10px; }
 
 .rating { display:flex; flex-direction:column; gap:6px; margin: 0.5rem 0; }

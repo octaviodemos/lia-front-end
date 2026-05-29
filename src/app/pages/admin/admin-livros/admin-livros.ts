@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LivroService } from '../../../services/livro.service';
+import { AiService } from '../../../services/ai.service';
 import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../../models/livro-imagem';
+import type { IdentificacaoCapa } from '../../../models/identificacao-capa';
 import { anexarImagensLivroNoFormData, mensagemErroArquivoImagem } from '../../../utils/livro-imagem-helpers';
 
 @Component({
@@ -16,6 +18,8 @@ export class AdminLivros implements OnInit {
 
   livroForm!: FormGroup;
   mensagemSucesso: string = '';
+  mensagemCapaIa: string = '';
+  identificandoCapa = false;
   readonly slotsImagens = LIVRO_IMAGEM_FORM_SLOTS;
   private readonly tamanhoMaxArquivo = 5 * 1024 * 1024;
 
@@ -25,7 +29,8 @@ export class AdminLivros implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private livroService: LivroService
+    private livroService: LivroService,
+    private aiService: AiService,
   ) {}
 
   ngOnInit(): void {
@@ -65,6 +70,54 @@ export class AdminLivros implements OnInit {
       this.previewsPorTipo = { ...this.previewsPorTipo, [campo]: String(e.target?.result ?? '') };
     };
     leitor.readAsDataURL(arquivo);
+    if (campo === 'imagem_Capa') {
+      this.identificarCapaComIa(arquivo);
+    }
+  }
+
+  identificarCapaComIa(arquivo?: File | null): void {
+    const capa = arquivo ?? this.arquivosPorTipo.imagem_Capa;
+    if (!capa || this.identificandoCapa) {
+      return;
+    }
+    this.mensagemCapaIa = '';
+    this.identificandoCapa = true;
+    this.aiService.identificarCapa(capa).subscribe({
+      next: (r) => {
+        this.identificandoCapa = false;
+        this.aplicarIdentificacaoCapa(r);
+      },
+      error: (err) => {
+        this.identificandoCapa = false;
+        const msg = err?.error?.message;
+        this.mensagemCapaIa = Array.isArray(msg)
+          ? msg.join(', ')
+          : msg || 'Não foi possível ler a capa agora. Preencha título e ISBN manualmente.';
+      },
+    });
+  }
+
+  private aplicarIdentificacaoCapa(r: IdentificacaoCapa): void {
+    const patch: { titulo?: string; isbn?: string } = {};
+    if (r.titulo?.trim()) {
+      patch.titulo = r.titulo.trim();
+    }
+    if (r.isbn?.trim()) {
+      patch.isbn = r.isbn.trim();
+    }
+    if (Object.keys(patch).length) {
+      this.livroForm.patchValue(patch);
+      this.livroForm.get('titulo')?.markAsTouched();
+      if (patch.isbn) {
+        this.livroForm.get('isbn')?.markAsTouched();
+      }
+    }
+    const conf = r.confianca === 'alta' ? 'alta' : r.confianca === 'media' ? 'média' : 'baixa';
+    if (patch.titulo || patch.isbn) {
+      this.mensagemCapaIa = `Capa lida pela IA (confiança ${conf}). Revise título e ISBN antes de cadastrar.`;
+    } else {
+      this.mensagemCapaIa = 'A IA não conseguiu ler título ou ISBN na capa. Preencha manualmente ou tente outra foto.';
+    }
   }
 
   limparArquivo(campo: LivroImagemFormFieldName): void {
@@ -77,6 +130,9 @@ export class AdminLivros implements OnInit {
     const proximoPreviews = { ...this.previewsPorTipo };
     delete proximoPreviews[campo];
     this.previewsPorTipo = proximoPreviews;
+    if (campo === 'imagem_Capa') {
+      this.mensagemCapaIa = '';
+    }
     const el = document.getElementById(this.idInputArquivo(campo)) as HTMLInputElement | null;
     if (el) {
       el.value = '';

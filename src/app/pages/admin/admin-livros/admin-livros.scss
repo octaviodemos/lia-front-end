@@ -223,3 +223,38 @@ $cor-principal: #6a0000;
 .pending-panel .card .btn-reject,.pending-panel .card .btn-danger{background:#dc3545;color:#fff;border:0;padding:.4rem .6rem;border-radius:4px;cursor:pointer}
 .pending-panel .card .btn-reject{background:#f06565}
 .pending-panel .card button[disabled]{opacity:.6;cursor:not-allowed}
+
+.mensagem-capa-ia {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  background: #f0f4ff;
+  border: 1px solid #c5d4f5;
+  color: #1a3a7a;
+  border-radius: 6px;
+}
+
+.hint-ia-capa {
+  display: block;
+  margin-top: 0.35rem;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.capa-ia-toolbar {
+  margin-top: 0.5rem;
+}
+
+.btn-capa-ia {
+  border: 1px solid #c5d4f5;
+  background: #fff;
+  color: #1a3a7a;
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

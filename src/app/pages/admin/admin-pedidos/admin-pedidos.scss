@@ -7,7 +7,7 @@
 .pedidos-lista {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
 }
 
 .pedido-card {
@@ -28,25 +28,7 @@
 }
 
 .admin-filters {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  input[type="search"] {
-    padding: 0.4rem 0.6rem;
-    border-radius: 4px;
-    border: 1px solid #dcdcdc;
-    min-width: 280px;
-  }
-
-  select {
-    padding: 0.36rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #dcdcdc;
-    background: #fff;
-    font-size: 0.95rem;
-  }
+  @include admin-filters-row;
 }
 
 .form-group select {

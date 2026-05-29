@@ -5,22 +5,16 @@
 }
 
 .ofertas-lista {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-  gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .oferta-card {
   @include admin-data-card;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  transition: box-shadow 150ms ease, transform 150ms ease;
-}
-
-.oferta-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(34, 60, 80, 0.08);
+  gap: 0.55rem;
 }
 
 /* Visual refinements to match mock */
@@ -32,9 +26,9 @@
 
   h4 {
     margin: 0;
-    font-size: 1.125rem;
-    color: #222;
-    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #1f1f1f;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

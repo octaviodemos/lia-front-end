@@ -14,11 +14,9 @@ import type { LivroImagem } from '../../models/livro-imagem';
 import type { Estoque, Livro } from '../../models/livro';
 import { AvaliacaoForm } from '../../components/avaliacao-form/avaliacao-form';
 
-const PENDING_STORAGE_KEY = 'pendingAvaliacoes';
-const MAX_PENDING_ITEMS = 50;
-const LOCAL_ID_PREFIX = 'local_';
 const SUCCESS_MESSAGE_DURATION = 3000;
 const EVALUATION_SUCCESS_DURATION = 4000;
+const LEGACY_PENDING_STORAGE_KEY = 'pendingAvaliacoes';
 
 @Component({
   selector: 'app-livro-detalhes',
@@ -31,7 +29,6 @@ export class LivroDetalhes implements OnInit {
 
   livro: any = null;
   avaliacoes: any[] = [];
-  pendingAvaliacoes: any[] = [];
   livroId: string = '';
   mensagemSucesso: string = '';
   imagensGaleria: LivroImagem[] = [];
@@ -51,7 +48,7 @@ export class LivroDetalhes implements OnInit {
       switchMap(params => {
         this.livroId = params.get('id') || '';
         if (this.livroId) {
-          this.loadPendingFromStorage();
+          this.limparResenhasPendentesLegado();
           this.carregarAvaliacoes();
           return this.livroService.getLivroById(this.livroId);
         }
@@ -72,7 +69,6 @@ export class LivroDetalhes implements OnInit {
       next: (data: any) => {
         const list = this.normalizeAvaliacoesList(data);
         this.avaliacoes = list.map(this.normalizeAvaliacao.bind(this));
-        this.reconcilePendingWithApproved();
       },
       error: () => {} // Erro silencioso
     });
@@ -88,11 +84,24 @@ export class LivroDetalhes implements OnInit {
     return {
       ...avaliacao,
       autor,
+      tem_spoiler: !!avaliacao.tem_spoiler,
       likes: avaliacao.likes ?? avaliacao.likesCount ?? 0,
       dislikes: avaliacao.dislikes ?? 0,
       userReaction: avaliacao.userReaction ?? (avaliacao.userLiked ? 'LIKE' : null),
-      _reactionLoading: false
+      _reactionLoading: false,
+      _spoilerRevelado: false,
     };
+  }
+
+  spoilerOculto(avaliacao: any): boolean {
+    return !!avaliacao?.tem_spoiler && !avaliacao?._spoilerRevelado;
+  }
+
+  revelarSpoiler(avaliacao: any): void {
+    if (!avaliacao) {
+      return;
+    }
+    avaliacao._spoilerRevelado = true;
   }
 
   private extractAuthor(avaliacao: any): any {
@@ -106,94 +115,29 @@ export class LivroDetalhes implements OnInit {
     return nomeFromFields ? { nome: nomeFromFields } : null;
   }
 
-  /**
-   * Reconcilia avaliações pendentes com as aprovadas, removendo duplicatas
-   */
-  private reconcilePendingWithApproved(): void {
+  private limparResenhasPendentesLegado(): void {
     try {
-      const pendingItems = this.getPendingFromStorage();
-      if (!pendingItems.length) return;
-      
-      const filtered = pendingItems.filter(item => this.shouldKeepPendingItem(item));
-      
-      this.savePendingItemsToStorage(filtered);
-      this.pendingAvaliacoes = this.filterItemsByLivro(filtered);
-    } catch (error) {
-      // Falha silenciosa na reconciliação
+      localStorage.removeItem(LEGACY_PENDING_STORAGE_KEY);
+    } catch {
+      /* ignore */
     }
   }
-
-  private shouldKeepPendingItem(item: any): boolean {
-    // Manter itens de outros livros
-    if (String(item.livroId) !== String(this.livroId)) {
-      return true;
-    }
-    
-    const itemId = item.id_avaliacao || item.id;
-    
-    // Sempre manter itens com ID local temporário
-    if (itemId?.toString().startsWith(LOCAL_ID_PREFIX)) {
-      return true;
-    }
-    
-    // Remover se já existe nas aprovadas
-    if (itemId && this.isItemApproved(itemId)) {
-      return false;
-    }
-    
-    return true;
-  }
-
-  private isItemApproved(itemId: string): boolean {
-    return this.avaliacoes.some(avaliacao => {
-      const avaliacaoId = avaliacao.id_avaliacao || avaliacao.id;
-      return avaliacaoId && String(avaliacaoId) === String(itemId);
-    });
-  }
-
-
 
   onNovaAvaliacao(novaAvaliacao: any): void {
-    const isApproved = this.isAvaliacaoApproved(novaAvaliacao);
-    
-    if (isApproved) {
-      this.handleApprovedAvaliacao(novaAvaliacao);
-    } else {
-      this.handlePendingAvaliacao(novaAvaliacao);
-    }
-  }
-
-  private isAvaliacaoApproved(avaliacao: any): boolean {
-    return avaliacao?.aprovado === true || avaliacao?.aprovado === 'true';
+    this.handleApprovedAvaliacao(novaAvaliacao);
   }
 
   private handleApprovedAvaliacao(avaliacao: any): void {
-    this.avaliacoes.unshift(avaliacao);
-  }
-
-  private handlePendingAvaliacao(avaliacao: any): void {
-    const pendingItem = this.createPendingAvaliacao(avaliacao);
-    
-    this.pendingAvaliacoes.unshift(pendingItem);
-    this.savePendingToStorage(pendingItem);
-    
-    this.showSuccessMessage('Sua avaliação foi enviada e ficará pendente de aprovação.', EVALUATION_SUCCESS_DURATION);
-  }
-
-  private createPendingAvaliacao(avaliacao: any): any {
-    const currentUser = this.authService.getUser();
-    const autor = this.getCurrentUserAuthor(currentUser, avaliacao);
-    
-    return {
+    const id = avaliacao?.id_avaliacao || avaliacao?.id;
+    if (id && this.avaliacoes.some((a) => String(a.id_avaliacao || a.id) === String(id))) {
+      return;
+    }
+    const item = this.normalizeAvaliacao({
       ...avaliacao,
-      livroId: this.livroId,
-      _pendente: true,
-      autor,
-      data_avaliacao: avaliacao.data_avaliacao || new Date().toISOString(),
-      likesCount: avaliacao.likesCount ?? 0,
-      userLiked: !!avaliacao.userLiked,
-      _timestamp: Date.now()
-    };
+      autor: this.getCurrentUserAuthor(this.authService.getUser(), avaliacao),
+    });
+    this.avaliacoes.unshift(item);
+    this.showSuccessMessage('Sua avaliação foi publicada.', EVALUATION_SUCCESS_DURATION);
   }
 
   private getCurrentUserAuthor(currentUser: any, avaliacao: any): any {
@@ -201,47 +145,6 @@ export class LivroDetalhes implements OnInit {
       return { nome: currentUser.nome || currentUser.name };
     }
     return avaliacao.autor || null;
-  }
-
-  private loadPendingFromStorage(): void {
-    try {
-      const allPending = this.getPendingFromStorage();
-      this.pendingAvaliacoes = this.filterItemsByLivro(allPending);
-    } catch (error) {
-      this.pendingAvaliacoes = [];
-    }
-  }
-
-  private getPendingFromStorage(): any[] {
-    try {
-      const raw = localStorage.getItem(PENDING_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (error) {
-      return [];
-    }
-  }
-
-  private savePendingItemsToStorage(items: any[]): void {
-    try {
-      const limitedItems = items.slice(0, MAX_PENDING_ITEMS);
-      localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(limitedItems));
-    } catch (error) {
-      // Erro silencioso ao salvar
-    }
-  }
-
-  private savePendingToStorage(item: any): void {
-    try {
-      const allPending = this.getPendingFromStorage();
-      allPending.unshift(item);
-      this.savePendingItemsToStorage(allPending);
-    } catch (error) {
-      // Erro silencioso ao salvar
-    }
-  }
-
-  private filterItemsByLivro(items: any[]): any[] {
-    return items.filter(item => String(item.livroId) === String(this.livroId));
   }
 
   // Toggle reaction (LIKE or DISLIKE) on an avaliacao with optimistic update
@@ -274,7 +177,6 @@ export class LivroDetalhes implements OnInit {
 
     const id = avaliacao.id_avaliacao || avaliacao.id;
     if (!id) {
-      // local pending evaluation — only local toggle
       avaliacao._reactionLoading = false;
       return;
     }
@@ -316,18 +218,10 @@ export class LivroDetalhes implements OnInit {
 
   deleteAvaliacao(avaliacao: any): void {
     const id = avaliacao.id_avaliacao || avaliacao.id;
-    
     if (!id) {
-      this.handleLocalDelete(avaliacao);
       return;
     }
-
     this.handleServerDelete(avaliacao, id);
-  }
-
-  private handleLocalDelete(avaliacao: any): void {
-    this.removeFromLocalLists(avaliacao);
-    this.updateLocalStorage(avaliacao);
   }
 
   private handleServerDelete(avaliacao: any, id: string): void {
@@ -339,51 +233,12 @@ export class LivroDetalhes implements OnInit {
     });
   }
 
-  private removeFromLocalLists(avaliacao: any): void {
-    this.avaliacoes = this.avaliacoes.filter(a => a !== avaliacao);
-    this.pendingAvaliacoes = this.pendingAvaliacoes.filter(p => p !== avaliacao);
-  }
-
-  private updateLocalStorage(excludeItem?: any): void {
-    try {
-      const allPending = this.getPendingFromStorage();
-      let filtered: any[];
-      
-      if (excludeItem) {
-        filtered = allPending.filter(x => x !== excludeItem);
-      } else {
-        filtered = allPending;
-      }
-      
-      this.savePendingItemsToStorage(filtered);
-    } catch (error) {
-      // Erro silencioso ao atualizar localStorage
-    }
-  }
-
   private onDeleteSuccess(deletedId: string): void {
     this.avaliacoes = this.avaliacoes.filter(a => {
       const avaliacaoId = a.id_avaliacao || a.id;
       return String(avaliacaoId) !== String(deletedId);
     });
-    
-    this.updateStorageAfterDelete(deletedId);
     this.showSuccessMessage('Avaliação removida com sucesso.', SUCCESS_MESSAGE_DURATION);
-  }
-
-  private updateStorageAfterDelete(deletedId: string): void {
-    try {
-      const allPending = this.getPendingFromStorage();
-      const filtered = allPending.filter(item => {
-        const itemId = item.id_avaliacao || item.id || '';
-        return String(itemId) !== String(deletedId);
-      });
-      
-      this.savePendingItemsToStorage(filtered);
-      this.pendingAvaliacoes = this.filterItemsByLivro(filtered);
-    } catch (error) {
-      // Erro silencioso ao atualizar localStorage
-    }
   }
 
   private onDeleteError(avaliacao: any, error: any): void {

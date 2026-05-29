@@ -116,9 +116,12 @@ export class OfertarLivro implements OnInit {
         this.identificandoCapa = false;
         this.aplicarIdentificacaoCapa(r);
       },
-      error: () => {
+      error: (err) => {
         this.identificandoCapa = false;
-        this.mensagemCapaIa = 'Não foi possível ler a capa agora. Preencha título e autor manualmente.';
+        const msg = err?.error?.message;
+        this.mensagemCapaIa = Array.isArray(msg)
+          ? msg.join(', ')
+          : msg || 'Não foi possível ler a capa agora. Preencha título e autor manualmente.';
       },
     });
   }

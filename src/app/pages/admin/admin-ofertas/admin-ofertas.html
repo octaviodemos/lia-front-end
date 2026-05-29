@@ -1,5 +1,6 @@
 <div class="admin-container">
-  <h2>Painel de Admin - Análise de Ofertas de Venda</h2>
+  <h2>Ofertas</h2>
+  <p class="admin-page-desc">Analise propostas de venda enviadas pelos usuários.</p>
 
   <div class="ofertas-lista" *ngIf="ofertas.length > 0; else noOfertas">
     <div *ngFor="let oferta of ofertas" class="oferta-card">

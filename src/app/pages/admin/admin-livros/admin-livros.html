@@ -1,10 +1,16 @@
 <div class="admin-container">
-  <h2>Painel de Admin - Cadastrar Novo Livro no Catálogo</h2>
+  <h2>Cadastrar livro</h2>
+  <p class="admin-page-desc">Inclua novos títulos no catálogo da LIA.</p>
+
+  <div *ngIf="mensagemCapaIa" class="mensagem-capa-ia" role="status">
+    {{ mensagemCapaIa }}
+  </div>
   
   <form [formGroup]="livroForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="titulo">Título</label>
       <input id="titulo" type="text" formControlName="titulo">
+      <small class="hint-ia-capa" *ngIf="identificandoCapa">Lendo capa com IA…</small>
     </div>
     <div class="form-group">
       <label for="isbn">ISBN</label>
@@ -61,7 +67,7 @@
 
     <div class="form-group imagens-grid">
       <span class="imagens-grid__titulo">Imagens do livro</span>
-      <p class="imagens-grid__intro">Um arquivo por tipo (imagem_Capa, imagem_Contracapa, imagem_Lombada, etc.).</p>
+      <p class="imagens-grid__intro">Um arquivo por tipo (imagem_Capa, imagem_Contracapa, imagem_Lombada, etc.). Ao anexar a capa, a IA pode sugerir título e ISBN.</p>
       <div class="imagens-grid__lista">
         <div class="slot-imagem" *ngFor="let slot of slotsImagens">
           <span class="slot-imagem__titulo">{{ slot.titulo }}</span>
@@ -84,6 +90,16 @@
           </div>
           <div *ngIf="previewsPorTipo[slot.formFieldName]" class="image-preview image-preview--slot">
             <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="'Pré-visualização ' + slot.titulo">
+          </div>
+          <div class="capa-ia-toolbar" *ngIf="slot.formFieldName === 'imagem_Capa' && arquivosPorTipo.imagem_Capa">
+            <button
+              type="button"
+              class="btn-capa-ia"
+              (click)="identificarCapaComIa()"
+              [disabled]="identificandoCapa"
+            >
+              {{ identificandoCapa ? 'Lendo capa…' : 'Ler capa com IA' }}
+            </button>
           </div>
         </div>
       </div>

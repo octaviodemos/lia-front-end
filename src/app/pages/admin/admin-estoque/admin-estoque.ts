@@ -445,12 +445,23 @@ export class AdminEstoque implements OnInit {
   }
 
   tituloLivroNaLista(item: any): string {
-    return (
+    const direto =
       item?.livro?.titulo ||
       item?.titulo_livro ||
-      item?.livro_titulo ||
-      `Livro #${item?.id_livro ?? '—'}`
-    );
+      item?.livro_titulo;
+    if (direto) {
+      return String(direto).trim();
+    }
+    const idLivro = item?.id_livro ?? item?.livro?.id_livro;
+    if (idLivro != null) {
+      const doCatalogo = this.livrosDoCatalogo.find(
+        (l) => String(l.id_livro) === String(idLivro),
+      );
+      if (doCatalogo?.titulo) {
+        return String(doCatalogo.titulo).trim();
+      }
+    }
+    return idLivro != null ? `Livro #${idLivro}` : '—';
   }
 
   notaLivroNaLista(item: any): string {
@@ -475,5 +486,21 @@ export class AdminEstoque implements OnInit {
   itemDisponivel(item: any): boolean {
     const v = item?.disponivel;
     return v === true || v === 'true' || v === 1 || v === '1';
+  }
+
+  get livroSelecionadoId(): number | null {
+    const v = this.estoqueForm?.get('id_livro')?.value;
+    return v == null ? null : Number(v);
+  }
+
+  get itensFiltrados(): any[] {
+    const id = this.livroSelecionadoId;
+    if (id == null || Number.isNaN(id)) {
+      return this.itensLista;
+    }
+    return this.itensLista.filter((item) => {
+      const itemLivro = item?.id_livro ?? item?.livro?.id_livro;
+      return String(itemLivro) === String(id);
+    });
   }
 }

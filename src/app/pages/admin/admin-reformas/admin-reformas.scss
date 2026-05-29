@@ -4,10 +4,13 @@
   @include admin-page-container;
 }
 
-.admin-filters{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
-input[type=search]{padding:.4rem .6rem;border-radius:4px;border:1px solid #dcdcdc;min-width:260px}
-select{padding:.36rem .5rem;border-radius:4px;border:1px solid #dcdcdc;background:#fff}
-.reforma-card{@include admin-data-card;padding:1rem;margin-bottom:1rem}
+.admin-filters {
+  @include admin-filters-row;
+}
+
+.reforma-card {
+  @include admin-data-card;
+}
 .reforma-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
 .reforma-title{font-weight:700}
 .reforma-date{display:block;font-size:.85rem;color:#666}

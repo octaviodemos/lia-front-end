@@ -18,7 +18,6 @@ import { Comunidade } from './pages/comunidade/comunidade';
 import { PublicacaoDetalhes } from './pages/publicacao-detalhes/publicacao-detalhes';
 import { AdminLayout } from './pages/admin/admin-layout/admin-layout';
 import { AdminLivros } from './pages/admin/admin-livros/admin-livros';
-import { AdminAvaliacoes } from './pages/admin/admin-avaliacoes/admin-avaliacoes';
 import { AdminEstoque } from './pages/admin/admin-estoque/admin-estoque';
 import { AdminPedidos } from './pages/admin/admin-pedidos/admin-pedidos';
 import { AdminOfertas } from './pages/admin/admin-ofertas/admin-ofertas';
@@ -58,8 +57,8 @@ export const routes: Routes = [
     component: AdminLayout,
     canActivate: [adminGuard],
     children: [
+      { path: 'avaliacoes', redirectTo: 'pedidos', pathMatch: 'full' },
       { path: 'livros', component: AdminLivros },
-      { path: 'avaliacoes', component: AdminAvaliacoes },
       { path: 'estoque', component: AdminEstoque },
       { path: 'pedidos', component: AdminPedidos },
       { path: 'ofertas', component: AdminOfertas },
