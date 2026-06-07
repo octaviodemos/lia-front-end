@@ -43,7 +43,7 @@ export class Home implements OnInit, OnDestroy {
       .subscribe({
         next: (data: Livro[]) => {
           if (data && Array.isArray(data)) {
-            this.livros = data.slice(0, 6);
+            this.livros = data.slice(0, 10);
           } else {
             console.warn('Dados de livros inválidos recebidos');
             this.livros = [];
