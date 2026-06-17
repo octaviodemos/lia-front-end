@@ -65,13 +65,11 @@
       <textarea id="descricao_conservacao" formControlName="descricao_conservacao" rows="3" placeholder="Detalhes visíveis, páginas soltas, carimbos, etc."></textarea>
     </div>
 
-    <div class="form-group imagens-grid">
+    <div class="form-group imagens-grid imagens-grid--compact">
       <span class="imagens-grid__titulo">Imagens do livro</span>
-      <p class="imagens-grid__intro">Um arquivo por tipo (imagem_Capa, imagem_Contracapa, imagem_Lombada, etc.). Ao anexar a capa, a IA pode sugerir título e ISBN.</p>
       <div class="imagens-grid__lista">
         <div class="slot-imagem" *ngFor="let slot of slotsImagens">
           <span class="slot-imagem__titulo">{{ slot.titulo }}</span>
-          <small class="slot-imagem__desc">{{ slot.descricao }}</small>
           <div class="file-upload-container">
             <input
               type="file"
@@ -80,13 +78,14 @@
               accept="image/*"
             >
             <label [for]="idInputArquivo(slot.formFieldName)" class="file-label">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4V20M12 4L8 8M12 4L16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              {{ nomesArquivos[slot.formFieldName] || 'Escolher arquivo' }}
+              {{ nomesArquivos[slot.formFieldName] || 'Anexar' }}
             </label>
-            <button type="button" *ngIf="arquivosPorTipo[slot.formFieldName]" (click)="limparArquivo(slot.formFieldName)" class="btn-clear-file">✕</button>
+            <button
+              type="button"
+              *ngIf="arquivosPorTipo[slot.formFieldName]"
+              (click)="limparArquivo(slot.formFieldName)"
+              class="btn-clear-file"
+            >✕</button>
           </div>
           <div *ngIf="previewsPorTipo[slot.formFieldName]" class="image-preview image-preview--slot">
             <img [src]="previewsPorTipo[slot.formFieldName]" [alt]="'Pré-visualização ' + slot.titulo">
@@ -103,7 +102,6 @@
           </div>
         </div>
       </div>
-      <small class="hint">Formatos aceitos: JPG, PNG, GIF (máx. 5MB por arquivo)</small>
     </div>
 
     <div class="form-group">

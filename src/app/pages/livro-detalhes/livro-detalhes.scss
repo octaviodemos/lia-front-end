@@ -176,10 +176,10 @@ $space-lg: 24px;
     padding: 0.75rem 1rem;
     background: linear-gradient(
       120deg,
-      color.adjust($secondary, $lightness: 48%) 0%,
-      $bg-light 55%
+      color.adjust($primary, $lightness: 48%) 0%,
+      $bg-light 58%
     );
-    border: 1px solid color.adjust($secondary, $lightness: 25%);
+    border: 1px solid color.adjust($primary, $lightness: 22%);
     border-radius: $card-radius;
     box-shadow: $card-shadow;
   }
@@ -193,8 +193,13 @@ $space-lg: 24px;
     margin: 0;
     font-size: 0.95rem;
     line-height: 1.45;
-    color: $text;
+    color: color.adjust($primary, $lightness: -8%);
     flex: 1;
+
+    strong {
+      color: $primary;
+      font-weight: 800;
+    }
   }
 
   .autor {

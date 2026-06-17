@@ -282,6 +282,28 @@
 
 
 
+        <div class="lista-estoque__busca">
+
+          <input
+
+            type="search"
+
+            class="lista-estoque__input-busca"
+
+            [value]="termoBuscaExemplares"
+
+            (input)="termoBuscaExemplares = $any($event.target).value"
+
+            placeholder="Buscar ID, livro, preço…"
+
+            aria-label="Buscar exemplares"
+
+          />
+
+        </div>
+
+
+
         <div class="tabela-estoque" *ngIf="itensFiltrados.length; else semItens">
 
           <div class="tabela-estoque__header">
@@ -337,7 +359,17 @@
 
         <ng-template #semItens>
 
-          <p class="lista-estoque__vazio">Nenhum exemplar neste livro.</p>
+          <p class="lista-estoque__vazio" *ngIf="termoBuscaExemplares.trim(); else vazioLista">
+
+            Nenhum exemplar encontrado para esta busca.
+
+          </p>
+
+          <ng-template #vazioLista>
+
+            <p class="lista-estoque__vazio">Nenhum exemplar nesta lista.</p>
+
+          </ng-template>
 
         </ng-template>
 

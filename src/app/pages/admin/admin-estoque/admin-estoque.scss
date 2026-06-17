@@ -325,6 +325,32 @@ form .form-botoes-estoque .btn-sec:hover {
   color: $admin-muted-text;
 }
 
+.lista-estoque__busca {
+  margin-bottom: 0.65rem;
+}
+
+.lista-estoque__input-busca {
+  width: 100%;
+  min-height: 36px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.8125rem;
+  color: #1f1f1f;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #9a3333;
+    box-shadow: 0 0 0 2px rgba(106, 0, 0, 0.12);
+  }
+
+  &::placeholder {
+    color: #9aa0a6;
+  }
+}
+
 .lista-estoque__vazio {
   margin: 0;
   padding: 0.75rem 0.5rem;

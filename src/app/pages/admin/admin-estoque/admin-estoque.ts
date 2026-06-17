@@ -31,6 +31,7 @@ export class AdminEstoque implements OnInit {
   livrosDoCatalogo: any[] = [];
   itensLista: any[] = [];
   mensagemSucesso: string = '';
+  termoBuscaExemplares = '';
   modoEdicao = false;
   idEstoqueEdicao: number | null = null;
 
@@ -495,12 +496,29 @@ export class AdminEstoque implements OnInit {
 
   get itensFiltrados(): any[] {
     const id = this.livroSelecionadoId;
-    if (id == null || Number.isNaN(id)) {
-      return this.itensLista;
+    let lista = this.itensLista;
+    if (id != null && !Number.isNaN(id)) {
+      lista = lista.filter((item) => {
+        const itemLivro = item?.id_livro ?? item?.livro?.id_livro;
+        return String(itemLivro) === String(id);
+      });
     }
-    return this.itensLista.filter((item) => {
-      const itemLivro = item?.id_livro ?? item?.livro?.id_livro;
-      return String(itemLivro) === String(id);
-    });
+    const termo = this.termoBuscaExemplares.trim().toLowerCase();
+    if (!termo) {
+      return lista;
+    }
+    return lista.filter((item) => this.exemplarCorrespondeBusca(item, termo));
+  }
+
+  private exemplarCorrespondeBusca(item: any, termo: string): boolean {
+    const idEstoque = String(item?.id_estoque ?? item?.id ?? '');
+    const idLivro = String(item?.id_livro ?? item?.livro?.id_livro ?? '');
+    const titulo = this.tituloLivroNaLista(item).toLowerCase();
+    const preco = item?.preco != null ? String(item.preco).replace('.', ',') : '';
+    const precoAlt = item?.preco != null ? String(item.preco) : '';
+    const status = this.itemDisponivel(item) ? 'ativo' : 'vendido';
+    const nota = this.notaLivroNaLista(item).toLowerCase();
+    const campos = [idEstoque, idLivro, titulo, preco, precoAlt, status, nota];
+    return campos.some((campo) => campo.includes(termo));
   }
 }

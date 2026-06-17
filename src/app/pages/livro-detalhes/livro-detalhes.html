@@ -43,7 +43,7 @@
       <div class="faixa-multi-exemplares" *ngIf="temOutrasOpcoes()" role="status">
         <span class="faixa-multi-exemplares__icone" aria-hidden="true">📚</span>
         <p class="faixa-multi-exemplares__texto">
-          Este ISBN tem <strong>{{ getTotalExemplaresIsbnPagina() }}</strong> exemplares na loja.
+          Há <strong>{{ getTotalExemplaresIsbnPagina() }}</strong> exemplares deste livro na loja.
         </p>
       </div>
       <p class="autor"><strong>Autor:</strong> {{ getAutorNome() }}</p>
@@ -103,7 +103,7 @@
 
       <aside class="outras-exemplares" *ngIf="temOutrasOpcoes()" aria-labelledby="outras-exemplares-titulo">
         <h3 id="outras-exemplares-titulo" class="outras-exemplares__titulo">Outros exemplares disponíveis</h3>
-        <p class="outras-exemplares__intro">Compare preço e estado de outros exemplares do mesmo ISBN.</p>
+        <p class="outras-exemplares__intro">Compare preço e estado de outros exemplares desta obra.</p>
         <div class="outras-exemplares__grid" role="list">
           <a
             *ngFor="let op of getOutrasOpcoes()"
