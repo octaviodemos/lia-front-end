@@ -48,7 +48,7 @@
   -webkit-overflow-scrolling: touch;
 
   app-livro-card {
-    flex: 0 0 min(260px, 78vw);
+    flex: 0 0 min(210px, 78vw);
     scroll-snap-align: start;
   }
 }
@@ -70,6 +70,6 @@
 
 .livros-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
 }

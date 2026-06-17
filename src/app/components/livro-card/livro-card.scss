@@ -70,16 +70,18 @@ $cor-borda: #eee;
   }
 }
 
-.card-exemplares-linha {
-  margin: 0;
-  padding: 0.35rem 0.65rem;
+.card-badge-estoque {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #333;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
   font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  text-align: center;
-  text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(90deg, #0b4d3f 0%, #1a8f75 100%);
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .card-badge-conservacao {
@@ -100,7 +102,7 @@ $cor-borda: #eee;
 }
 
 .card-info {
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 .card-title {
@@ -140,19 +142,19 @@ $cor-borda: #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem 1rem 1rem;
+  padding: 0 0.75rem 0.75rem 0.75rem;
   margin-top: 0.5rem;
 }
 
 .card-price {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: $cor-principal;
   margin: 0;
 
   &.no-price {
     color: #999;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-style: italic;
   }
 }
@@ -161,19 +163,19 @@ $cor-borda: #eee;
   background-color: $cor-principal;
   color: #fff;
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   transition: all 0.3s ease;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 
   &:hover:not(:disabled) {
