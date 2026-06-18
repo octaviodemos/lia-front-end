@@ -30,16 +30,7 @@ export class BuscaService {
 
     return livros.filter(livro => {
       const titulo = livro.titulo?.toLowerCase() || '';
-      const autor = livro.autor?.toLowerCase() || '';
-      const descricao = livro.descricao?.toLowerCase() || '';
-      const editora = livro.editora?.toLowerCase() || '';
-
-      return (
-        titulo.includes(termo) ||
-        autor.includes(termo) ||
-        descricao.includes(termo) ||
-        editora.includes(termo)
-      );
+      return titulo.includes(termo);
     });
   }
 }
