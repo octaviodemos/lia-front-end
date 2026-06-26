@@ -139,3 +139,153 @@ $admin-primary-soft: #f3e8e8;
   text-align: center;
   background: $admin-surface;
 }
+
+@mixin admin-status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+@mixin admin-status-badge-colors {
+  .badge--success { background:#e6ffed; color:#067a2d; border:1px solid rgba(6,122,45,0.12); }
+  .badge--warning { background:#fff7e6; color:#8a5a00; border:1px solid rgba(138,90,0,0.08); }
+  .badge--danger { background:#ffe6e6; color:#8a1f1f; border:1px solid rgba(138,31,31,0.08); }
+  .badge--muted { background:#f5f5f5; color:#666; border:1px solid rgba(0,0,0,0.04); }
+  .badge--info { background:#e6f0ff; color:#0b4fa3; border:1px solid rgba(11,79,163,0.06); }
+  .badge--neutral { background:#fafafa; color:#333; border:1px solid rgba(0,0,0,0.03); }
+}
+
+@mixin admin-status-select {
+  .form-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+
+    label {
+      margin: 0;
+      white-space: nowrap;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .status-select {
+      margin-left: auto;
+      padding: 0.46rem 0.8rem;
+      border-radius: 6px;
+      min-width: 140px;
+    }
+
+    .status-select.badge--success { background: #1e9b74; color: #fff; border: none; }
+    .status-select.badge--warning { background: #e9a94a; color: #fff; border: none; }
+    .status-select.badge--danger { background: #d65a5a; color: #fff; border: none; }
+    .status-select.badge--muted { background: #f0f0f0; color: #444; border: none; }
+    .status-select.badge--info { background: #2b7cd6; color: #fff; border: none; }
+    .status-select.badge--neutral { background: #f7f7f7; color: #333; border: none; }
+  }
+}
+
+@mixin admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  h4 {
+    margin: 0 0 4px 0;
+    font-size: 1.05rem;
+  }
+
+  .card-sub,
+  .pedido-sub,
+  .reforma-date {
+    font-size: 0.85rem;
+    color: #666;
+  }
+}
+
+@mixin admin-cliente-info {
+  .cliente {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cliente .email,
+  .cliente .telefone {
+    color: #666;
+    font-style: normal;
+  }
+
+  .endereco-info {
+    margin: 0 0 0.75rem;
+    font-size: 0.92rem;
+    color: #333;
+    line-height: 1.45;
+  }
+
+  .endereco-info strong {
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .endereco-info p {
+    margin: 0 0 0.25rem;
+  }
+}
+
+@mixin admin-pagination {
+  .admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid $admin-border;
+  }
+
+  .admin-pagination__info {
+    min-width: 148px;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $admin-muted;
+  }
+
+  .admin-pagination__btn {
+    min-height: 36px;
+    padding: 0 1.1rem;
+    border: 1px solid $admin-border;
+    border-radius: 999px;
+    background: $admin-surface;
+    color: $admin-text;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(:disabled) {
+      border-color: color.adjust($admin-primary, $lightness: 18%);
+      background: $admin-primary-soft;
+      color: $admin-primary;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: color.adjust($admin-primary, $lightness: 18%);
+      box-shadow: 0 0 0 2px color.change($admin-primary, $alpha: 0.12);
+    }
+
+    &:disabled {
+      background: #f1f3f4;
+      border-color: #e8eaed;
+      color: #9aa0a6;
+      cursor: not-allowed;
+    }
+  }
+}

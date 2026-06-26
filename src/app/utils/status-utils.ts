@@ -100,3 +100,122 @@ export const ORDER_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'rejected', label: 'Rejeitado' },
   { value: 'refunded', label: 'Estornado' },
 ];
+
+export const OFFER_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'pendente', label: 'Pendente' },
+  { value: 'aceita', label: 'Aceita' },
+  { value: 'recusada', label: 'Recusada' },
+];
+
+export function normalizeOfferStatusCode(status?: string): string {
+  if (!status) return '';
+  const value = String(status).trim().toLowerCase();
+  if (value === 'aceito' || value === 'aprovado' || value === 'approved') return 'aceita';
+  if (value === 'recusado' || value === 'rejeitado' || value === 'rejected') return 'recusada';
+  return value;
+}
+
+export function mapOfferStatusLabel(status?: string): string {
+  const code = normalizeOfferStatusCode(status);
+  switch (code) {
+    case 'pendente':
+      return 'Pendente';
+    case 'aceita':
+      return 'Aceita';
+    case 'recusada':
+      return 'Recusada';
+    default:
+      return code ? code.charAt(0).toUpperCase() + code.slice(1) : 'Desconhecido';
+  }
+}
+
+export function offerBadgeClass(oferta: any): string {
+  const code = normalizeOfferStatusCode(oferta?.status_oferta || oferta?.status);
+  switch (code) {
+    case 'aceita':
+      return 'badge--success';
+    case 'recusada':
+      return 'badge--danger';
+    case 'pendente':
+      return 'badge--warning';
+    default:
+      return 'badge--neutral';
+  }
+}
+
+export function getOfferFriendlyLabel(oferta: any): string {
+  return mapOfferStatusLabel(oferta?.status_oferta || oferta?.status);
+}
+
+export const REPAIR_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Todos os status' },
+  { value: 'PENDING', label: 'Pendente' },
+  { value: 'IN_PROGRESS', label: 'Em andamento' },
+  { value: 'COMPLETED', label: 'Concluído' },
+  { value: 'REJECTED', label: 'Rejeitado' },
+];
+
+export function normalizeRepairStatusCode(status?: string): string {
+  if (!status) return '';
+  const value = String(status).trim().toLowerCase();
+
+  const aliases: Record<string, string> = {
+    pendente: 'pending',
+    em_andamento: 'in_progress',
+    'em andamento': 'in_progress',
+    concluido: 'completed',
+    concluído: 'completed',
+    rejeitado: 'rejected',
+    recusado: 'rejected',
+  };
+
+  const normalized = aliases[value] || value.replace(/\s+/g, '_');
+  switch (normalized) {
+    case 'pending':
+      return 'PENDING';
+    case 'in_progress':
+      return 'IN_PROGRESS';
+    case 'completed':
+      return 'COMPLETED';
+    case 'rejected':
+      return 'REJECTED';
+    default:
+      return String(status).trim().toUpperCase();
+  }
+}
+
+export function mapRepairStatusLabel(status?: string): string {
+  const code = normalizeRepairStatusCode(status);
+  switch (code) {
+    case 'PENDING':
+      return 'Pendente';
+    case 'IN_PROGRESS':
+      return 'Em andamento';
+    case 'COMPLETED':
+      return 'Concluído';
+    case 'REJECTED':
+      return 'Rejeitado';
+    default:
+      return status ? String(status) : 'Desconhecido';
+  }
+}
+
+export function repairBadgeClass(solicitacao: any): string {
+  const code = normalizeRepairStatusCode(solicitacao?.status_solicitacao || solicitacao?.status);
+  switch (code) {
+    case 'COMPLETED':
+      return 'badge--success';
+    case 'PENDING':
+      return 'badge--warning';
+    case 'IN_PROGRESS':
+      return 'badge--info';
+    case 'REJECTED':
+      return 'badge--danger';
+    default:
+      return 'badge--neutral';
+  }
+}
+
+export function getRepairFriendlyLabel(solicitacao: any): string {
+  return mapRepairStatusLabel(solicitacao?.status_solicitacao || solicitacao?.status);
+}

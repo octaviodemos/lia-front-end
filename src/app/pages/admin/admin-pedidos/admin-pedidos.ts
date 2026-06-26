@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoService } from '../../../services/pedido.service';
 import { getFriendlyLabel, badgeClass, normalizeOrderStatusCode, ORDER_STATUS_OPTIONS } from '../../../utils/status-utils';
+import { formatarEnderecos, telefoneDoUsuario } from '../../../utils/admin-contact-utils';
 
 @Component({
   selector: 'app-admin-pedidos',
@@ -26,6 +27,8 @@ export class AdminPedidos implements OnInit {
 
   getFriendlyLabel = (p: any) => getFriendlyLabel(p);
   badgeClassFor = (p: any) => badgeClass(p);
+  formatarEnderecos = (p: any) => formatarEnderecos(p);
+  telefoneDoUsuario = (p: any) => telefoneDoUsuario(p);
 
   // Determine which option value should be selected for a given pedido
   getSelectedStatusValue(pedido: any): string {

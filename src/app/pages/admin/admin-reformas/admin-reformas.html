@@ -11,10 +11,29 @@
 
   <div class="reformas-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
     <div *ngFor="let s of solicitacoes" class="reforma-card">
-      <div class="reforma-header">
-        <div class="reforma-title">Solicitação #{{ s.id_solicitacao || s.id }} <span class="reforma-date">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
-        <div class="reforma-user">{{ s.usuario?.nome || s.usuario?.name || 'Usuário' }} <span class="email">({{ s.usuario?.email }})</span> <span class="telefone" *ngIf="s.usuario?.telefone"> | WhatsApp: {{ s.usuario?.telefone }}</span></div>
+      <div class="reforma-card-header">
+        <div class="reforma-title">
+          <h4>Solicitação #{{ s.id_solicitacao || s.id }}</h4>
+          <div class="reforma-sub">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <div class="reforma-badge" [ngClass]="badgeClassFor(s)">
+          {{ getFriendlyLabel(s) }}
+        </div>
       </div>
+
+      <p class="cliente">
+        <strong>Cliente:</strong> {{ s.usuario?.nome || s.usuario?.name || 'Usuário' }}
+        <span class="email">({{ s.usuario?.email }})</span>
+        <span class="telefone" *ngIf="telefoneDoUsuario(s)"> | Tel: {{ telefoneDoUsuario(s) }}</span>
+      </p>
+
+      <div class="endereco-info" *ngIf="formatarEnderecos(s).length; else semEnderecoReforma">
+        <strong>Endereço:</strong>
+        <p *ngFor="let endereco of formatarEnderecos(s)">{{ endereco }}</p>
+      </div>
+      <ng-template #semEnderecoReforma>
+        <p class="endereco-info"><strong>Endereço:</strong> Não informado</p>
+      </ng-template>
 
       <div class="reforma-body">
         <div class="reforma-desc">{{ s.descricao_problema }}</div>
@@ -56,9 +75,17 @@
           <p class="reforma-ia-card__descricao">{{ ev.descricao }}</p>
         </div>
 
-        <div class="reforma-actions">
-          <label>Status</label>
-          <select [ngModel]="getSelectedStatusValue(s)" (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)" [ngClass]="badgeClassFor(s) + ' status-select'">
+        <div class="form-group">
+          <label [id]="'label-status-reforma-' + (s.id_solicitacao || s.id)" [for]="'status-reforma-' + (s.id_solicitacao || s.id)">
+            Status da Solicitação
+          </label>
+          <select
+            [id]="'status-reforma-' + (s.id_solicitacao || s.id)"
+            [ngModel]="getSelectedStatusValue(s)"
+            (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)"
+            [attr.aria-labelledby]="'label-status-reforma-' + (s.id_solicitacao || s.id)"
+            [ngClass]="badgeClassFor(s) + ' status-select'"
+          >
             <option *ngIf="!getSelectedStatusValue(s)" value="__current" disabled>{{ getFriendlyLabel(s) }}</option>
             <option *ngFor="let opt of statusOptions" [value]="opt.value" [hidden]="!opt.value">{{ opt.label }}</option>
           </select>
@@ -66,10 +93,10 @@
       </div>
     </div>
 
-    <div class="pagination">
-      <button (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
-      <span>Página {{ page }} — Total: {{ total }}</span>
-      <button (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
+    <div class="admin-pagination">
+      <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+      <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
+      <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
     </div>
   </div>
 

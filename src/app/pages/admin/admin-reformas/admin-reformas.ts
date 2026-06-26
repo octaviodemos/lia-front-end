@@ -2,7 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReformaService } from '../../../services/reforma.service';
-import { getFriendlyLabel, badgeClass } from '../../../utils/status-utils';
+import {
+  REPAIR_STATUS_OPTIONS,
+  repairBadgeClass,
+  getRepairFriendlyLabel,
+  normalizeRepairStatusCode,
+} from '../../../utils/status-utils';
+import { formatarEnderecos, telefoneDoUsuario } from '../../../utils/admin-contact-utils';
 import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
@@ -31,33 +37,17 @@ export class AdminReformas implements OnInit {
   iaCarregandoPorId: Record<string, boolean> = {};
   iaResultadoPorId: Record<string, ReformaIaAvaliacao | null> = {};
 
-  statusOptions: Array<{ value: string; label: string }> = [
-    { value: '', label: 'Todos os status' },
-    { value: 'PENDING', label: 'Pendente' },
-    { value: 'IN_PROGRESS', label: 'Em andamento' },
-    { value: 'COMPLETED', label: 'Concluído' },
-    { value: 'REJECTED', label: 'Rejeitado' }
-  ];
+  statusOptions = REPAIR_STATUS_OPTIONS;
 
   constructor(private reformaService: ReformaService) { }
 
-  getFriendlyLabel = (p: any) => getFriendlyLabel(p);
-  badgeClassFor = (p: any) => badgeClass(p);
+  getFriendlyLabel = (s: any) => getRepairFriendlyLabel(s);
+  badgeClassFor = (s: any) => repairBadgeClass(s);
+  formatarEnderecos = (s: any) => formatarEnderecos(s);
+  telefoneDoUsuario = (s: any) => telefoneDoUsuario(s);
 
   getSelectedStatusValue(solicitacao: any): string {
-    const current = (solicitacao?.status_solicitacao || solicitacao?.status || '').toString();
-    if (!current) return '';
-
-    const byValue = this.statusOptions.find(o => o.value && o.value.toString().toLowerCase() === current.toString().toLowerCase());
-    if (byValue) return byValue.value;
-
-    const byLabel = this.statusOptions.find(o => o.label && o.label.toString().toLowerCase() === current.toString().toLowerCase());
-    if (byLabel) return byLabel.value;
-
-    const byValueUpper = this.statusOptions.find(o => o.value && o.value.toString().toUpperCase() === current.toString().toUpperCase());
-    if (byValueUpper) return byValueUpper.value;
-
-    return '';
+    return normalizeRepairStatusCode(solicitacao?.status_solicitacao || solicitacao?.status);
   }
 
   ngOnInit(): void {

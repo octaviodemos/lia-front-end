@@ -20,8 +20,19 @@
         </div>
       </div>
 
-      <p class="cliente"><strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }} <span class="email">({{ pedido.cliente?.email }})</span></p>
-      
+      <p class="cliente">
+        <strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }}
+        <span class="email">({{ pedido.cliente?.email }})</span>
+        <span class="telefone" *ngIf="telefoneDoUsuario(pedido)"> | Tel: {{ telefoneDoUsuario(pedido) }}</span>
+      </p>
+
+      <div class="endereco-info" *ngIf="formatarEnderecos(pedido).length; else semEnderecoPedido">
+        <strong>Endereço de entrega:</strong>
+        <p *ngFor="let endereco of formatarEnderecos(pedido)">{{ endereco }}</p>
+      </div>
+      <ng-template #semEnderecoPedido>
+        <p class="endereco-info"><strong>Endereço de entrega:</strong> Não informado</p>
+      </ng-template>
       <div class="itens-pedido">
         <strong>Itens:</strong>
         <div class="itens-table">
@@ -65,10 +76,10 @@
 </div>
     </div>
 
-    <div class="pagination">
-      <button (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
-      <span>Página {{ page }} — Total: {{ total }}</span>
-      <button (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
+    <div class="admin-pagination">
+      <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+      <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
+      <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
     </div>
   </div>
 

@@ -10,20 +10,43 @@
 
 .reforma-card {
   @include admin-data-card;
+  padding: 1rem 1.1rem;
 }
-.reforma-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-.reforma-title{font-weight:700}
-.reforma-date{display:block;font-size:.85rem;color:#666}
-.reforma-user{color:#333}
-.reforma-body{border-top:1px solid #f1f1f1;padding-top:.6rem}
-.reforma-desc{margin-bottom:.6rem}
+
+.reforma-card-header {
+  @include admin-card-header;
+}
+
+.reforma-badge {
+  @include admin-status-badge;
+}
+
+@include admin-status-badge-colors;
+@include admin-cliente-info;
+@include admin-status-select;
+
+.reforma-title h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+}
+
+.reforma-sub {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.reforma-body {
+  border-top: 1px solid #f1f1f1;
+  padding-top: 0.6rem;
+}
+.reforma-desc { margin-bottom: 0.6rem; }
 .reforma-imagens{margin:.5rem 0}
 .admin-imagens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;padding:.75rem;background:#fafafa;border:1px solid #eee;border-radius:6px}
 .admin-imagens-grid__titulo{font-size:.8rem;font-weight:700;margin:0 0 .35rem;color:#333}
 .admin-imagens-grid__item{margin:0}
 .admin-imagens-grid__item img{width:100%;height:160px;object-fit:cover;border-radius:4px;display:block;border:1px solid #e5e5e5}
-.reforma-actions{display:flex;align-items:center;gap:.75rem;margin-top:.6rem}
-.pagination{margin-top:1rem;display:flex;gap:.5rem;align-items:center}
+
+@include admin-pagination;
 
 .reforma-ia-toolbar {
   margin: 0.75rem 0 0.35rem;

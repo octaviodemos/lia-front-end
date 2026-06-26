@@ -1,22 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { OfertaVendaService } from '../../../services/oferta-venda.service';
 import { AiService } from '../../../services/ai.service';
 import type { LivroImagem } from '../../../models/livro-imagem';
 import type { AvaliacaoIaOferta } from '../../../models/avaliacao-ia-oferta';
 import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
+import {
+  OFFER_STATUS_OPTIONS,
+  offerBadgeClass,
+  getOfferFriendlyLabel,
+  normalizeOfferStatusCode,
+} from '../../../utils/status-utils';
+import { formatarEnderecos, telefoneDoUsuario } from '../../../utils/admin-contact-utils';
 
 @Component({
   selector: 'app-admin-ofertas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-ofertas.html',
   styleUrls: ['./admin-ofertas.scss']
 })
 export class AdminOfertas implements OnInit {
 
   ofertas: any[] = [];
+  statusOptions = OFFER_STATUS_OPTIONS;
   expandidoPorId: Record<string, boolean> = {};
   iaCarregandoPorId: Record<string, boolean> = {};
   iaResultadoPorId: Record<string, AvaliacaoIaOferta | null> = {};
@@ -25,6 +34,24 @@ export class AdminOfertas implements OnInit {
     private ofertaVendaService: OfertaVendaService,
     private aiService: AiService,
   ) {}
+
+  getFriendlyLabel = (o: any) => getOfferFriendlyLabel(o);
+  badgeClassFor = (o: any) => offerBadgeClass(o);
+  formatarEnderecos = (o: any) => formatarEnderecos(o);
+  telefoneDoUsuario = (o: any) => telefoneDoUsuario(o);
+
+  getSelectedStatusValue(oferta: any): string {
+    return normalizeOfferStatusCode(oferta?.status_oferta || oferta?.status);
+  }
+
+  onStatusChange(novoStatus: string, ofertaId: number | string): void {
+    this.ofertaVendaService.responderOferta(String(ofertaId), {
+      status_oferta: novoStatus,
+    }).subscribe({
+      next: () => this.carregarOfertas(),
+      error: (err: any) => console.error('Erro ao atualizar status da oferta', err),
+    });
+  }
 
   ngOnInit(): void {
     this.carregarOfertas();
@@ -102,18 +129,6 @@ export class AdminOfertas implements OnInit {
         this.iaCarregandoPorId = { ...this.iaCarregandoPorId, [key]: false };
         alert('A IA não conseguiu analisar as fotos. Por favor, avalie o livro manualmente.');
       },
-    });
-  }
-
-  handleResposta(ofertaId: any, novoStatus: 'aceita' | 'recusada'): void {
-    const key = String(ofertaId);
-    this.ofertaVendaService.responderOferta(key, {
-      status_oferta: novoStatus,
-    }).subscribe({
-      next: () => {
-        this.carregarOfertas();
-      },
-      error: (err: any) => console.error('Erro ao responder oferta', err)
     });
   }
 }
