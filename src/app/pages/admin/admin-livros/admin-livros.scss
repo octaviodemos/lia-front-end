@@ -170,12 +170,19 @@ $cor-principal: #6a0000;
   border-radius: 8px;
   padding: 0.35rem;
   background-color: #f8f9fa;
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 
   img {
     max-width: 100%;
-    max-height: 72px;
+    max-height: 100%;
     width: auto;
     height: auto;
+    object-fit: contain;
     display: block;
     border-radius: 4px;
   }
@@ -185,6 +192,7 @@ $cor-principal: #6a0000;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
+  align-items: start;
 }
 
 .imagens-grid--compact .slot-imagem {
@@ -207,9 +215,8 @@ $cor-principal: #6a0000;
   font-size: 0.8125rem;
 }
 
-.image-preview--slot img {
-  max-width: 100%;
-  max-height: 72px;
+.image-preview--slot {
+  height: 88px;
 }
 .pending-panel{margin-top:1.5rem}
 .pending-panel .panel-header{display:flex;justify-content:space-between;align-items:center;background:#fafafa;padding:.75rem 1rem;border:1px solid #e6e6e6;border-radius:6px;cursor:pointer}

@@ -14,7 +14,8 @@ $cor-texto: #333;
 // Social Club Section
 .social-club-section {
   background-color: $cor-principal;
-  padding: 4rem 2rem;
+  margin-top: calc(-1 * var(--header-height));
+  padding: calc(var(--header-height) + 3rem) 2rem 4rem;
   text-align: center;
 
   .social-club-content {
@@ -104,9 +105,9 @@ $cor-texto: #333;
 }
 
 // Responsividade
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .social-club-section {
-    padding: 3rem 1.5rem;
+    padding: calc(var(--header-height) + 2rem) 1.5rem 3rem;
 
     .social-club-title {
       font-size: 2rem;

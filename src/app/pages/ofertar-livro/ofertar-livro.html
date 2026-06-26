@@ -36,13 +36,24 @@
     </div>
 
     <div class="form-group">
-      <label for="preco_sugerido">Preço sugerido (R$) <span class="req" aria-hidden="true">*</span></label>
-      <input id="preco_sugerido" type="text" inputmode="decimal" placeholder="Ex: 49,90" formControlName="preco_sugerido">
+      <label for="preco_sugerido">Preço sugerido <span class="req" aria-hidden="true">*</span></label>
+      <div class="campo-moeda">
+        <span class="campo-moeda__prefixo" aria-hidden="true">R$</span>
+        <input
+          id="preco_sugerido"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="0,00"
+          formControlName="preco_sugerido"
+          (input)="aoDigitarPrecoSugerido($event)"
+        >
+      </div>
       <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.hasError('required') && (ofertaForm.get('preco_sugerido')?.touched || submitAttempt)">
         O preço sugerido é obrigatório.
       </small>
-      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.hasError('pattern') && (ofertaForm.get('preco_sugerido')?.touched || submitAttempt) && !ofertaForm.get('preco_sugerido')?.hasError('required')">
-        Informe um valor válido no formato monetário.
+      <small class="erro-campo" *ngIf="ofertaForm.get('preco_sugerido')?.hasError('moedaInvalida') && (ofertaForm.get('preco_sugerido')?.touched || submitAttempt) && !ofertaForm.get('preco_sugerido')?.hasError('required')">
+        Informe um valor válido maior que zero.
       </small>
     </div>
 

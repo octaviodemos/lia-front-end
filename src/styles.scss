@@ -54,6 +54,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
+  background-color: #f4f1ec;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -63,11 +64,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Variáveis de layout: ajuste se o header/footer mudarem de tamanho */
 :root {
-  --header-height: 140px;
+  --header-height: 100px;
   --footer-height: 180px;
 }
 
-/* Garante que app-root preenche a tela */
+app-header {
+  display: block;
+  width: 100%;
+}
+
 app-root {
   display: flex;
   flex-direction: column;
@@ -76,5 +81,17 @@ app-root {
 }
 
 main {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  padding-top: var(--header-height);
+  width: 100%;
+}
+
+app-footer {
+  margin-top: auto;
+}
+
+@media (max-width: 968px) {
+  :root {
+    --header-height: 240px;
+  }
 }

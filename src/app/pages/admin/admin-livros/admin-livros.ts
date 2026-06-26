@@ -36,6 +36,7 @@ export class AdminLivros implements OnInit {
   ngOnInit(): void {
     this.livroForm = this.fb.group({
       titulo: ['', Validators.required],
+      autor: [''],
       sinopse: [''],
       editora: [''],
       ano_publicacao: [null],
@@ -98,25 +99,50 @@ export class AdminLivros implements OnInit {
   }
 
   private aplicarIdentificacaoCapa(r: IdentificacaoCapa): void {
-    const patch: { titulo?: string; isbn?: string } = {};
+    const patch: {
+      titulo?: string;
+      autor?: string;
+      isbn?: string;
+      editora?: string;
+      ano_publicacao?: number | null;
+      sinopse?: string;
+    } = {};
+
     if (r.titulo?.trim()) {
       patch.titulo = r.titulo.trim();
+    }
+    if (r.autor?.trim()) {
+      patch.autor = r.autor.trim();
     }
     if (r.isbn?.trim()) {
       patch.isbn = r.isbn.trim();
     }
+    if (r.editora?.trim()) {
+      patch.editora = r.editora.trim();
+    }
+    if (r.ano_publicacao != null) {
+      patch.ano_publicacao = r.ano_publicacao;
+    }
+    if (r.sinopse?.trim()) {
+      patch.sinopse = r.sinopse.trim();
+    }
+
     if (Object.keys(patch).length) {
       this.livroForm.patchValue(patch);
       this.livroForm.get('titulo')?.markAsTouched();
+      if (patch.autor) {
+        this.livroForm.get('autor')?.markAsTouched();
+      }
       if (patch.isbn) {
         this.livroForm.get('isbn')?.markAsTouched();
       }
     }
+
     const conf = r.confianca === 'alta' ? 'alta' : r.confianca === 'media' ? 'média' : 'baixa';
-    if (patch.titulo || patch.isbn) {
-      this.mensagemCapaIa = `Capa lida pela IA (confiança ${conf}). Revise título e ISBN antes de cadastrar.`;
+    if (Object.keys(patch).length) {
+      this.mensagemCapaIa = `Capa lida pela IA (confiança ${conf}). Campos preenchidos automaticamente — revise título, autor, ISBN e demais dados antes de cadastrar.`;
     } else {
-      this.mensagemCapaIa = 'A IA não conseguiu ler título ou ISBN na capa. Preencha manualmente ou tente outra foto.';
+      this.mensagemCapaIa = 'A IA não conseguiu ler dados na capa. Preencha manualmente ou tente outra foto.';
     }
   }
 
@@ -180,6 +206,7 @@ export class AdminLivros implements OnInit {
           this.mensagemSucesso = `Livro "${response.titulo}" criado com sucesso!`;
           this.livroForm.reset({
             titulo: '',
+            autor: '',
             sinopse: '',
             editora: '',
             ano_publicacao: null,

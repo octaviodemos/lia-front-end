@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { OfertaVendaService } from '../../services/oferta-venda.service';
 import { AiService } from '../../services/ai.service';
 import { LIVRO_IMAGEM_FORM_SLOTS, LivroImagemFormFieldName } from '../../models/livro-imagem';
@@ -45,7 +45,7 @@ export class OfertarLivro implements OnInit {
       titulo_livro: ['', Validators.required],
       autor_livro: ['', Validators.required],
       descricao_condicao: [''],
-      preco_sugerido: ['', [Validators.required, Validators.pattern(/^\d+(?:[.,]\d{1,2})?$/)]]
+      preco_sugerido: ['', [Validators.required, this.validarPrecoMoeda]]
     });
   }
 
@@ -78,6 +78,27 @@ export class OfertarLivro implements OnInit {
 
   podeEnviar(): boolean {
     return this.ofertaForm.valid && this.fotosObrigatoriasOk();
+  }
+
+  aoDigitarPrecoSugerido(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const apenasDigitos = input.value.replace(/\D/g, '');
+    const controle = this.ofertaForm.get('preco_sugerido');
+    if (!controle) {
+      return;
+    }
+    if (!apenasDigitos) {
+      controle.setValue('', { emitEvent: false });
+      input.value = '';
+      return;
+    }
+    const valorCentavos = parseInt(apenasDigitos, 10);
+    const formatado = (valorCentavos / 100).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    controle.setValue(formatado, { emitEvent: false });
+    input.value = formatado;
   }
 
   aoSelecionarArquivo(campo: LivroImagemFormFieldName, event: Event): void {
@@ -204,10 +225,27 @@ export class OfertarLivro implements OnInit {
     }
   }
 
+  private validarPrecoMoeda = (control: AbstractControl): ValidationErrors | null => {
+    const valor = this.parseMoeda(control.value);
+    if (valor === null || valor <= 0) {
+      return { moedaInvalida: true };
+    }
+    return null;
+  };
+
+  private parseMoeda(valor: unknown): number | null {
+    const texto = String(valor ?? '').trim();
+    if (!texto) {
+      return null;
+    }
+    const normalizado = texto.replace(/\./g, '').replace(',', '.');
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : null;
+  }
+
   private normalizarPrecoSugerido(valor: unknown): string {
-    const texto = String(valor ?? '').trim().replace(',', '.');
-    const numero = Number(texto);
-    if (!Number.isFinite(numero) || numero < 0) {
+    const numero = this.parseMoeda(valor);
+    if (numero === null || numero < 0) {
       return '0.00';
     }
     return numero.toFixed(2);

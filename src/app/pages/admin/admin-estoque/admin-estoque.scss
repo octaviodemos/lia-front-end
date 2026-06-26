@@ -184,33 +184,34 @@ $primary-color: #6a0000;
 }
 
 .image-preview {
-  margin-top: 1rem;
-  border: 2px solid #dee2e6;
+  margin-top: 0.5rem;
+  border: 1px solid #e8eaed;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 0.35rem;
   background-color: #f8f9fa;
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 
   img {
-    max-width: 300px;
-    max-height: 400px;
+    max-width: 100%;
+    max-height: 100%;
     width: auto;
     height: auto;
+    object-fit: contain;
     display: block;
     border-radius: 4px;
   }
-}
-
-.hint {
-  display: block;
-  margin-top: 0.5rem;
-  color: #6c757d;
-  font-size: 0.875rem;
 }
 
 .imagens-grid--compact .imagens-grid__lista {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
+  align-items: start;
 }
 
 .imagens-grid--compact .slot-imagem {
@@ -220,15 +221,14 @@ $primary-color: #6a0000;
   background: #fafafa;
 }
 
-.imagens-grid--compact .image-preview--slot img {
-  max-height: 72px;
+.imagens-grid--compact .image-preview--slot {
+  height: 88px;
 }
 
 .imagens-grid__titulo { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.875rem; }
-.imagens-grid__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.imagens-grid__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; align-items: start; }
 .slot-imagem { border: 1px solid #e9ecef; border-radius: 8px; padding: 0.75rem 1rem; background: #fafafa; }
 .slot-imagem__titulo { display: block; font-weight: 600; font-size: 0.8125rem; }
-.image-preview--slot img { max-width: 100%; max-height: 220px; }
 
 .aviso-modo {
   font-weight: 600;
@@ -253,10 +253,17 @@ $primary-color: #6a0000;
   button[type='submit'],
   .btn-sec {
     min-height: 36px;
+    width: 5.5rem;
+    margin-top: 0;
     font-size: 0.875rem;
     font-weight: 500;
     padding: 0 1rem;
     border-radius: 999px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
   }
 }
 
@@ -265,7 +272,6 @@ form .form-botoes-estoque .btn-sec {
   color: #fff;
   border: 0;
   cursor: pointer;
-  box-sizing: border-box;
 }
 
 form .form-botoes-estoque .btn-sec:hover {

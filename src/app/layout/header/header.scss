@@ -4,14 +4,23 @@
 $cor-principal: #6a0000; 
 $cor-fundo: #fdfaf5;     
 $cor-texto: #333;
+$altura-header: 100px;
+
+:host {
+  display: block;
+  width: 100%;
+}
 
 .main-header {
   width: 100%;
+  margin: 0;
   background-color: $cor-principal;
-  padding: 1rem 0; 
+  padding: 0;
   border-bottom: 2px solid color.adjust($cor-principal, $lightness: -10%);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1050;
   transition: box-shadow 0.3s ease, background-color 0.3s ease;
 
@@ -24,13 +33,15 @@ $cor-texto: #333;
 // Navbar Container
 .navbar {
   display: flex;
-  align-items: center; 
-  justify-content: space-between; 
-  flex-wrap: wrap; 
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
   max-width: 1400px;
+  min-height: $altura-header;
   margin: 0 auto;
-  padding: 0 2rem;
-  gap: 2rem;
+  padding: 0 1.5rem;
+  gap: 1.25rem;
 }
 
 // Logo
@@ -49,7 +60,8 @@ $cor-texto: #333;
   }
   
   img {
-    height: 120px;
+    height: 92px;
+    max-height: calc(#{$altura-header} - 0.5rem);
     width: auto;
     object-fit: contain;
     display: block;
@@ -59,24 +71,27 @@ $cor-texto: #333;
 
 // Barra de Busca
 .nav-search {
-  flex-grow: 1; 
-  max-width: 500px; 
-  margin: 0 2rem;
+  flex: 1 1 auto;
+  max-width: 500px;
+  margin: 0 1.5rem;
+  align-self: center;
 
   form {
     display: flex;
     position: relative;
     align-items: center;
+    height: 100%;
   }
 
   input[type="text"] {
     width: 100%;
-    padding: 0.85rem 1.2rem 0.85rem 3.5rem;
+    height: 42px;
+    padding: 0 1rem 0 2.75rem;
     border: none;
     border-radius: 5px;
     background-color: $cor-fundo;
     color: $cor-texto;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 
     &::placeholder {
       color: #999;
@@ -118,7 +133,9 @@ $cor-texto: #333;
   margin: 0;
   padding: 0;
   align-items: center;
-  gap: 2rem;
+  align-self: center;
+  flex-shrink: 0;
+  gap: 1.25rem;
 }
 
 .nav-item {
@@ -127,10 +144,10 @@ $cor-texto: #333;
   a {
     color: $cor-fundo;
     text-decoration: none;
-    font-size: 1.3rem;
+    font-size: 1.05rem;
     font-weight: 500;
     cursor: pointer;
-    padding: 0.6rem 1.2rem;
+    padding: 0.4rem 0.9rem;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
@@ -171,14 +188,14 @@ $cor-texto: #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.6rem 1rem;
+    padding: 0.4rem 0.75rem;
     background-color: transparent;
     border-radius: 8px;
     transition: background-color 0.18s ease, transform 0.18s ease;
 
     svg {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       transition: transform 0.18s ease;
       color: $cor-fundo;
     }
@@ -261,9 +278,9 @@ $cor-texto: #333;
 .user-btn {
   /* match base nav item look: no persistent white border/background */
   color: $cor-fundo;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  padding: 0.6rem 1.2rem;
+  padding: 0.4rem 0.9rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -332,21 +349,24 @@ $cor-texto: #333;
 // Responsividade
 @media (max-width: 968px) {
   .main-header {
-    padding: 0.75rem 0;
+    padding: 0;
   }
 
   .navbar {
+    flex-wrap: wrap;
+    min-height: auto;
     flex-direction: column;
-    gap: 1.5rem;
-    padding: 0 1rem;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
   }
 
   .nav-logo {
-    align-self: flex-start;
+    align-self: center;
     width: 100%;
     
     img {
-      height: 80px;
+      height: 72px;
+      max-height: none;
     }
   }
 
@@ -395,20 +415,20 @@ $cor-texto: #333;
   gap: 8px;
   color: $cor-fundo;
   text-decoration: none;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  padding: 0.6rem 1.2rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 8px;
   transition: all 0.18s ease;
 }
 .admin-item .admin-panel-link i {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
 }
 .admin-item .admin-panel-link .admin-label {
   margin-left: 6px;
   font-weight: 500;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
 }
 .admin-item .admin-panel-link:hover,
 .admin-item .admin-panel-link.active {
