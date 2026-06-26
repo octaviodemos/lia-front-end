@@ -8,6 +8,20 @@
   @include admin-filters-row;
 }
 
+.admin-filters {
+  @include admin-filters-row;
+}
+
+.admin-toolbar {
+  @include admin-toolbar;
+}
+
+.admin-view-toggle {
+  @include admin-view-toggle;
+}
+
+@include admin-kanban;
+
 .reforma-card {
   @include admin-data-card;
   padding: 1rem 1.1rem;

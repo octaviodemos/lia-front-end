@@ -1,131 +1,174 @@
-<div class="admin-container">
+<div class="admin-container" [class.admin-container--kanban]="viewMode === 'kanban'">
   <h2>Ofertas</h2>
   <p class="admin-page-desc">Analise propostas de venda enviadas pelos usuários.</p>
 
-  <div class="ofertas-lista" *ngIf="ofertas.length > 0; else noOfertas">
-    <div *ngFor="let oferta of ofertas" class="oferta-card">
-      <div class="oferta-card-header">
-        <div class="oferta-title">
-          <h4>Oferta #{{ oferta.id_oferta_venda }}</h4>
-          <div class="oferta-sub">{{ oferta.data_oferta | date: 'dd/MM/yyyy HH:mm' }}</div>
-        </div>
-        <div class="oferta-badge" [ngClass]="badgeClassFor(oferta)">
-          {{ getFriendlyLabel(oferta) }}
-        </div>
-      </div>
-
-      <p class="cliente">
-        <strong>Usuário:</strong> {{ oferta.usuario?.nome || 'Nome não disponível' }}
-        <span class="email">({{ oferta.usuario?.email }})</span>
-        <span class="telefone" *ngIf="telefoneDoUsuario(oferta)"> | Tel: {{ telefoneDoUsuario(oferta) }}</span>
-      </p>
-
-      <div class="endereco-info" *ngIf="formatarEnderecos(oferta).length; else semEnderecoOferta">
-        <strong>Endereço:</strong>
-        <p *ngFor="let endereco of formatarEnderecos(oferta)">{{ endereco }}</p>
-      </div>
-      <ng-template #semEnderecoOferta>
-        <p class="endereco-info"><strong>Endereço:</strong> Não informado</p>
-      </ng-template>
-
-      <div class="meta-list">
-        <div class="meta-item">
-          <span><strong>Livro:</strong> {{ oferta.titulo_livro }}</span>
-        </div>
-
-        <div class="meta-item">
-          <span><strong>Autor:</strong> {{ oferta.autor_livro || '—' }}</span>
-        </div>
-
-        <div class="meta-item">
-          <span><strong>Condição:</strong> {{ oferta.condicao_livro }}</span>
-        </div>
-
-        <div class="meta-item">
-          <span><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</span>
-        </div>
-      </div>
-
-      <div *ngIf="imagensDaOferta(oferta).length" class="oferta-fotos-toggle">
-        <button type="button" class="btn-fotos" (click)="alternarDetalhes(oferta)">
-          {{ detalhesAbertos(oferta) ? 'Ocultar fotos do exemplar' : 'Ver fotos do exemplar' }}
-        </button>
-      </div>
-
-      <ng-container *ngIf="detalhesAbertos(oferta) && imagensDaOferta(oferta).length">
-        <div class="admin-imagens-grid">
-          <figure *ngFor="let img of imagensDaOferta(oferta)" class="admin-imagens-grid__item">
-            <figcaption class="admin-imagens-grid__titulo">{{ rotuloTipo(img.tipo_imagem) }}</figcaption>
-            <img [src]="urlMidia(img.url_imagem)" [alt]="rotuloTipo(img.tipo_imagem)" loading="lazy" />
-          </figure>
-        </div>
-
-        <div class="ia-toolbar">
-          <button
-            type="button"
-            class="btn-ia-evaluar"
-            (click)="avaliarComIa(oferta)"
-            [disabled]="iaCarregando(oferta)"
-            [attr.aria-busy]="iaCarregando(oferta)"
-          >
-            <span class="btn-ia-evaluar__icon" aria-hidden="true">🪄</span>
-            <ng-container *ngIf="!iaCarregando(oferta)">
-              <span class="btn-ia-evaluar__label">Avaliar com Inteligência Artificial</span>
-            </ng-container>
-            <span *ngIf="iaCarregando(oferta)" class="btn-ia-evaluar__loading">
-              <span class="ia-spinner" aria-hidden="true"></span>
-              <span>Analisando fotos com IA…</span>
-            </span>
-          </button>
-        </div>
-
-        <div
-          *ngIf="iaResultado(oferta) as ia"
-          class="ia-sugestao"
-          role="region"
-          [attr.aria-label]="'Sugestão da IA, nota ' + ia.nota_conservacao + ' de 5'"
-        >
-          <div class="ia-sugestao__header">
-            <span class="ia-sugestao__badge">Sugestão da IA</span>
-            <span class="ia-sugestao__nota-num">{{ ia.nota_conservacao }} / 5</span>
-          </div>
-          <div class="ia-sugestao__estrelas" aria-hidden="true">
-            <span
-              *ngFor="let s of [1, 2, 3, 4, 5]"
-              class="ia-sugestao__estrela"
-              [class.ia-sugestao__estrela--cheia]="estrelaPreenchida(oferta, s)"
-            >★</span>
-          </div>
-          <p class="ia-sugestao__descricao">{{ ia.descricao_conservacao }}</p>
-        </div>
-      </ng-container>
-
-      <div class="form-group">
-        <label [id]="'label-status-oferta-' + oferta.id_oferta_venda" [for]="'status-oferta-' + oferta.id_oferta_venda">
-          Status da Oferta
-        </label>
-        <select
-          [id]="'status-oferta-' + oferta.id_oferta_venda"
-          [ngModel]="getSelectedStatusValue(oferta)"
-          (ngModelChange)="onStatusChange($event, oferta.id_oferta_venda)"
-          [attr.aria-labelledby]="'label-status-oferta-' + oferta.id_oferta_venda"
-          [ngClass]="badgeClassFor(oferta) + ' status-select'"
-        >
-          <option *ngIf="!getSelectedStatusValue(oferta)" value="__current" disabled>{{ getFriendlyLabel(oferta) }}</option>
-          <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
-        </select>
-      </div>
-
-      <div *ngIf="oferta.status_oferta !== 'pendente' && oferta.resposta_admin" class="response-box">
-        <div class="response-content">
-          <p class="label"><strong>Resposta da LIA:</strong></p>
-          <p class="message">{{ oferta.resposta_admin }}</p>
-        </div>
-      </div>
+  <div class="admin-toolbar">
+    <div class="admin-filters">
+      <input type="search" placeholder="Buscar livro, usuário ou id" [(ngModel)]="q" (keyup.enter)="aplicarBusca()" />
+    </div>
+    <div class="admin-view-toggle" role="group" aria-label="Modo de visualização">
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'list'" (click)="setViewMode('list')">Lista</button>
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'kanban'" (click)="setViewMode('kanban')">Kanban</button>
     </div>
   </div>
 
-  <ng-template #noOfertas>
-    <p>Nenhuma oferta pendente no momento.</p>
+  <ng-container *ngIf="viewMode === 'list'; else kanbanOfertas">
+    <div class="ofertas-lista" *ngIf="ofertasFiltradas.length > 0; else noOfertas">
+      <div *ngFor="let oferta of ofertasFiltradas" class="oferta-card">
+        <ng-container *ngTemplateOutlet="ofertaCard; context: { $implicit: oferta }"></ng-container>
+      </div>
+    </div>
+
+    <ng-template #noOfertas>
+      <p>Nenhuma oferta encontrada.</p>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #kanbanOfertas>
+    <app-admin-kanban-board
+      [columns]="kanbanColumns"
+      [items]="ofertasFiltradas"
+      [resolveStatus]="getSelectedStatusValue"
+      [cardTemplate]="kanbanOfertaCard"
+      emptyMessage="Nenhuma oferta para exibir no kanban."
+      columnEmptyMessage="Nenhuma oferta"
+      (itemMoved)="onKanbanItemMoved($event)"
+    />
   </ng-template>
 </div>
+
+<ng-template #kanbanOfertaCard let-oferta>
+  <div class="kanban-card__header">
+    <strong>#{{ oferta.id_oferta_venda }}</strong>
+    <span>{{ oferta.data_oferta | date:'dd/MM/yy HH:mm' }}</span>
+  </div>
+  <p class="kanban-card__meta">{{ oferta.titulo_livro }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted">{{ oferta.usuario?.nome || 'Usuário' }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted">R$ {{ oferta.preco_sugerido }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted" *ngIf="telefoneDoUsuario(oferta)">Tel: {{ telefoneDoUsuario(oferta) }}</p>
+  <select
+    class="kanban-card__select"
+    [ngModel]="getSelectedStatusValue(oferta)"
+    (ngModelChange)="onStatusChange($event, oferta.id_oferta_venda)"
+    [ngClass]="badgeClassFor(oferta)"
+    (mousedown)="$event.stopPropagation()"
+  >
+    <option *ngFor="let status of kanbanColumns" [value]="status.value">{{ status.label }}</option>
+  </select>
+</ng-template>
+
+<ng-template #ofertaCard let-oferta>
+  <div class="oferta-card-header">
+    <div class="oferta-title">
+      <h4>Oferta #{{ oferta.id_oferta_venda }}</h4>
+      <div class="oferta-sub">{{ oferta.data_oferta | date: 'dd/MM/yyyy HH:mm' }}</div>
+    </div>
+    <div class="oferta-badge" [ngClass]="badgeClassFor(oferta)">
+      {{ getFriendlyLabel(oferta) }}
+    </div>
+  </div>
+
+  <p class="cliente">
+    <strong>Usuário:</strong> {{ oferta.usuario?.nome || 'Nome não disponível' }}
+    <span class="email">({{ oferta.usuario?.email }})</span>
+    <span class="telefone" *ngIf="telefoneDoUsuario(oferta)"> | Tel: {{ telefoneDoUsuario(oferta) }}</span>
+  </p>
+
+  <div class="endereco-info" *ngIf="formatarEnderecos(oferta).length; else semEnderecoOferta">
+    <strong>Endereço:</strong>
+    <p *ngFor="let endereco of formatarEnderecos(oferta)">{{ endereco }}</p>
+  </div>
+  <ng-template #semEnderecoOferta>
+    <p class="endereco-info"><strong>Endereço:</strong> Não informado</p>
+  </ng-template>
+
+  <div class="meta-list">
+    <div class="meta-item">
+      <span><strong>Livro:</strong> {{ oferta.titulo_livro }}</span>
+    </div>
+    <div class="meta-item">
+      <span><strong>Autor:</strong> {{ oferta.autor_livro || '—' }}</span>
+    </div>
+    <div class="meta-item">
+      <span><strong>Condição:</strong> {{ oferta.condicao_livro }}</span>
+    </div>
+    <div class="meta-item">
+      <span><strong>Preço Sugerido:</strong> R$ {{ oferta.preco_sugerido }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="imagensDaOferta(oferta).length" class="oferta-fotos-toggle">
+    <button type="button" class="btn-fotos" (click)="alternarDetalhes(oferta)">
+      {{ detalhesAbertos(oferta) ? 'Ocultar fotos do exemplar' : 'Ver fotos do exemplar' }}
+    </button>
+  </div>
+
+  <ng-container *ngIf="detalhesAbertos(oferta) && imagensDaOferta(oferta).length">
+    <div class="admin-imagens-grid">
+      <figure *ngFor="let img of imagensDaOferta(oferta)" class="admin-imagens-grid__item">
+        <figcaption class="admin-imagens-grid__titulo">{{ rotuloTipo(img.tipo_imagem) }}</figcaption>
+        <img [src]="urlMidia(img.url_imagem)" [alt]="rotuloTipo(img.tipo_imagem)" loading="lazy" />
+      </figure>
+    </div>
+
+    <div class="ia-toolbar">
+      <button
+        type="button"
+        class="btn-ia-evaluar"
+        (click)="avaliarComIa(oferta)"
+        [disabled]="iaCarregando(oferta)"
+        [attr.aria-busy]="iaCarregando(oferta)"
+      >
+        <span class="btn-ia-evaluar__icon" aria-hidden="true">🪄</span>
+        <ng-container *ngIf="!iaCarregando(oferta)">
+          <span class="btn-ia-evaluar__label">Avaliar com Inteligência Artificial</span>
+        </ng-container>
+        <span *ngIf="iaCarregando(oferta)" class="btn-ia-evaluar__loading">
+          <span class="ia-spinner" aria-hidden="true"></span>
+          <span>Analisando fotos com IA…</span>
+        </span>
+      </button>
+    </div>
+
+    <div
+      *ngIf="iaResultado(oferta) as ia"
+      class="ia-sugestao"
+      role="region"
+      [attr.aria-label]="'Sugestão da IA, nota ' + ia.nota_conservacao + ' de 5'"
+    >
+      <div class="ia-sugestao__header">
+        <span class="ia-sugestao__badge">Sugestão da IA</span>
+        <span class="ia-sugestao__nota-num">{{ ia.nota_conservacao }} / 5</span>
+      </div>
+      <div class="ia-sugestao__estrelas" aria-hidden="true">
+        <span
+          *ngFor="let s of [1, 2, 3, 4, 5]"
+          class="ia-sugestao__estrela"
+          [class.ia-sugestao__estrela--cheia]="estrelaPreenchida(oferta, s)"
+        >★</span>
+      </div>
+      <p class="ia-sugestao__descricao">{{ ia.descricao_conservacao }}</p>
+    </div>
+  </ng-container>
+
+  <div class="form-group">
+    <label [id]="'label-status-oferta-' + oferta.id_oferta_venda" [for]="'status-oferta-' + oferta.id_oferta_venda">Status da Oferta</label>
+    <select
+      [id]="'status-oferta-' + oferta.id_oferta_venda"
+      [ngModel]="getSelectedStatusValue(oferta)"
+      (ngModelChange)="onStatusChange($event, oferta.id_oferta_venda)"
+      [attr.aria-labelledby]="'label-status-oferta-' + oferta.id_oferta_venda"
+      [ngClass]="badgeClassFor(oferta) + ' status-select'"
+    >
+      <option *ngIf="!getSelectedStatusValue(oferta)" value="__current" disabled>{{ getFriendlyLabel(oferta) }}</option>
+      <option *ngFor="let status of kanbanColumns" [value]="status.value">{{ status.label }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="oferta.status_oferta !== 'pendente' && oferta.resposta_admin" class="response-box">
+    <div class="response-content">
+      <p class="label"><strong>Resposta da LIA:</strong></p>
+      <p class="message">{{ oferta.resposta_admin }}</p>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,29 @@
+<div class="admin-kanban" cdkDropListGroup *ngIf="items.length > 0; else emptyBoard">
+  <section *ngFor="let coluna of columns" class="admin-kanban__coluna" [attr.aria-label]="'Coluna ' + coluna.label">
+    <header class="admin-kanban__coluna-header">
+      <span class="admin-kanban__coluna-titulo">
+        <span class="admin-kanban__coluna-badge" [ngClass]="coluna.badgeClass">{{ coluna.label }}</span>
+      </span>
+      <span class="admin-kanban__coluna-contagem">{{ contarColuna(coluna.value) }}</span>
+    </header>
+    <div
+      class="admin-kanban__coluna-body"
+      cdkDropList
+      [cdkDropListData]="kanbanBoard[coluna.value]"
+      (cdkDropListDropped)="onDrop($event, coluna.value)"
+    >
+      <div
+        *ngFor="let item of kanbanBoard[coluna.value]"
+        class="kanban-card"
+        cdkDrag
+      >
+        <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: item }"></ng-container>
+      </div>
+      <p *ngIf="contarColuna(coluna.value) === 0" class="admin-kanban__vazio">{{ columnEmptyMessage }}</p>
+    </div>
+  </section>
+</div>
+
+<ng-template #emptyBoard>
+  <p class="admin-kanban__empty">{{ emptyMessage }}</p>
+</ng-template>

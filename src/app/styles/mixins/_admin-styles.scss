@@ -10,6 +10,10 @@ $admin-primary-soft: #f3e8e8;
 @mixin admin-page-container {
   max-width: 840px;
 
+  &--kanban {
+    max-width: none;
+  }
+
   h2 {
     margin: 0 0 0.35rem;
     font-size: 1.375rem;
@@ -288,4 +292,191 @@ $admin-primary-soft: #f3e8e8;
       cursor: not-allowed;
     }
   }
+}
+
+@mixin admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+
+  .admin-filters {
+    flex: 1 1 260px;
+    margin-bottom: 0;
+  }
+}
+
+@mixin admin-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem;
+  border: 1px solid $admin-border;
+  border-radius: 999px;
+  background: $admin-surface;
+  gap: 0.15rem;
+
+  &__btn {
+    min-height: 34px;
+    padding: 0 0.95rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: $admin-muted;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(.is-active) {
+      background: #f1f3f4;
+      color: $admin-text;
+    }
+
+    &.is-active {
+      background: $admin-primary;
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(106, 0, 0, 0.18);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color.change($admin-primary, $alpha: 0.2);
+    }
+  }
+}
+
+@mixin admin-kanban {
+  .admin-kanban {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .admin-kanban__coluna {
+    flex: 0 0 272px;
+    min-width: 272px;
+    max-height: calc(100vh - 220px);
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fb;
+    border: 1px solid $admin-border;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .admin-kanban__coluna-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.7rem 0.8rem;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+  }
+
+  .admin-kanban__coluna-titulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: $admin-text;
+  }
+
+  .admin-kanban__coluna-badge {
+    @include admin-status-badge;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .admin-kanban__coluna-contagem {
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: #eef1f4;
+    color: $admin-muted;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-kanban__coluna-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.7rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .admin-kanban__vazio {
+    margin: 0;
+    padding: 0.85rem 0.5rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: $admin-muted;
+  }
+
+  .kanban-card {
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: 10px;
+    padding: 0.7rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .kanban-card__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: $admin-muted;
+  }
+
+  .kanban-card__header strong {
+    color: $admin-text;
+    font-size: 0.875rem;
+  }
+
+  .kanban-card__meta {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: #333;
+  }
+
+  .kanban-card__meta--muted {
+    color: $admin-muted;
+    font-size: 0.78rem;
+  }
+
+  .kanban-card__select {
+    width: 100%;
+    margin-top: 0.15rem;
+    padding: 0.38rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid $admin-border;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: $admin-surface;
+    color: $admin-text;
+  }
+
+  .kanban-card__select.badge--success { background: #1e9b74; color: #fff; border: none; }
+  .kanban-card__select.badge--warning { background: #e9a94a; color: #fff; border: none; }
+  .kanban-card__select.badge--danger { background: #d65a5a; color: #fff; border: none; }
+  .kanban-card__select.badge--muted { background: #f0f0f0; color: #444; border: none; }
+  .kanban-card__select.badge--info { background: #2b7cd6; color: #fff; border: none; }
+  .kanban-card__select.badge--neutral { background: #f7f7f7; color: #333; border: none; }
 }

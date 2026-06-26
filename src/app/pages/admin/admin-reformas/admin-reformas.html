@@ -1,106 +1,147 @@
-<div class="admin-container">
+<div class="admin-container" [class.admin-container--kanban]="viewMode === 'kanban'">
   <h2>Reformas</h2>
   <p class="admin-page-desc">Gerencie solicitações de restauração de livros.</p>
 
-  <div class="admin-filters">
-    <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
-    <select [(ngModel)]="filterStatus" (change)="onSearch()">
-      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
-    </select>
-  </div>
-
-  <div class="reformas-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
-    <div *ngFor="let s of solicitacoes" class="reforma-card">
-      <div class="reforma-card-header">
-        <div class="reforma-title">
-          <h4>Solicitação #{{ s.id_solicitacao || s.id }}</h4>
-          <div class="reforma-sub">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
-        </div>
-        <div class="reforma-badge" [ngClass]="badgeClassFor(s)">
-          {{ getFriendlyLabel(s) }}
-        </div>
-      </div>
-
-      <p class="cliente">
-        <strong>Cliente:</strong> {{ s.usuario?.nome || s.usuario?.name || 'Usuário' }}
-        <span class="email">({{ s.usuario?.email }})</span>
-        <span class="telefone" *ngIf="telefoneDoUsuario(s)"> | Tel: {{ telefoneDoUsuario(s) }}</span>
-      </p>
-
-      <div class="endereco-info" *ngIf="formatarEnderecos(s).length; else semEnderecoReforma">
-        <strong>Endereço:</strong>
-        <p *ngFor="let endereco of formatarEnderecos(s)">{{ endereco }}</p>
-      </div>
-      <ng-template #semEnderecoReforma>
-        <p class="endereco-info"><strong>Endereço:</strong> Não informado</p>
-      </ng-template>
-
-      <div class="reforma-body">
-        <div class="reforma-desc">{{ s.descricao_problema }}</div>
-
-        <div class="reforma-imagens" *ngIf="midiasSolicitacao(s).length">
-          <div class="admin-imagens-grid">
-            <figure *ngFor="let m of midiasSolicitacao(s)" class="admin-imagens-grid__item">
-              <figcaption class="admin-imagens-grid__titulo">{{ rotuloMidia(m.tipo) }}</figcaption>
-              <img [src]="urlMidia(m.url)" [alt]="rotuloMidia(m.tipo)" loading="lazy" />
-            </figure>
-          </div>
-        </div>
-
-        <div class="reforma-ia-toolbar" *ngIf="midiasSolicitacao(s).length">
-          <button
-            type="button"
-            class="btn-ia-reforma"
-            (click)="avaliarComIa(s)"
-            [disabled]="iaCarregando(s)"
-            [attr.aria-busy]="iaCarregando(s)"
-          >
-            <span class="btn-ia-reforma__icon" aria-hidden="true">🪄</span>
-            <ng-container *ngIf="!iaCarregando(s)">
-              <span>Avaliar com IA</span>
-            </ng-container>
-            <span *ngIf="iaCarregando(s)" class="btn-ia-reforma__loading">
-              <span class="ia-spinner" aria-hidden="true"></span>
-              <span>Analisando…</span>
-            </span>
-          </button>
-        </div>
-
-        <div *ngIf="iaResultado(s) as ev" class="reforma-ia-card" role="region" [attr.aria-label]="'Sugestão de IA para reforma'">
-          <div class="reforma-ia-card__header">
-            <span class="reforma-ia-card__badge">Sugestão IA</span>
-            <span class="reforma-ia-card__gravidade">{{ ev.gravidade }}</span>
-          </div>
-          <p class="reforma-ia-card__orcamento">Orçamento estimado: <strong>R$ {{ ev.orcamento_estimado | number:'1.2-2' }}</strong></p>
-          <p class="reforma-ia-card__descricao">{{ ev.descricao }}</p>
-        </div>
-
-        <div class="form-group">
-          <label [id]="'label-status-reforma-' + (s.id_solicitacao || s.id)" [for]="'status-reforma-' + (s.id_solicitacao || s.id)">
-            Status da Solicitação
-          </label>
-          <select
-            [id]="'status-reforma-' + (s.id_solicitacao || s.id)"
-            [ngModel]="getSelectedStatusValue(s)"
-            (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)"
-            [attr.aria-labelledby]="'label-status-reforma-' + (s.id_solicitacao || s.id)"
-            [ngClass]="badgeClassFor(s) + ' status-select'"
-          >
-            <option *ngIf="!getSelectedStatusValue(s)" value="__current" disabled>{{ getFriendlyLabel(s) }}</option>
-            <option *ngFor="let opt of statusOptions" [value]="opt.value" [hidden]="!opt.value">{{ opt.label }}</option>
-          </select>
-        </div>
-      </div>
+  <div class="admin-toolbar">
+    <div class="admin-filters">
+      <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
+      <select *ngIf="viewMode === 'list'" [(ngModel)]="filterStatus" (change)="onSearch()">
+        <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+      </select>
     </div>
-
-    <div class="admin-pagination">
-      <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
-      <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
-      <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
+    <div class="admin-view-toggle" role="group" aria-label="Modo de visualização">
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'list'" (click)="setViewMode('list')">Lista</button>
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'kanban'" (click)="setViewMode('kanban')">Kanban</button>
     </div>
   </div>
 
-  <ng-template #noSolicitacoes>
-    <p>Nenhuma solicitação encontrada.</p>
+  <ng-container *ngIf="viewMode === 'list'; else kanbanReformas">
+    <div class="reformas-lista" *ngIf="solicitacoes.length > 0; else noSolicitacoes">
+      <div *ngFor="let s of solicitacoes" class="reforma-card">
+        <ng-container *ngTemplateOutlet="reformaCard; context: { $implicit: s }"></ng-container>
+      </div>
+
+      <div class="admin-pagination">
+        <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+        <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
+        <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
+      </div>
+    </div>
+
+    <ng-template #noSolicitacoes>
+      <p>Nenhuma solicitação encontrada.</p>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #kanbanReformas>
+    <app-admin-kanban-board
+      [columns]="kanbanColumns"
+      [items]="solicitacoes"
+      [resolveStatus]="getSelectedStatusValue"
+      [cardTemplate]="kanbanReformaCard"
+      emptyMessage="Nenhuma solicitação para exibir no kanban."
+      columnEmptyMessage="Nenhuma solicitação"
+      (itemMoved)="onKanbanItemMoved($event)"
+    />
   </ng-template>
 </div>
+
+<ng-template #kanbanReformaCard let-s>
+  <div class="kanban-card__header">
+    <strong>#{{ s.id_solicitacao || s.id }}</strong>
+    <span>{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yy HH:mm' }}</span>
+  </div>
+  <p class="kanban-card__meta">{{ s.usuario?.nome || s.usuario?.name || 'Cliente' }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted">{{ s.descricao_problema }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted" *ngIf="telefoneDoUsuario(s)">Tel: {{ telefoneDoUsuario(s) }}</p>
+  <select
+    class="kanban-card__select"
+    [ngModel]="getSelectedStatusValue(s)"
+    (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)"
+    [ngClass]="badgeClassFor(s)"
+    (mousedown)="$event.stopPropagation()"
+  >
+    <option *ngFor="let opt of kanbanColumns" [value]="opt.value">{{ opt.label }}</option>
+  </select>
+</ng-template>
+
+<ng-template #reformaCard let-s>
+  <div class="reforma-card-header">
+    <div class="reforma-title">
+      <h4>Solicitação #{{ s.id_solicitacao || s.id }}</h4>
+      <div class="reforma-sub">{{ s.data_solicitacao || s.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+    </div>
+    <div class="reforma-badge" [ngClass]="badgeClassFor(s)">
+      {{ getFriendlyLabel(s) }}
+    </div>
+  </div>
+
+  <p class="cliente">
+    <strong>Cliente:</strong> {{ s.usuario?.nome || s.usuario?.name || 'Usuário' }}
+    <span class="email">({{ s.usuario?.email }})</span>
+    <span class="telefone" *ngIf="telefoneDoUsuario(s)"> | Tel: {{ telefoneDoUsuario(s) }}</span>
+  </p>
+
+  <div class="endereco-info" *ngIf="formatarEnderecos(s).length; else semEnderecoReforma">
+    <strong>Endereço:</strong>
+    <p *ngFor="let endereco of formatarEnderecos(s)">{{ endereco }}</p>
+  </div>
+  <ng-template #semEnderecoReforma>
+    <p class="endereco-info"><strong>Endereço:</strong> Não informado</p>
+  </ng-template>
+
+  <div class="reforma-body">
+    <div class="reforma-desc">{{ s.descricao_problema }}</div>
+
+    <div class="reforma-imagens" *ngIf="midiasSolicitacao(s).length">
+      <div class="admin-imagens-grid">
+        <figure *ngFor="let m of midiasSolicitacao(s)" class="admin-imagens-grid__item">
+          <figcaption class="admin-imagens-grid__titulo">{{ rotuloMidia(m.tipo) }}</figcaption>
+          <img [src]="urlMidia(m.url)" [alt]="rotuloMidia(m.tipo)" loading="lazy" />
+        </figure>
+      </div>
+    </div>
+
+    <div class="reforma-ia-toolbar" *ngIf="midiasSolicitacao(s).length">
+      <button
+        type="button"
+        class="btn-ia-reforma"
+        (click)="avaliarComIa(s)"
+        [disabled]="iaCarregando(s)"
+        [attr.aria-busy]="iaCarregando(s)"
+      >
+        <span class="btn-ia-reforma__icon" aria-hidden="true">🪄</span>
+        <ng-container *ngIf="!iaCarregando(s)">
+          <span>Avaliar com IA</span>
+        </ng-container>
+        <span *ngIf="iaCarregando(s)" class="btn-ia-reforma__loading">
+          <span class="ia-spinner" aria-hidden="true"></span>
+          <span>Analisando…</span>
+        </span>
+      </button>
+    </div>
+
+    <div *ngIf="iaResultado(s) as ev" class="reforma-ia-card" role="region" [attr.aria-label]="'Sugestão de IA para reforma'">
+      <div class="reforma-ia-card__header">
+        <span class="reforma-ia-card__badge">Sugestão IA</span>
+        <span class="reforma-ia-card__gravidade">{{ ev.gravidade }}</span>
+      </div>
+      <p class="reforma-ia-card__orcamento">Orçamento estimado: <strong>R$ {{ ev.orcamento_estimado | number:'1.2-2' }}</strong></p>
+      <p class="reforma-ia-card__descricao">{{ ev.descricao }}</p>
+    </div>
+
+    <div class="form-group">
+      <label [id]="'label-status-reforma-' + (s.id_solicitacao || s.id)" [for]="'status-reforma-' + (s.id_solicitacao || s.id)">Status da Solicitação</label>
+      <select
+        [id]="'status-reforma-' + (s.id_solicitacao || s.id)"
+        [ngModel]="getSelectedStatusValue(s)"
+        (ngModelChange)="onStatusChange($event, s.id_solicitacao || s.id)"
+        [attr.aria-labelledby]="'label-status-reforma-' + (s.id_solicitacao || s.id)"
+        [ngClass]="badgeClassFor(s) + ' status-select'"
+      >
+        <option *ngIf="!getSelectedStatusValue(s)" value="__current" disabled>{{ getFriendlyLabel(s) }}</option>
+        <option *ngFor="let opt of kanbanColumns" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+  </div>
+</ng-template>

@@ -9,23 +9,30 @@ import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
 import {
   OFFER_STATUS_OPTIONS,
+  OFFER_KANBAN_COLUMNS,
   offerBadgeClass,
   getOfferFriendlyLabel,
   normalizeOfferStatusCode,
 } from '../../../utils/status-utils';
 import { formatarEnderecos, telefoneDoUsuario } from '../../../utils/admin-contact-utils';
+import { AdminViewMode, KanbanItemMovedEvent } from '../../../utils/admin-kanban-utils';
+import { AdminKanbanBoardComponent } from '../../../components/admin-kanban-board/admin-kanban-board.component';
 
 @Component({
   selector: 'app-admin-ofertas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminKanbanBoardComponent],
   templateUrl: './admin-ofertas.html',
   styleUrls: ['./admin-ofertas.scss']
 })
 export class AdminOfertas implements OnInit {
 
   ofertas: any[] = [];
+  ofertasFiltradas: any[] = [];
   statusOptions = OFFER_STATUS_OPTIONS;
+  kanbanColumns = OFFER_KANBAN_COLUMNS;
+  viewMode: AdminViewMode = 'list';
+  q: string = '';
   expandidoPorId: Record<string, boolean> = {};
   iaCarregandoPorId: Record<string, boolean> = {};
   iaResultadoPorId: Record<string, AvaliacaoIaOferta | null> = {};
@@ -44,12 +51,27 @@ export class AdminOfertas implements OnInit {
     return normalizeOfferStatusCode(oferta?.status_oferta || oferta?.status);
   }
 
+  setViewMode(mode: AdminViewMode): void {
+    this.viewMode = mode;
+  }
+
+  aplicarBusca(): void {
+    this.atualizarOfertasFiltradas();
+  }
+
+  onKanbanItemMoved(event: KanbanItemMovedEvent<any>): void {
+    this.onStatusChange(event.toStatus, event.item.id_oferta_venda);
+  }
+
   onStatusChange(novoStatus: string, ofertaId: number | string): void {
     this.ofertaVendaService.responderOferta(String(ofertaId), {
       status_oferta: novoStatus,
     }).subscribe({
       next: () => this.carregarOfertas(),
-      error: (err: any) => console.error('Erro ao atualizar status da oferta', err),
+      error: (err: any) => {
+        console.error('Erro ao atualizar status da oferta', err);
+        this.carregarOfertas();
+      },
     });
   }
 
@@ -59,13 +81,35 @@ export class AdminOfertas implements OnInit {
 
   carregarOfertas(): void {
     this.ofertaVendaService.getAllOfertas().subscribe({
-      next: (data: any) => this.ofertas = data,
+      next: (data: any) => {
+        this.ofertas = data;
+        this.atualizarOfertasFiltradas();
+      },
       error: (err: any) => console.error('Erro ao carregar ofertas', err)
     });
   }
 
   chaveOferta(oferta: any): string {
     return String(oferta?.id_oferta_venda ?? oferta?.id ?? '');
+  }
+
+  private atualizarOfertasFiltradas(): void {
+    const termo = this.q.trim().toLowerCase();
+    if (!termo) {
+      this.ofertasFiltradas = [...this.ofertas];
+      return;
+    }
+
+    this.ofertasFiltradas = this.ofertas.filter((oferta) => {
+      const campos = [
+        oferta?.id_oferta_venda,
+        oferta?.titulo_livro,
+        oferta?.autor_livro,
+        oferta?.usuario?.nome,
+        oferta?.usuario?.email,
+      ];
+      return campos.some((campo) => String(campo ?? '').toLowerCase().includes(termo));
+    });
   }
 
   alternarDetalhes(oferta: any): void {

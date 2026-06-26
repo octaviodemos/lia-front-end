@@ -219,3 +219,25 @@ export function repairBadgeClass(solicitacao: any): string {
 export function getRepairFriendlyLabel(solicitacao: any): string {
   return mapRepairStatusLabel(solicitacao?.status_solicitacao || solicitacao?.status);
 }
+
+export const ORDER_KANBAN_COLUMNS = ORDER_STATUS_OPTIONS
+  .filter((option) => !!option.value)
+  .map((option) => ({
+    value: option.value,
+    label: option.label,
+    badgeClass: badgeClass({ status_pedido: option.value }),
+  }));
+
+export const OFFER_KANBAN_COLUMNS = OFFER_STATUS_OPTIONS.map((option) => ({
+  value: option.value,
+  label: option.label,
+  badgeClass: offerBadgeClass({ status_oferta: option.value }),
+}));
+
+export const REPAIR_KANBAN_COLUMNS = REPAIR_STATUS_OPTIONS
+  .filter((option) => !!option.value)
+  .map((option) => ({
+    value: option.value,
+    label: option.label,
+    badgeClass: repairBadgeClass({ status_solicitacao: option.value }),
+  }));

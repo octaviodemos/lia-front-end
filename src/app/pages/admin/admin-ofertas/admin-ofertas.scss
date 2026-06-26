@@ -4,6 +4,20 @@
   @include admin-page-container;
 }
 
+.admin-toolbar {
+  @include admin-toolbar;
+}
+
+.admin-filters {
+  @include admin-filters-row;
+}
+
+.admin-view-toggle {
+  @include admin-view-toggle;
+}
+
+@include admin-kanban;
+
 .ofertas-lista {
   display: flex;
   flex-direction: column;

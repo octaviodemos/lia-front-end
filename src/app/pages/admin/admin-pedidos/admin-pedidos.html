@@ -1,89 +1,122 @@
-<div class="admin-container">
+<div class="admin-container" [class.admin-container--kanban]="viewMode === 'kanban'">
   <h2>Pedidos</h2>
   <p class="admin-page-desc">Acompanhe e atualize o status dos pedidos da loja.</p>
-  <div class="admin-filters">
-    <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
-    <select [(ngModel)]="filterStatus" (change)="onSearch()">
-      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
-    </select>
+
+  <div class="admin-toolbar">
+    <div class="admin-filters">
+      <input type="search" placeholder="Buscar id, nome ou email" [(ngModel)]="q" (keyup.enter)="onSearch()" />
+      <select *ngIf="viewMode === 'list'" [(ngModel)]="filterStatus" (change)="onSearch()">
+        <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+      </select>
+    </div>
+    <div class="admin-view-toggle" role="group" aria-label="Modo de visualização">
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'list'" (click)="setViewMode('list')">Lista</button>
+      <button type="button" class="admin-view-toggle__btn" [class.is-active]="viewMode === 'kanban'" (click)="setViewMode('kanban')">Kanban</button>
+    </div>
   </div>
 
-  <div class="pedidos-lista" *ngIf="pedidos.length > 0; else noPedidos">
-    <div *ngFor="let pedido of pedidos" class="pedido-card">
-      <div class="pedido-card-header">
-        <div class="pedido-title">
-          <h4>Pedido #{{ pedido.id_pedido }}</h4>
-          <div class="pedido-sub">{{ pedido.data_pedido | date: 'dd/MM/yyyy HH:mm' }}</div>
-        </div>
-        <div class="pedido-badge" [ngClass]="badgeClassFor(pedido)">
-          {{ getFriendlyLabel(pedido) }}
-        </div>
-      </div>
-
-      <p class="cliente">
-        <strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }}
-        <span class="email">({{ pedido.cliente?.email }})</span>
-        <span class="telefone" *ngIf="telefoneDoUsuario(pedido)"> | Tel: {{ telefoneDoUsuario(pedido) }}</span>
-      </p>
-
-      <div class="endereco-info" *ngIf="formatarEnderecos(pedido).length; else semEnderecoPedido">
-        <strong>Endereço de entrega:</strong>
-        <p *ngFor="let endereco of formatarEnderecos(pedido)">{{ endereco }}</p>
-      </div>
-      <ng-template #semEnderecoPedido>
-        <p class="endereco-info"><strong>Endereço de entrega:</strong> Não informado</p>
-      </ng-template>
-      <div class="itens-pedido">
-        <strong>Itens:</strong>
-        <div class="itens-table">
-          <div class="itens-header">
-            <div class="col-thumb"></div>
-            <div class="col-title">Título</div>
-            <div class="col-preco">Valor</div>
+  <ng-container *ngIf="viewMode === 'list'; else kanbanPedidos">
+    <div class="pedidos-lista" *ngIf="pedidos.length > 0; else noPedidos">
+      <div *ngFor="let pedido of pedidos" class="pedido-card">
+        <div class="pedido-card-header">
+          <div class="pedido-title">
+            <h4>Pedido #{{ pedido.id_pedido }}</h4>
+            <div class="pedido-sub">{{ pedido.data_pedido | date: 'dd/MM/yyyy HH:mm' }}</div>
           </div>
+          <div class="pedido-badge" [ngClass]="badgeClassFor(pedido)">
+            {{ getFriendlyLabel(pedido) }}
+          </div>
+        </div>
 
-          <div *ngFor="let item of pedido.itens" class="itens-row">
-            <div class="col-thumb">
-              <img *ngIf="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" [src]="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" alt="capa" />
+        <p class="cliente">
+          <strong>Cliente:</strong> {{ pedido.cliente?.nome || 'Nome não disponível' }}
+          <span class="email">({{ pedido.cliente?.email }})</span>
+          <span class="telefone" *ngIf="telefoneDoUsuario(pedido)"> | Tel: {{ telefoneDoUsuario(pedido) }}</span>
+        </p>
+
+        <div class="endereco-info" *ngIf="formatarEnderecos(pedido).length; else semEnderecoPedido">
+          <strong>Endereço de entrega:</strong>
+          <p *ngFor="let endereco of formatarEnderecos(pedido)">{{ endereco }}</p>
+        </div>
+        <ng-template #semEnderecoPedido>
+          <p class="endereco-info"><strong>Endereço de entrega:</strong> Não informado</p>
+        </ng-template>
+
+        <div class="itens-pedido">
+          <strong>Itens:</strong>
+          <div class="itens-table">
+            <div class="itens-header">
+              <div class="col-thumb"></div>
+              <div class="col-title">Título</div>
+              <div class="col-preco">Valor</div>
             </div>
-            <div class="col-title">{{ item.estoque?.livro?.titulo || 'Livro' }}</div>
-            <div class="col-preco">R$ {{ item.preco_unitario | number:'1.2-2' }}</div>
+
+            <div *ngFor="let item of pedido.itens" class="itens-row">
+              <div class="col-thumb">
+                <img *ngIf="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" [src]="item.estoque?.livro?.imagem || item.estoque?.livro?.capa" alt="capa" />
+              </div>
+              <div class="col-title">{{ item.estoque?.livro?.titulo || 'Livro' }}</div>
+              <div class="col-preco">R$ {{ item.preco_unitario | number:'1.2-2' }}</div>
+            </div>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label [id]="'label-status-' + pedido.id_pedido" [for]="'status-' + pedido.id_pedido">Status do Pedido</label>
+          <select
+            [id]="'status-' + pedido.id_pedido"
+            [ngModel]="getSelectedStatusValue(pedido)"
+            (ngModelChange)="onStatusChange($event, pedido.id_pedido)"
+            [attr.aria-labelledby]="'label-status-' + pedido.id_pedido"
+            [ngClass]="badgeClassFor(pedido) + ' status-select'"
+          >
+            <option *ngIf="!getSelectedStatusValue(pedido)" value="__current" disabled>{{ getFriendlyLabel(pedido) }}</option>
+            <option *ngFor="let status of kanbanColumns" [value]="status.value">{{ status.label }}</option>
+          </select>
         </div>
       </div>
 
-<div class="form-group">
-  
-  <label 
-    [id]="'label-status-' + pedido.id_pedido" 
-    [for]="'status-' + pedido.id_pedido"
-  >
-    Status do Pedido
-  </label>
-  
-  <select 
-    [id]="'status-' + pedido.id_pedido"
-    [ngModel]="getSelectedStatusValue(pedido)"
-    (ngModelChange)="onStatusChange($event, pedido.id_pedido)"
-    [attr.aria-labelledby]="'label-status-' + pedido.id_pedido"
-    [ngClass]="badgeClassFor(pedido) + ' status-select'"
-  >
-    <option *ngIf="!getSelectedStatusValue(pedido)" value="__current" disabled>{{ getFriendlyLabel(pedido) }}</option>
-    <option *ngFor="let status of statusOptions" [value]="status.value" [hidden]="!status.value">
-      {{ status.label }}
-    </option>
-  </select>
-</div>
+      <div class="admin-pagination">
+        <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
+        <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
+        <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
+      </div>
     </div>
 
-    <div class="admin-pagination">
-      <button type="button" class="admin-pagination__btn" (click)="changePage(page - 1)" [disabled]="page <= 1">Anterior</button>
-      <span class="admin-pagination__info">Página {{ page }} — Total: {{ total }}</span>
-      <button type="button" class="admin-pagination__btn" (click)="changePage(page + 1)" [disabled]="(page * perPage) >= total">Próxima</button>
-    </div>
-  </div>
+    <ng-template #noPedidos>
+      <p>Nenhum pedido recebido até o momento.</p>
+    </ng-template>
+  </ng-container>
 
-  <ng-template #noPedidos>
-    <p>Nenhum pedido recebido até o momento.</p>
+  <ng-template #kanbanPedidos>
+    <app-admin-kanban-board
+      [columns]="kanbanColumns"
+      [items]="pedidos"
+      [resolveStatus]="getSelectedStatusValue"
+      [cardTemplate]="kanbanPedidoCard"
+      emptyMessage="Nenhum pedido para exibir no kanban."
+      columnEmptyMessage="Nenhum pedido"
+      (itemMoved)="onKanbanItemMoved($event)"
+    />
   </ng-template>
 </div>
+
+<ng-template #kanbanPedidoCard let-pedido>
+  <div class="kanban-card__header">
+    <strong>#{{ pedido.id_pedido }}</strong>
+    <span>{{ pedido.data_pedido | date:'dd/MM/yy HH:mm' }}</span>
+  </div>
+  <p class="kanban-card__meta">{{ pedido.cliente?.nome || 'Cliente' }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted">{{ pedido.itens?.length || 0 }} item(ns)</p>
+  <p class="kanban-card__meta kanban-card__meta--muted" *ngIf="telefoneDoUsuario(pedido)">Tel: {{ telefoneDoUsuario(pedido) }}</p>
+  <p class="kanban-card__meta kanban-card__meta--muted" *ngIf="formatarEnderecos(pedido)[0] as endereco">{{ endereco }}</p>
+  <select
+    class="kanban-card__select"
+    [ngModel]="getSelectedStatusValue(pedido)"
+    (ngModelChange)="onStatusChange($event, pedido.id_pedido)"
+    [ngClass]="badgeClassFor(pedido)"
+    (mousedown)="$event.stopPropagation()"
+  >
+    <option *ngFor="let status of kanbanColumns" [value]="status.value">{{ status.label }}</option>
+  </select>
+</ng-template>

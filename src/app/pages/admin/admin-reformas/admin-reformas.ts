@@ -4,11 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ReformaService } from '../../../services/reforma.service';
 import {
   REPAIR_STATUS_OPTIONS,
+  REPAIR_KANBAN_COLUMNS,
   repairBadgeClass,
   getRepairFriendlyLabel,
   normalizeRepairStatusCode,
 } from '../../../utils/status-utils';
 import { formatarEnderecos, telefoneDoUsuario } from '../../../utils/admin-contact-utils';
+import { AdminViewMode, KanbanItemMovedEvent } from '../../../utils/admin-kanban-utils';
+import { AdminKanbanBoardComponent } from '../../../components/admin-kanban-board/admin-kanban-board.component';
 import { rotuloTipoImagemLegivel } from '../../../utils/livro-imagem-helpers';
 import { resolverUrlMidiaApi } from '../../../utils/media-url';
 
@@ -21,7 +24,7 @@ export type ReformaIaAvaliacao = {
 @Component({
   selector: 'app-admin-reformas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminKanbanBoardComponent],
   templateUrl: './admin-reformas.html',
   styleUrls: ['./admin-reformas.scss']
 })
@@ -33,11 +36,13 @@ export class AdminReformas implements OnInit {
   perPage: number = 20;
   q: string = '';
   filterStatus: string = '';
+  viewMode: AdminViewMode = 'list';
 
   iaCarregandoPorId: Record<string, boolean> = {};
   iaResultadoPorId: Record<string, ReformaIaAvaliacao | null> = {};
 
   statusOptions = REPAIR_STATUS_OPTIONS;
+  kanbanColumns = REPAIR_KANBAN_COLUMNS;
 
   constructor(private reformaService: ReformaService) { }
 
@@ -48,6 +53,20 @@ export class AdminReformas implements OnInit {
 
   getSelectedStatusValue(solicitacao: any): string {
     return normalizeRepairStatusCode(solicitacao?.status_solicitacao || solicitacao?.status);
+  }
+
+  setViewMode(mode: AdminViewMode): void {
+    if (this.viewMode === mode) return;
+    this.viewMode = mode;
+    this.page = 1;
+    if (mode === 'kanban') {
+      this.filterStatus = '';
+    }
+    this.loadSolicitacoes();
+  }
+
+  onKanbanItemMoved(event: KanbanItemMovedEvent<any>): void {
+    this.onStatusChange(event.toStatus, event.item.id_solicitacao || event.item.id);
   }
 
   ngOnInit(): void {
@@ -89,7 +108,9 @@ export class AdminReformas implements OnInit {
   }
 
   loadSolicitacoes(): void {
-    const opts: any = { page: this.page, limit: this.perPage, status: this.filterStatus || undefined, q: this.q || undefined };
+    const limit = this.viewMode === 'kanban' ? 500 : this.perPage;
+    const status = this.viewMode === 'kanban' ? undefined : (this.filterStatus || undefined);
+    const opts: any = { page: this.page, limit, status, q: this.q || undefined };
     this.reformaService.getAdminRepairs(opts).subscribe({
       next: (res: any) => {
         this.solicitacoes = res?.data || res?.items || [];
@@ -115,7 +136,10 @@ export class AdminReformas implements OnInit {
         console.log('Status atualizado!', response);
         setTimeout(() => this.loadSolicitacoes(), 200);
       },
-      error: (err: any) => console.error('Erro ao atualizar status', err)
+      error: (err: any) => {
+        console.error('Erro ao atualizar status', err);
+        this.loadSolicitacoes();
+      }
     });
   }
 
