@@ -1,31 +1,76 @@
+export function normalizeOrderStatusCode(status?: string): string {
+  if (!status) return '';
+  const v = String(status).trim().toLowerCase();
+
+  const aliases: Record<string, string> = {
+    pendente: 'pending',
+    pagamento_pendente: 'pending',
+    pagamento_aprovado: 'paid',
+    pago: 'paid',
+    aprovado: 'paid',
+    approved: 'paid',
+    succeeded: 'paid',
+    'em processamento': 'processing',
+    enviado: 'shipped',
+    entregue: 'delivered',
+    cancelado: 'cancelled',
+    canceled: 'cancelled',
+    rejeitado: 'rejected',
+    failed: 'rejected',
+    rejected_by_network: 'rejected',
+    estornado: 'refunded',
+    chargeback: 'refunded',
+    refunded: 'refunded',
+  };
+
+  return aliases[v] || v;
+}
+
 export function normalizeStatusLabel(pedido: any): string {
-  return (pedido?.status_pedido_label || pedido?.status_pedido || pedido?.status || '').toString().toLowerCase();
+  const raw = pedido?.status_pedido || pedido?.status || '';
+  return normalizeOrderStatusCode(raw);
+}
+
+export function mapOrderStatusLabel(status?: string): string {
+  const code = normalizeOrderStatusCode(status);
+  switch (code) {
+    case 'pending':
+      return 'Pendente';
+    case 'processing':
+      return 'Em processamento';
+    case 'paid':
+      return 'Pago';
+    case 'shipped':
+      return 'Enviado';
+    case 'delivered':
+      return 'Entregue';
+    case 'cancelled':
+      return 'Cancelado';
+    case 'rejected':
+      return 'Rejeitado';
+    case 'refunded':
+      return 'Estornado';
+    default:
+      return code ? code.charAt(0).toUpperCase() + code.slice(1) : 'Desconhecido';
+  }
 }
 
 export function badgeClass(pedido: any): string {
-  const label = normalizeStatusLabel(pedido);
-  switch (label) {
-    case 'aprovado':
+  const code = normalizeStatusLabel(pedido);
+  switch (code) {
     case 'paid':
-    case 'approved':
-    case 'succeeded':
+    case 'delivered':
       return 'badge--success';
-    case 'pendente':
     case 'pending':
     case 'processing':
       return 'badge--warning';
-    case 'rejeitado':
-    case 'failed':
     case 'rejected':
-    case 'rejected_by_network':
       return 'badge--danger';
-    case 'canceled':
     case 'cancelled':
-    case 'cancelado':
       return 'badge--muted';
     case 'refunded':
-    case 'chargeback':
-    case 'estornado':
+      return 'badge--info';
+    case 'shipped':
       return 'badge--info';
     default:
       return 'badge--neutral';
@@ -33,39 +78,25 @@ export function badgeClass(pedido: any): string {
 }
 
 export function isApproved(pedido: any): boolean {
-  const label = normalizeStatusLabel(pedido);
-  return ['aprovado', 'paid', 'approved', 'succeeded', 'pago'].includes(label);
+  const code = normalizeStatusLabel(pedido);
+  return code === 'paid' || code === 'delivered';
 }
 
 export function getFriendlyLabel(pedido: any): string {
-  if (pedido && pedido.status_pedido_label) return String(pedido.status_pedido_label);
-
-  const label = normalizeStatusLabel(pedido);
-  switch (label) {
-    case 'aprovado':
-    case 'paid':
-    case 'approved':
-    case 'succeeded':
-      return 'aprovado';
-    case 'pendente':
-    case 'pending':
-    case 'processing':
-      return 'pendente';
-    case 'rejeitado':
-    case 'failed':
-    case 'rejected':
-    case 'rejected_by_network':
-      return 'rejeitado';
-    case 'canceled':
-    case 'cancelled':
-    case 'cancelado':
-      return 'cancelado';
-    case 'refunded':
-    case 'chargeback':
-    case 'estornado':
-      return 'estornado';
-    default:
-      // If there's a more descriptive technical status, return it as-is
-      return (pedido?.status_pedido || pedido?.status || '').toString();
+  if (pedido?.status_pedido_label) {
+    return String(pedido.status_pedido_label);
   }
+  return mapOrderStatusLabel(pedido?.status_pedido || pedido?.status);
 }
+
+export const ORDER_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Todos os status' },
+  { value: 'pending', label: 'Pendente' },
+  { value: 'processing', label: 'Em processamento' },
+  { value: 'paid', label: 'Pago' },
+  { value: 'shipped', label: 'Enviado' },
+  { value: 'delivered', label: 'Entregue' },
+  { value: 'cancelled', label: 'Cancelado' },
+  { value: 'rejected', label: 'Rejeitado' },
+  { value: 'refunded', label: 'Estornado' },
+];

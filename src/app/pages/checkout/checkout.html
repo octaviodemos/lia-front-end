@@ -39,7 +39,7 @@
           <p>Você não tem endereços cadastrados.</p>
         </div>
         
-        <a routerLink="/meus-enderecos" class="btn-novo-endereco">
+        <a [routerLink]="['/meus-enderecos']" [queryParams]="{ returnUrl: '/checkout' }" class="btn-novo-endereco">
           + Cadastrar Novo Endereço
         </a>
         

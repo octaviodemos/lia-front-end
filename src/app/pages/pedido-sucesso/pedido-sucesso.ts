@@ -142,13 +142,13 @@ export class PedidoSucesso implements OnInit {
     this.polling = true;
     this.pollingAbort = false;
     this.pollingMessage = 'Aguardando confirmação do pagamento...';
-    // prepare UI transition
     this.pollingVisible = false;
     setTimeout(() => this.pollingVisible = true, 10);
     this.carregando = true;
 
     const start = Date.now();
     let attempt = 0;
+    let finalizeAttempted = false;
 
     const loop = async () => {
       if (this.pollingAbort) return;
@@ -161,31 +161,37 @@ export class PedidoSucesso implements OnInit {
       }
 
       try {
-        // Checa a sessão na API
         const sess: any = await lastValueFrom(this.pagamentoService.obterSessaoStripe(sessionId));
+        const paymentStatus = (sess?.data?.payment_status) || (sess?.payment_status) || (sess?.data?.payment_intent?.status) || sess?.data?.status || sess?.status;
+        const statusNorm = String(paymentStatus || '').toLowerCase();
 
-        const paymentStatus = (sess?.data?.payment_status) || (sess?.payment_status) || (sess?.data?.payment_intent?.status) || sess?.status;
         if (paymentStatus) {
           this.paymentStatus = paymentStatus;
         }
 
-        // Sempre checar pedidos do usuário para ver se novo pedido foi criado
+        const isPaid = statusNorm === 'paid' || statusNorm === 'succeeded' || statusNorm === 'approved';
+        if (isPaid && !finalizeAttempted) {
+          finalizeAttempted = true;
+          try {
+            await lastValueFrom(this.pagamentoService.finalizarSessaoCheckout(sessionId));
+          } catch (finalizeErr) {
+            console.warn('Finalize session falhou (pode já existir pedido):', finalizeErr);
+          }
+        }
+
         const pedidosResp: any = await lastValueFrom(this.pedidoService.getMeusPedidos());
         const pedidos = Array.isArray(pedidosResp) ? pedidosResp : (pedidosResp?.data || pedidosResp?.orders || []);
 
-        // Tenta localizar um pedido novo/paid que não estava na lista inicial
         const found = (pedidos || []).find((o: any) => {
           const id = o.id || o.id_pedido || o.order_id;
           const statusRaw = o.status_pedido || o.status || o.payment_status || '';
           const status = String(statusRaw || '').toLowerCase();
           const key = id != null ? String(id) : null;
 
-          // If it's a new order that wasn't present initially, accept it when it has a paid-like status
           if (key && !this.initialOrdersStatusMap[key]) {
             return status === 'paid' || status === 'aprovado' || status === 'approved' || status === 'pago';
           }
 
-          // If the order existed before, but its status changed to a paid-like status, accept it
           if (key && this.initialOrdersStatusMap[key]) {
             const prev = this.initialOrdersStatusMap[key];
             if (prev !== status && (status === 'paid' || status === 'aprovado' || status === 'approved' || status === 'pago')) {
@@ -201,7 +207,6 @@ export class PedidoSucesso implements OnInit {
           this.polling = false;
           this.carregando = false;
           this.pollingMessage = null;
-          // animate found order panel
           this.foundVisible = false;
           setTimeout(() => this.foundVisible = true, 10);
           return;
@@ -209,10 +214,8 @@ export class PedidoSucesso implements OnInit {
 
       } catch (e) {
         console.warn('Erro durante polling:', e);
-        // continuar tentativas até o timeout
       }
 
-      // aguarda backoff
       const delay = this.backoff[Math.min(attempt, this.backoff.length - 1)];
       attempt++;
       setTimeout(loop, delay);
@@ -222,10 +225,21 @@ export class PedidoSucesso implements OnInit {
   }
 
   manualCheckOrders() {
-    // força uma checagem imediata sem depender do session_id
+    const sessionId = this.route.snapshot.queryParamMap.get('session_id')
+      || this.route.snapshot.queryParamMap.get('sessionId');
+
     (async () => {
       try {
         this.pollingMessage = 'Verificando pedidos...';
+
+        if (sessionId) {
+          try {
+            await lastValueFrom(this.pagamentoService.finalizarSessaoCheckout(sessionId));
+          } catch (finalizeErr) {
+            console.warn('Finalize session no check manual:', finalizeErr);
+          }
+        }
+
         const resp: any = await lastValueFrom(this.pedidoService.getMeusPedidos());
         const pedidos = Array.isArray(resp) ? resp : (resp?.data || resp?.orders || []);
 

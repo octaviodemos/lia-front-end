@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EnderecoService } from '../../services/endereco.service';
 import { EnderecoUtilsService, Estado, Municipio } from '../../services/endereco-utils.service';
 
@@ -19,11 +20,14 @@ export class MeusEnderecos implements OnInit {
   municipios: Municipio[] = [];
   buscandoCep = false;
   carregandoMunicipios = false;
+  returnUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private enderecoService: EnderecoService,
-    private enderecoUtilsService: EnderecoUtilsService
+    private enderecoUtilsService: EnderecoUtilsService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -39,6 +43,11 @@ export class MeusEnderecos implements OnInit {
 
     this.carregarEnderecos();
     this.carregarEstados();
+
+    this.route.queryParamMap.subscribe((params) => {
+      const url = params.get('returnUrl');
+      this.returnUrl = url && url.startsWith('/') ? url : null;
+    });
     
     this.enderecoForm.get('cep')?.valueChanges.subscribe(cep => {
       if (cep && this.enderecoUtilsService.validarCep(cep)) {
@@ -201,10 +210,15 @@ export class MeusEnderecos implements OnInit {
     if (this.enderecoForm.valid) {
       this.enderecoService.addEndereco(this.enderecoForm.value).subscribe({
         next: (response: any) => {
-          // endereço salvo com sucesso
+          const novoId = response?.id_endereco;
           this.carregarEnderecos();
           this.enderecoForm.reset();
           this.municipios = [];
+
+          if (this.returnUrl) {
+            const queryParams = novoId ? { enderecoId: novoId } : {};
+            this.router.navigate([this.returnUrl], { queryParams });
+          }
         },
         error: (err: any) => console.error('Erro ao salvar endereço', err)
       });

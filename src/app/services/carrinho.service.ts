@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError, forkJoin } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, switchMap, map } from 'rxjs/operators';
 import { AuthService } from './auth';
@@ -48,27 +48,73 @@ export class CarrinhoService {
     return this.http.get(`${this.apiUrl}/cart`).pipe(
       map(res => this.mapCartResponse(res)),
       tap((backendItems: ItemCarrinho[]) => {
-        const currentItems = this.getCarrinhoAtual();
-        
         const itensRemovidosLocal = this.getItensRemovidosLocal();
+        let items = backendItems;
         if (itensRemovidosLocal.length > 0) {
-          backendItems = backendItems.filter(item => {
-            const foiRemovido = itensRemovidosLocal.some(removido => 
+          items = backendItems.filter(item => {
+            const foiRemovido = itensRemovidosLocal.some(removido =>
               removido.livroId === item.livroId || removido.cartItemId === item.cartItemId
             );
             return !foiRemovido;
           });
         }
-        
-        if (backendItems.length === 0 && currentItems.length > 0) {
-          return;
+
+        if (items.length > 0) {
+          this.carrinho$.next(items);
         }
-        
-        this.carrinho$.next(backendItems);
       }),
       map(() => this.getCarrinhoAtual()),
-      catchError(() => {
-        return of(this.getCarrinhoAtual());
+      catchError(() => of(this.getCarrinhoAtual()))
+    );
+  }
+
+  garantirCarrinhoNoServidor(): Observable<ItemCarrinho[]> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => ({ status: 401, error: { message: 'Não autenticado' } }));
+    }
+
+    const itensLocais = this.getCarrinhoAtual().filter(
+      (i) => i.estoqueId != null && !Number.isNaN(Number(i.estoqueId))
+    );
+
+    if (itensLocais.length === 0) {
+      return this.http.get(`${this.apiUrl}/cart`).pipe(
+        map((res) => this.mapCartResponse(res)),
+        switchMap((items) => {
+          if (items.length === 0) {
+            return throwError(() => ({
+              status: 400,
+              error: { message: 'Carrinho vazio. Adicione itens antes de finalizar.' },
+            }));
+          }
+          this.carrinho$.next(items);
+          return of(items);
+        }),
+        catchError((err) => throwError(() => err))
+      );
+    }
+
+    const syncOps = itensLocais.map((item) =>
+      this.http.post(`${this.apiUrl}/cart/items`, { id_estoque: item.estoqueId }).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    return forkJoin(syncOps).pipe(
+      switchMap(() => this.http.get(`${this.apiUrl}/cart`)),
+      map((res) => this.mapCartResponse(res)),
+      switchMap((items) => {
+        if (!items.length) {
+          return throwError(() => ({
+            status: 400,
+            error: {
+              message: 'Carrinho não encontrado no servidor. Crie/atualize o carrinho antes de iniciar o pagamento.',
+            },
+          }));
+        }
+        this.carrinho$.next(items);
+        return of(items);
       })
     );
   }

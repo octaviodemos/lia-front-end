@@ -1,6 +1,5 @@
 @use 'sass:color';
 
-/* Cores */
 $cor-sucesso: #27ae60;
 $cor-principal: #6a0000;
 $cor-texto: #333;
@@ -30,26 +29,6 @@ $cor-texto: #333;
     margin-bottom: 1rem;
   }
 
-  a {
-    display: inline-block;
-    background-color: $cor-principal;
-    color: #fff;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 1rem;
-    margin-top: 1.5rem;
-    transition: background-color 0.2s ease-in-out;
-
-    &:hover {
-      background-color: color.adjust($cor-principal, $lightness: -10%);
-    }
-  }
-
-  /* Panels transition */
   .panel {
     opacity: 0;
     transform: translateY(8px) scale(0.995);
@@ -63,24 +42,63 @@ $cor-texto: #333;
     transform: none;
   }
 
-  /* Small polish for found order card */
   .found-order, .success-state {
     padding: 1.5rem 0;
   }
 
-  /* Actions layout: give space between action buttons */
   .actions {
     display: flex;
     justify-content: center;
     gap: 12px;
     align-items: center;
     margin-top: 1rem;
+    flex-wrap: wrap;
   }
 
-  .actions a, .actions button {
+  .btn-primary,
+  .btn-secondary,
+  .btn-retry {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: 180px;
-    text-align: center;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+  }
+
+  .btn-primary {
+    background-color: $cor-principal;
+    color: #fff;
+
+    &:hover {
+      background-color: color.adjust($cor-principal, $lightness: -10%);
+      transform: translateY(-2px);
+    }
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+
+    &:hover {
+      background-color: color.adjust(#6c757d, $lightness: -10%);
+      transform: translateY(-2px);
+    }
+  }
+
+  .btn-retry {
+    background-color: $cor-principal;
+    color: #fff;
+
+    &:hover {
+      background-color: color.adjust($cor-principal, $lightness: -10%);
+    }
   }
 }

@@ -7,7 +7,8 @@ import { EnderecoService } from '../../services/endereco.service';
 import { PedidoService } from '../../services/pedido.service';
 import { PagamentoService } from '../../services/pagamento.service';
 import { AuthService } from '../../services/auth';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 import flatpickr from 'flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js';
 
@@ -56,12 +57,21 @@ export class Checkout implements OnInit {
     private pagamentoService: PagamentoService,
     private authService: AuthService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
     this.inicializarFormulario();
     this.carregarDados();
+
+    this.route.queryParamMap.subscribe((params) => {
+      const enderecoId = Number(params.get('enderecoId'));
+      if (enderecoId > 0) {
+        this.enderecoSelecionadoId = enderecoId;
+        this.etapaAtual = 1;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -100,11 +110,18 @@ export class Checkout implements OnInit {
       error: (err: any) => console.error('Erro ao buscar carrinho', err)
     });
 
-    // Tenta sincronizar com o back-end (sem efeito quando não autenticado)
     this.cartService.refreshCarrinho().subscribe({ next: () => {}, error: () => {} });
 
     this.enderecoService.getEnderecos().subscribe({
-      next: (response: any) => this.enderecos = response,
+      next: (response: any) => {
+        this.enderecos = response;
+        if (this.enderecoSelecionadoId > 0) {
+          const existe = this.enderecos.some((e) => e.id_endereco === this.enderecoSelecionadoId);
+          if (!existe) {
+            this.enderecoSelecionadoId = 0;
+          }
+        }
+      },
       error: (err: any) => console.error('Erro ao buscar endereços', err)
     });
   }
@@ -156,32 +173,19 @@ export class Checkout implements OnInit {
       return;
     }
 
-    const user = this.authService.getUser();
-
-    // Build buyer payload. Backend expects userId and email (server-side validation).
     const dadosComprador: any = {
       name: this.checkoutForm.get('name')?.value,
       email: this.checkoutForm.get('email')?.value,
       cpf: this.pagamentoService.limparCPF(this.checkoutForm.get('cpf')?.value),
-      surname: 'TEST' // Campo opcional, pode usar sobrenome se tiver no form
+      surname: 'TEST'
     };
 
-    // Prefer common id fields used by different backends
-    const userId = user?.id || user?._id || user?.userId || user?.user_id || user?.id_usuario || null;
-    if (userId) dadosComprador.userId = userId;
-
-
-    // Logs de depuração adicional: mostrar itens e total calculados localmente
-    // Criar sessão de checkout via Stripe (backend: espera userId e email)
-    // Criar sessão de checkout via Stripe (backend: autentica via JWT; não envie userId)
-    this.pagamentoService.criarCheckoutStripe(dadosComprador).subscribe({
+    this.cartService.garantirCarrinhoNoServidor().pipe(
+      switchMap(() => this.pagamentoService.criarCheckoutStripe(dadosComprador))
+    ).subscribe({
       next: (response) => {
-        // resposta do create-checkout recebida
-        // Suporte a múltiplos formatos de resposta do backend
         const url = response?.url || response?.data?.url || response?.data?.checkout_url;
         if (url) {
-          // redirecionando para Stripe Checkout
-          // Abrir em nova aba para isolar contexto (pode usar mesmo aba se preferir)
           window.open(url, '_blank', 'noopener,noreferrer');
           alert('Redirecionando para Stripe Checkout...');
         } else {
@@ -191,7 +195,6 @@ export class Checkout implements OnInit {
       },
       error: (err) => {
         console.error('❌ Erro ao criar sessão de checkout:', err);
-        // Logar corpo de erro retornado pelo servidor (útil para debug 500)
         try {
           console.error('❌ Erro body:', err?.error);
         } catch (e) { /* ignore */ }
@@ -199,24 +202,10 @@ export class Checkout implements OnInit {
         const status = err?.status;
         const serverMsg = (err?.error?.error || err?.error?.message || err?.message || '').toString().toLowerCase();
 
-        // Caso: carrinho não encontrado no servidor -> redireciona para /carrinho e tenta sincronizar
         if (status === 400 && serverMsg.includes('carrinho')) {
-          try {
-            alert('Seu carrinho não está sincronizado no servidor. Você será redirecionado para o carrinho para atualizá-lo.');
-          } catch (e) { /* ignore */ }
-
-          // Navega para a página do carrinho e força uma sincronização
-          this.router.navigate(['/carrinho']).then(() => {
-            this.cartService.refreshCarrinho().subscribe({
-              next: () => {
-                      // carrinho sincronizado após erro 400
-              },
-              error: (e) => console.error('Falha ao sincronizar carrinho após redirecionamento:', e)
-            });
-          });
-
+          alert('Seu carrinho não está sincronizado no servidor. Volte ao carrinho e tente novamente.');
+          this.router.navigate(['/carrinho']);
         } else {
-          // Erro genérico
           alert('Erro ao processar pagamento. Tente novamente mais tarde.');
         }
 

@@ -81,6 +81,22 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+  getUserId(): number | null {
+    const user = this.getUser();
+    const fromProfile =
+      user?.id_usuario ?? user?.id ?? user?.userId ?? user?.user_id ?? null;
+    if (fromProfile != null && !Number.isNaN(Number(fromProfile))) {
+      return Number(fromProfile);
+    }
+    const token = this.getToken();
+    if (!token) return null;
+    const decoded = this.decodeToken(token);
+    if (decoded?.sub != null && !Number.isNaN(Number(decoded.sub))) {
+      return Number(decoded.sub);
+    }
+    return null;
+  }
+
   isAdmin(): boolean {
     const user = this.getUser();
     return user && user.tipo_usuario === 'admin';

@@ -151,5 +151,7 @@ export class PagamentoService {
     return this.http.get<any>(`${this.apiUrl}/payments/session/${encodeURIComponent(sessionId)}`);
   }
 
- 
+  finalizarSessaoCheckout(sessionId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/payments/finalize-session`, { sessionId });
+  }
 }

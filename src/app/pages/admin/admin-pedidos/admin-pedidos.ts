@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoService } from '../../../services/pedido.service';
-import { getFriendlyLabel, badgeClass } from '../../../utils/status-utils';
+import { getFriendlyLabel, badgeClass, normalizeOrderStatusCode, ORDER_STATUS_OPTIONS } from '../../../utils/status-utils';
 
 @Component({
   selector: 'app-admin-pedidos',
@@ -17,15 +17,7 @@ export class AdminPedidos implements OnInit {
   total: number = 0;
   page: number = 1;
   perPage: number = 20;
-  statusOptions: Array<{ value: string; label: string }> = [
-    { value: '', label: 'Todos os status' },
-    { value: 'PENDING', label: 'Pendente' },
-    { value: 'PROCESSING', label: 'Em processamento' },
-    { value: 'PAID', label: 'Pago' },
-    { value: 'SHIPPED', label: 'Enviado' },
-    { value: 'DELIVERED', label: 'Entregue' },
-    { value: 'CANCELLED', label: 'Cancelado' }
-  ];
+  statusOptions = ORDER_STATUS_OPTIONS;
   filterStatus: string = '';
   q: string = '';
   sort: string = 'data_pedido:desc';
@@ -37,22 +29,7 @@ export class AdminPedidos implements OnInit {
 
   // Determine which option value should be selected for a given pedido
   getSelectedStatusValue(pedido: any): string {
-    const current = (pedido?.status_pedido || pedido?.status_pedido_label || '').toString();
-    if (!current) return '';
-
-    // try to match against known statusOptions values first (case-insensitive)
-    const byValue = this.statusOptions.find(s => s.value && s.value.toString().toLowerCase() === current.toString().toLowerCase());
-    if (byValue) return byValue.value;
-
-    // try to match against labels
-    const byLabel = this.statusOptions.find(s => s.label && s.label.toString().toLowerCase() === current.toString().toLowerCase());
-    if (byLabel) return byLabel.value;
-
-    // fallback: if current looks like a code with different case
-    const byValueUpper = this.statusOptions.find(s => s.value && s.value.toString().toUpperCase() === current.toString().toUpperCase());
-    if (byValueUpper) return byValueUpper.value;
-
-    return '';
+    return normalizeOrderStatusCode(pedido?.status_pedido || pedido?.status_pedido_label);
   }
 
   ngOnInit(): void {
