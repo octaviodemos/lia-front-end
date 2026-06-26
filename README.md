@@ -1,129 +1,184 @@
-# LIA Front-end
+# LIA Frontend
 
-Aplicação web da LIA desenvolvida com Angular, responsável pelos fluxos de loja, carrinho, checkout, conta do usuário, ofertas de venda, solicitações de reforma e painel administrativo.
+Interface web do **LIA** — loja de livros usados, checkout, conta do usuário, ofertas de venda, reformas, comunidade e painel administrativo.
 
-## Stack principal
+Stack: **Angular 20** (standalone), **TypeScript**, **SCSS**.
 
-- Angular 20 (standalone components)
-- TypeScript
-- SCSS
-- RxJS
-- `ngx-mask` para máscaras de entrada
-- Font Awesome
+| | |
+|---|---|
+| **App local** | `http://localhost:4200` |
+| **API esperada** | `http://localhost:3333/api` |
 
-## Requisitos
+---
+
+## Funcionalidades
+
+| Área | Rotas | Descrição |
+|------|-------|-----------|
+| **Institucional** | `/`, `/politica-de-privacidade`, `/condicoes-de-uso` | Home, Social Club e páginas legais |
+| **Loja** | `/loja`, `/livro/:id`, `/mais-vendidos` | Catálogo, detalhe com variantes e avaliações |
+| **Compra** | `/carrinho`, `/checkout` | Carrinho e pagamento via Stripe |
+| **Conta** | `/minha-conta`, `/meus-pedidos`, `/meus-enderecos` | Perfil, histórico e endereços |
+| **Venda** | `/vender-livro` | Oferta de livro com fotos categorizadas e preço formatado |
+| **Reforma** | `/solicitar-reforma` | Solicitação com upload de imagens |
+| **Comunidade** | `/comunidade`, `/publicacao/:id` | Publicações, comentários e reações |
+| **Admin** | `/admin/*` | Pedidos, ofertas, reformas, livros e estoque |
+
+---
+
+## Stack
+
+- Angular 20 · standalone components · Angular Router
+- RxJS · TypeScript 5.9
+- SCSS com mixins compartilhados (`src/app/styles/mixins/`)
+- `ngx-mask` — máscaras de entrada (CPF, telefone, moeda)
+- Font Awesome · Material Symbols (admin)
+- Flatpickr — seleção de datas onde aplicável
+
+---
+
+## Pré-requisitos
 
 - Node.js 20+
 - npm 10+
-- Back-end da LIA rodando localmente em `http://localhost:3333`
+- [Backend LIA](https://github.com/octaviodemos/lia-back-end) rodando em `http://localhost:3333`
 
-## Como executar localmente
+---
 
-1. Instale as dependências:
+## Início rápido
 
 ```bash
 npm install
-```
-
-2. Inicie o projeto em modo desenvolvimento:
-
-```bash
 npm start
 ```
 
-3. Acesse no navegador:
+Abra `http://localhost:4200`.
 
-`http://localhost:4200`
+Para dados de demonstração, rode o seed no backend (`npm run seed`) e faça login com o usuário admin configurado no `.env` do back.
 
-## Scripts disponíveis
+---
 
-- `npm start`: inicia o servidor de desenvolvimento (`ng serve`)
-- `npm run build`: gera build de produção
-- `npm run watch`: build em modo watch com configuração de desenvolvimento
-- `npm test`: executa os testes unitários (Karma)
+## Scripts
 
-## Build
+| Comando | Descrição |
+|---------|-----------|
+| `npm start` | `ng serve` — desenvolvimento |
+| `npm run build` | Build de produção em `dist/lia-frontend` |
+| `npm run watch` | Build contínuo (dev) |
+| `npm test` | Testes unitários (Karma) |
 
-Para gerar build:
+---
 
-```bash
-npm run build
+## Arquitetura
+
+```text
+src/app/
+  pages/           telas (home, loja, admin, checkout…)
+  components/      blocos reutilizáveis (livro-card, avaliação…)
+  services/        HTTP e estado (auth, livros, carrinho…)
+  models/          tipos do domínio
+  utils/           normalização de payloads e URLs de mídia
+  interceptors/    JWT nas requisições autenticadas
+  guards/          proteção de rotas admin
+  layout/          header e footer globais
+  styles/mixins/   formulários e painel admin
 ```
 
-O output é gerado em `dist/lia-frontend`.
+**Convenções:** componentes standalone; tipagem centralizada em `models/`; normalização de livros em `utils/normalize-livro.ts` e `utils/livro-utils.ts`.
 
-## Arquitetura resumida
+---
 
-Estrutura principal em `src/app`:
+## Autenticação
 
-- `pages`: telas da aplicação (home, loja, carrinho, checkout, minha conta, admin etc.)
-- `services`: integração HTTP com API e regras de acesso a dados
-- `models`: contratos e tipagens do domínio
-- `utils`: normalização de payloads e helpers reutilizáveis
-- `interceptors`: interceptação de requisições HTTP (JWT)
-- `guards`: controle de acesso por perfil (ex.: admin)
-- `layout`: elementos globais de interface (ex.: header)
+- Token JWT em `localStorage` (`lia_auth_token`).
+- Interceptor [`src/app/interceptors/auth.ts`](src/app/interceptors/auth.ts) envia `Authorization: Bearer <token>`.
+- Rotas `/admin/*` protegidas por `adminGuard` (perfil `admin` no backend).
 
-## Autenticação e autorização
+---
 
-- O token JWT é armazenado no `localStorage` (`lia_auth_token`).
-- O interceptor de autenticação (`src/app/interceptors/auth.ts`) injeta `Authorization: Bearer <token>` nas requisições autenticadas.
-- Rotas administrativas usam `adminGuard`.
+## Integração com a API
 
-## Rotas e fluxos principais
+A URL base está definida nos services como `http://localhost:3333`. Principais grupos:
 
-- Loja e catálogo: `/loja`, `/livro/:id`
-- Carrinho e checkout: `/carrinho`, `/checkout`
-- Conta do usuário: `/minha-conta`, `/meus-pedidos`, `/meus-enderecos`
-- Oferta de venda: `/vender-livro`
-- Solicitação de reforma: `/solicitar-reforma`
-- Admin: `/admin/*` (livros, estoque, pedidos, ofertas, reformas, avaliações)
+| Service | Endpoints |
+|---------|-----------|
+| `auth.ts` | `/api/auth/*` |
+| `livro.service.ts` | `/api/books` |
+| `carrinho.service.ts` | `/api/cart` |
+| `pedido.service.ts` | `/api/orders` |
+| `pagamento.service.ts` | `/api/payments` |
+| `oferta-venda.service.ts` | `/api/offers` |
+| `reforma.service.ts` | `/api/repairs` |
+| `endereco.service.ts` | `/api/addresses` |
+| `publicacao.service.ts` | `/api/publicacoes` |
+| `ai.service.ts` | `/api/ai` |
+| `recommendations.service.ts` | `/api/recommendations/skoob` |
+| `endereco-utils.service.ts` | `/api/utils/cep`, estados e municípios |
 
-## Integrações de API (resumo)
+URLs de imagens são resolvidas em [`src/app/utils/media-url.ts`](src/app/utils/media-url.ts) (`/uploads/*` no backend).
 
-Endpoints usados no front-end (base local):
+> **Produção:** hoje a API está hardcoded nos services. Para deploy, centralize a origem em um único ponto de configuração.
 
-- Autenticação: `/api/auth/*`
-- Livros: `/api/books`
-- Carrinho/Pedidos/Pagamento: `/api/cart`, `/api/orders`, `/api/payments`
-- Endereços: `/api/addresses`
-- Ofertas: `/api/offers`
-- Reformas: `/api/repairs`
+---
 
-## Oferta de venda de livro
+## Fluxos em destaque
 
-Fluxo na página `/vender-livro`:
+### Cadastro de livro (admin)
 
-- Formulário com:
-  - `titulo_livro` (obrigatório)
-  - `autor_livro` (opcional)
-  - `isbn` (opcional)
-  - `preco_sugerido` (obrigatório)
-  - `descricao_condicao` (opcional)
-- Envio em `multipart/form-data` para `POST /api/offers`
-- Upload de imagens categorizadas:
-  - `imagem_Capa`
-  - `imagem_Contracapa`
-  - `imagem_Lombada`
-  - `imagem_MioloPaginas`
-  - `imagem_DetalhesAvarias`
+Em `/admin/livros`:
 
-## Convenções do projeto
+- Upload da capa dispara `POST /api/ai/identify-cover`.
+- Campos preenchidos automaticamente: título, autor, ISBN, editora, ano e sinopse.
+- Autor é enviado no `POST /api/books` e vinculado no backend.
 
-- Componentes e páginas em padrão standalone.
-- Estilos com SCSS e mixins compartilhados.
-- Normalização de payloads centralizada em `utils`.
-- Tipagem de domínio centralizada em `models`.
+### Oferta de venda
 
-## Troubleshooting rápido
+Em `/vender-livro`:
 
-- Erro CORS/401:
-  - confirme se o back-end está em `http://localhost:3333`
-  - confirme se o usuário está autenticado e token presente no `localStorage`
-- Dados não carregam:
-  - valide a disponibilidade dos endpoints no back-end
-  - verifique o console do navegador e aba Network
+- Formulário com título, autor, ISBN, preço (máscara R$) e descrição da condição.
+- Envio `multipart/form-data` para `POST /api/offers`.
+- Fotos: `imagem_Capa`, `imagem_Contracapa`, `imagem_Lombada`, `imagem_MioloPaginas`, `imagem_DetalhesAvarias`.
+
+### Checkout
+
+1. Carrinho → checkout com endereço de entrega.
+2. Backend cria sessão Stripe.
+3. Retorno em `/pedido/sucesso` ou `/pedido/falha` (aliases em `/payment/*`).
+
+### Painel admin
+
+| Rota | Função |
+|------|--------|
+| `/admin/pedidos` | Gestão de pedidos |
+| `/admin/ofertas` | Triagem de ofertas (+ avaliação IA) |
+| `/admin/reformas` | Triagem de reformas |
+| `/admin/livros` | Cadastro de títulos |
+| `/admin/estoque` | Preço e disponibilidade por exemplar |
+
+---
+
+## Layout global
+
+- Header fixo com altura em `--header-height` (ver `src/styles.scss`).
+- Conteúdo principal compensa o header; footer ancora ao fim da página quando o conteúdo é curto.
+- Estilos de formulário e admin reutilizam mixins em `src/app/styles/mixins/`.
+
+---
+
+## Troubleshooting
+
+| Problema | O que verificar |
+|----------|-----------------|
+| CORS ou 401 | Backend em `:3333`; token em `localStorage`; usuário logado |
+| Dados não carregam | Aba Network; Swagger do back em `/api/docs` |
+| Imagens quebradas | Backend servindo `/uploads/`; `media-url.ts` apontando para a origem correta |
+| Preços estranhos | API retorna decimais como string `"XX.XX"` — ver `normalize-livro.ts` |
+| Erro de parse no `ng serve` | `src/index.html` deve ter `</head>` antes do `<body>` |
+
+---
 
 ## Referências
 
-- [Documentação Angular CLI](https://angular.dev/tools/cli)
+- [Angular](https://angular.dev)
+- [Documentação de integração com a API](https://github.com/octaviodemos/lia-back-end/blob/main/docs/FRONTEND_INTEGRATION.md)
+- [Swagger local](http://localhost:3333/api/docs) (com o backend rodando)
